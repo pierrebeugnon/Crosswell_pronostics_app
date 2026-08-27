@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+.env.local
+.vercel
+*.local
+.DS_Store
+
+# Cache incrémental de TypeScript : régénéré à chaque build, propre à la machine.
+*.tsbuildinfo

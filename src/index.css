@@ -1,0 +1,466 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VERRE DÉPOLI SUR FOND SOMBRE
+
+   L'application est SOMBRE, sans variante claire. Ce n'est pas un raccourci :
+   tout l'effet repose sur des halos colorés flous qui transparaissent au
+   travers de surfaces translucides. Sur un fond clair, ces halos deviennent
+   des taches, les filets lumineux disparaissent, et il ne reste qu'un thème
+   pâle qui ne ressemble plus à rien. Mieux vaut une matière tenue que deux
+   thèmes dont l'un déçoit.
+
+   Trois plans, et rien entre eux :
+     1. le fond — noir chaud, immuable ;
+     2. les halos — quatre taches de couleur très floutées, en position fixe ;
+     3. le verre — les surfaces translucides qui laissent passer les halos.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    --c-canvas: 9 11 13;
+    /* `surface` et `raised` ne servent QUE de repli pour les rares éléments
+       opaques : le verre, lui, se compose en alpha (voir --v-*). */
+    --c-surface: 18 21 24;
+    --c-raised: 27 31 35;
+
+    --c-ink: 242 241 237;
+    --c-muted: 168 166 158;
+    --c-faint: 122 120 113;
+
+    --c-line: 255 255 255;
+    --c-line-strong: 255 255 255;
+
+    /* VERT ÉNERGIQUE — la couleur de marque, et la seule teinte d'accent.
+       `--c-accent-ink` est le texte posé SUR un aplat vert : à 61 220 132, le
+       blanc tombe à 2,1:1 de contraste et devient illisible, d'où un vert
+       presque noir plutôt qu'un blanc réflexe. */
+    --c-accent: 61 220 132;
+    --c-accent-soft: 61 220 132;
+    --c-accent-ink: 4 32 18;
+    /* Les deux bornes du dégradé de marque. Elles étaient recopiées en littéral
+       dans six fichiers (jauge, barres, boutons, lueurs) : changer le vert
+       Crosswell exigeait une chasse au trésor. Désormais tout dégradé d'accent
+       se compose depuis ces deux jetons. */
+    --c-accent-hi: 126 245 176;
+    --c-accent-lo: 29 190 108;
+
+    /* `win` partage volontairement la teinte de l'accent. Avec une marque
+       verte, chercher un SECOND vert pour dire « gagné » produirait deux
+       nuances trop voisines pour se distinguer, et qu'on prendrait pour une
+       erreur. Ce qui sépare les deux emplois n'est donc pas la teinte mais le
+       POIDS : la marque s'exprime en dégradé et en lueur (.card-accent,
+       .btn-accent, pastille pleine), le résultat en simple aplat teinté
+       (.chip-win). « Placé » reste bleu, « battu » rouge : les trois issues
+       demeurent discernables. */
+    --c-win: 61 220 132;
+    --c-win-soft: 61 220 132;
+    --c-loss: 240 121 111;
+    --c-loss-soft: 240 121 111;
+    --c-wait: 168 166 158;
+    --c-wait-soft: 168 166 158;
+    --c-info: 127 167 245;
+    --c-info-soft: 127 167 245;
+
+    --c-shadow: 0 0 0;
+
+    /* Matière du verre — un seul endroit à régler pour toute l'application. */
+    --v-flou: 22px;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    background: rgb(var(--c-canvas));
+    /* iOS peint un voile gris sur tout élément tapé : sur du verre sombre, ce
+       flash système écrase la matière. Nos propres états pressés (active:)
+       prennent le relais, surface par surface. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply text-ink font-sans antialiased;
+    background: rgb(var(--c-canvas));
+    padding-bottom: env(safe-area-inset-bottom);
+    /*
+     * Les sections immersives s'étendent en `w-screen`, qui inclut la largeur
+     * de la barre de défilement : sur Windows, la page gagnait 15 px de
+     * défilement horizontal. `clip` et non `hidden` — hidden ferait du body un
+     * conteneur de défilement et casserait les éléments `sticky` de la page.
+     */
+    overflow-x: clip;
+  }
+
+  /*
+   * LES HALOS. Quatre dégradés radiaux sur un pseudo-élément FIXE, derrière
+   * tout le reste. Fixe et non `absolute` : au défilement, un fond qui suit le
+   * contenu donne l'impression d'un papier peint qui glisse, alors qu'un fond
+   * immobile donne celle d'une vitre posée devant un paysage — c'est cette
+   * seconde impression qu'on cherche.
+   *
+   * Aucun `filter: blur()` : un dégradé radial EST déjà flou, et flouter une
+   * surface plein écran coûte une passe de composition à chaque image.
+   *
+   * INTENSITÉS RELEVÉES ET DÉRIVE BRANCHÉE (audit UX, vague 1). Aux valeurs
+   * d'origine, les halos étaient imperceptibles à l'écran : l'app rendait
+   * « noir uniforme » et le verre, sans lumière à flouter, redevenait du gris.
+   * La dérive anime le transform du pseudo-élément : composité par le GPU,
+   * aucun reflow, et le kill global prefers-reduced-motion ci-dessus la coupe.
+   * Les keyframes vivent ici et non dans tailwind.config : Tailwind ne peut
+   * pas cibler un pseudo-élément de body.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -20vmax;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(38vmax 34vmax at 12% 4%, rgb(var(--c-accent) / 0.3), transparent 62%),
+      radial-gradient(44vmax 40vmax at 88% 0%, rgb(22 92 78 / 0.42), transparent 64%),
+      radial-gradient(50vmax 46vmax at 78% 84%, rgb(26 122 92 / 0.28), transparent 66%),
+      radial-gradient(40vmax 40vmax at 6% 92%, rgb(44 70 108 / 0.3), transparent 64%);
+    animation: derive-halos 26s ease-in-out infinite;
+  }
+
+  @keyframes derive-halos {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(2%, -2%, 0) scale(1.06);
+    }
+  }
+
+  /* Un grain très fin. Sans lui, les grands aplats de dégradé se strient en
+     bandes visibles sur les dalles 8 bits — le défaut classique du fond sombre
+     dégradé. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.3;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+  }
+
+  .num,
+  table,
+  input[type='number'] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* La règle des 16 px sur les champs de saisie vit HORS des couches, tout en
+     bas de ce fichier — voir le commentaire qui l'accompagne. */
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent/70 ring-offset-2;
+    --tw-ring-offset-color: rgb(var(--c-canvas));
+  }
+
+  ::selection {
+    background: rgb(var(--c-accent) / 0.3);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.12);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.2);
+    background-clip: content-box;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRIMITIVES DE VERRE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /*
+   * La surface de base. Le `box-shadow` intérieur en haut est le filet de
+   * lumière qui court sur l'arête supérieure : c'est lui, plus que la bordure,
+   * qui fait lire la carte comme une plaque de verre et non comme un
+   * rectangle gris. La bordure seule donne un aplat ; l'arête donne l'épaisseur.
+   */
+  .glass {
+    background: rgb(255 255 255 / 0.045);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.09),
+      0 1px 2px rgb(0 0 0 / 0.3),
+      0 16px 40px -20px rgb(0 0 0 / 0.7);
+    -webkit-backdrop-filter: blur(var(--v-flou)) saturate(140%);
+    backdrop-filter: blur(var(--v-flou)) saturate(140%);
+  }
+
+  /* Pour les surfaces IMBRIQUÉES : un second `backdrop-filter` à l'intérieur
+     d'un premier ne floute que ce qui est déjà flouté, coûte cher, et vire au
+     gris laiteux. Les enfants n'ont donc que la teinte, pas le flou. */
+  .glass-nest {
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  }
+
+  .glass-strong {
+    background: rgb(255 255 255 / 0.075);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.12),
+      0 20px 50px -24px rgb(0 0 0 / 0.85);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    backdrop-filter: blur(28px) saturate(150%);
+  }
+
+  .card {
+    @apply glass rounded-3xl;
+  }
+  .card-nest {
+    @apply glass-nest rounded-2xl;
+  }
+
+  /* Une carte que le vert traverse — réservée à ce qui porte notre sélection. */
+  .card-accent {
+    @apply rounded-3xl;
+    background:
+      linear-gradient(160deg, rgb(var(--c-accent) / 0.16), rgb(var(--c-accent) / 0.03) 55%),
+      rgb(255 255 255 / 0.04);
+    border: 1px solid rgb(var(--c-accent) / 0.26);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.12),
+      0 20px 50px -26px rgb(var(--c-accent) / 0.35);
+    -webkit-backdrop-filter: blur(var(--v-flou)) saturate(140%);
+    backdrop-filter: blur(var(--v-flou)) saturate(140%);
+  }
+
+  /* 44 px sur téléphone, 40 sur grand écran. Le doigt couvre environ 9 mm ;
+     en dessous de 44 px on vise, et viser sur un quai de gare avant une course
+     est exactement ce qu'on demande à un client de ne pas avoir à faire. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 h-11 sm:h-10
+           text-sm font-medium transition-all select-none
+           active:scale-[0.985]
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-canvas hover:bg-ink/90;
+  }
+  .btn-accent {
+    @apply btn text-accent-ink;
+    background: linear-gradient(150deg, rgb(var(--c-accent-hi)), rgb(var(--c-accent-lo)));
+    box-shadow:
+      0 6px 22px -8px rgb(var(--c-accent) / 0.6),
+      inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+  .btn-accent:hover {
+    filter: brightness(1.06);
+  }
+  .btn-glass {
+    @apply btn glass-nest text-ink hover:bg-white/[0.09];
+  }
+  .btn-ghost {
+    @apply btn text-muted hover:text-ink hover:bg-white/[0.06];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
+           text-xs font-medium whitespace-nowrap border;
+  }
+  .chip-neutral {
+    @apply chip bg-white/[0.06] border-white/10 text-muted;
+  }
+  .chip-accent {
+    @apply chip bg-accent/[0.15] border-accent/25 text-accent;
+  }
+  .chip-win {
+    @apply chip bg-win/[0.15] border-win/25 text-win;
+  }
+  .chip-loss {
+    @apply chip bg-loss/[0.15] border-loss/25 text-loss;
+  }
+  .chip-wait {
+    @apply chip bg-white/[0.05] border-white/10 text-faint;
+  }
+  .chip-info {
+    @apply chip bg-info/[0.15] border-info/25 text-info;
+  }
+
+  .label {
+    @apply text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-faint;
+  }
+
+  .link {
+    @apply text-ink underline decoration-white/25 underline-offset-4
+           hover:decoration-accent transition-colors;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-2xl bg-white/[0.05] border border-white/[0.07];
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.07), transparent);
+  }
+
+  .scroll-x {
+    @apply overflow-x-auto [scrollbar-width:thin];
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /*
+   * Titre de page. Montserrat est une géométrique : ses lettres sont larges et
+   * ses contreformes ouvertes, si bien qu'un titre composé au réglage d'un
+   * serif paraît flotter et manquer d'autorité. On resserre donc l'approche et
+   * on monte en graisse — c'est ce couple-là, et non la taille, qui fait tenir
+   * un titre en géométrique.
+   */
+  .titre-page {
+    @apply font-display font-semibold text-[1.75rem] sm:text-[2.25rem] leading-[1.08]
+           tracking-[-0.025em];
+  }
+
+  /*
+   * Fondu de route — OPACITY SEULE, et SANS fill-mode résiduel.
+   *
+   * La première version posait `animate-fade-up` (transform + fill both) sur
+   * le <main> : `both` laisse l'animation appliquée pour toujours, et une
+   * animation de transform active fait de <main> un stacking context et un
+   * containing block permanents. Conséquence observée : les backdrop-filter
+   * des cartes descendantes échantillonnaient un fond corrompu et peignaient
+   * des nappes vertes fantômes par-dessus la page (bug de composition
+   * Chromium). Ici : ni transform, ni fill — l'animation joue 350 ms puis
+   * disparaît complètement du calcul de style.
+   */
+  .fondu-route {
+    animation: fondu-route 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes fondu-route {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  /*
+   * ZONE TACTILE. Étend la surface cliquable à 44 px sans toucher à la mise en
+   * page ni à la taille visible de l'élément.
+   *
+   * Sert aux cibles qu'on ne PEUT pas grossir : le point d'interrogation d'une
+   * bulle d'aide mesure 14 px et doit rester discret au milieu d'un intitulé,
+   * un lien de bas de page fait la hauteur de sa ligne de texte. Les agrandir
+   * visuellement déséquilibrerait l'écran ; les laisser tels quels les rend
+   * inatteignables au doigt. Le pseudo-élément règle les deux.
+   */
+  .tap {
+    position: relative;
+  }
+  .tap::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Séparateurs internes : une hairline blanche très basse, jamais une bordure
+     opaque, qui trancherait le verre en deux morceaux. */
+  .hairline-y > * + * {
+    @apply border-t border-white/[0.07];
+  }
+
+  .fade-r {
+    mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent);
+  }
+
+  /*
+   * Masque de la courbe du héros : la toile de fond s'éteint vers la gauche —
+   * là où les grands chiffres se posent — et naît en fondu plutôt que sur une
+   * arête. Deux dégradés composés en intersection : sans `mask-composite`, les
+   * couches s'additionnent et le masque ne bloque plus rien.
+   */
+  .masque-courbe {
+    mask-image:
+      linear-gradient(90deg, transparent 0%, #000 38%, #000 100%),
+      linear-gradient(180deg, transparent 0%, #000 42%);
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+
+  /* Halo local, pour poser une lueur derrière un élément précis. */
+  .halo-accent {
+    box-shadow:
+      0 0 0 1px rgb(var(--c-accent) / 0.2),
+      0 0 42px -8px rgb(var(--c-accent) / 0.45);
+  }
+
+  .texte-accent {
+    background: linear-gradient(120deg, rgb(var(--c-accent-hi)), rgb(var(--c-accent-lo)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/*
+ * SEIZE PIXELS DANS LES CHAMPS DE SAISIE, SUR TÉLÉPHONE.
+ *
+ * Safari iOS zoome la page dès qu'un champ porte une police inférieure à 16 px.
+ * On tape trois lettres dans la recherche d'hippodrome, la mise en page part de
+ * travers, et rien ne la remet en place autrement qu'en pinçant l'écran.
+ *
+ * `!important` ET hors de toute couche `@layer`, et les deux sont nécessaires.
+ * Dans `@layer base`, la règle ne s'appliquait jamais. Hors couche mais sans
+ * `!important`, elle perdait encore : un sélecteur d'élément pèse (0,0,1) face
+ * au (0,1,0) d'un `text-sm`, et la classe l'emporte quel que soit l'ordre
+ * d'écriture. C'est précisément le genre de règle qui doit être impossible à
+ * défaire par mégarde — un `text-sm` posé un jour sur un futur champ
+ * réintroduirait un zoom que plus personne ne saurait expliquer.
+ *
+ * Bornée au mobile : sur grand écran le problème n'existe pas, et un champ à
+ * 14 px y est plus juste.
+ */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
