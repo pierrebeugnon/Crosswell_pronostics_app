@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Mon compte mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+input:focus{outline:2px solid #2EE58F;outline-offset:1px}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+
+<header style="flex-shrink: 0; padding: 20px 20px 12px; display: flex; align-items: center; justify-content: space-between;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">Mon compte</h1>
+<button aria-label="Se déconnecter" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 999px; background: transparent; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center;">
+<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" style="fill: none; stroke: #EEF2EF; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;"></path></svg>
+</button>
+</header>
+
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 8px 20px 28px; display: flex; flex-direction: column; gap: 16px;">
+
+<div style="display: flex; align-items: center; gap: 14px; padding-bottom: 8px;">
+<span style="width: 52px; height: 52px; flex-shrink: 0; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800;">CM</span>
+<span style="display: flex; flex-direction: column; gap: 3px;">
+<span style="font-size: 17px; font-weight: 700;">Camille Martin</span>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">Membre depuis mars 2026</span>
+</span>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8C9A92;">Abonnement</span>
+<span style="{{statusStyle}}">{{statusLabel}}</span>
+</div>
+<div style="display: flex; align-items: baseline; justify-content: space-between;">
+<h2 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">Pass mensuel</h2>
+<span class="num" style="font-size: 20px; font-weight: 800;">12,99 € <span style="font-size: 12px; font-weight: 600; color: #8C9A92;">/ mois</span></span>
+</div>
+<span class="num" style="font-size: 13px; font-weight: 500; color: #B7C2BC;">{{billingLine}}</span>
+<button style="height: 44px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; color: #EEF2EF; font-size: 14px; font-weight: 700;">Changer de formule</button>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Informations personnelles</h2>
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="{{f.id}}" style="font-size: 12px; font-weight: 600; color: #B7C2BC;">{{f.label}}</label>
+<input id="{{f.id}}" type="{{f.type}}" autocomplete="{{f.auto}}" value="{{f.value}}" onChange="{{f.change}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500;">
+</div>
+</sc-for>
+<button onClick="{{save}}" style="height: 48px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 15px; font-weight: 700;">Enregistrer</button>
+<sc-if value="{{saved}}" hint-placeholder-val="{{ false }}">
+<span style="align-self: center; font-size: 13px; font-weight: 600; color: #2EE58F;">Modifications enregistrées</span>
+</sc-if>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Moyen de paiement</h2>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<span style="display: flex; align-items: center; gap: 12px;">
+<svg width="30" height="22" viewBox="0 0 26 18" aria-hidden="true"><rect x="1" y="1" width="24" height="16" rx="3" style="fill: none; stroke: #B7C2BC; stroke-width: 1.6;"></rect><path d="M1 6h24M5 12h6" style="fill: none; stroke: #B7C2BC; stroke-width: 1.6; stroke-linecap: round;"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 2px;">
+<span class="num" style="font-size: 14px; font-weight: 700;">Carte •••• 4242</span>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Expire 08/28</span>
+</span>
+</span>
+<button style="height: 44px; padding: 0 16px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; color: #EEF2EF; font-size: 13px; font-weight: 700;">Modifier</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<h2 style="margin: 0 0 8px; font-size: 17px; font-weight: 700;">Factures</h2>
+<sc-for list="{{invoices}}" as="i" hint-placeholder-count="4">
+<div class="num" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #1A201D;">
+<span style="display: flex; flex-direction: column; gap: 3px;">
+<span style="font-size: 14px; font-weight: 700;">{{i.date}}</span>
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{i.num}} · {{i.status}}</span>
+</span>
+<span style="display: flex; align-items: center; gap: 12px;">
+<span style="font-size: 14px; font-weight: 700;">{{i.amount}}</span>
+<button aria-label="{{i.dl}}" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 12px; background: transparent; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center;">
+<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" style="fill: none; stroke: #EEF2EF; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;"></path></svg>
+</button>
+</span>
+</div>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 4px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<h2 style="margin: 0 0 8px; font-size: 17px; font-weight: 700;">Notifications</h2>
+<sc-for list="{{notifs}}" as="n" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #1A201D;">
+<span style="display: flex; flex-direction: column; gap: 3px;">
+<span style="font-size: 14px; font-weight: 700;">{{n.title}}</span>
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92; line-height: 1.4;">{{n.desc}}</span>
+</span>
+<button onClick="{{n.toggle}}" aria-pressed="{{n.pressed}}" aria-label="{{n.title}}" style="{{n.trackStyle}}"><span style="{{n.knobStyle}}"></span></button>
+</div>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 20px; background: #0F1311; border: 1px solid #3A2522;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Résilier l’abonnement</h2>
+<sc-if value="{{isIdle}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 13px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">Sans engagement. Vous gardez l’accès jusqu’au 18 octobre 2026.</span>
+<button onClick="{{askCancel}}" style="height: 48px; border-radius: 999px; background: transparent; border: 1px solid rgba(255,120,110,0.5); color: #FF8A80; font-size: 14px; font-weight: 700;">Résilier l’abonnement</button>
+</sc-if>
+<sc-if value="{{isConfirm}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 13px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">À partir du 18 octobre 2026, vous n’aurez plus accès aux arrivées prédites, aux pourcentages ni aux alertes Value.</span>
+<button onClick="{{confirmCancel}}" style="height: 48px; border-radius: 999px; background: transparent; border: 1px solid rgba(255,120,110,0.6); color: #FF8A80; font-size: 14px; font-weight: 700;">Confirmer la résiliation</button>
+<button onClick="{{keep}}" style="height: 48px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 14px; font-weight: 700;">Garder mon abonnement</button>
+</sc-if>
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 13px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">Abonnement résilié. Vous gardez l’accès jusqu’au 18 octobre 2026.</span>
+<button onClick="{{reactivate}}" style="height: 48px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 14px; font-weight: 700;">Réactiver l’abonnement</button>
+</sc-if>
+<button style="align-self: center; height: 44px; background: transparent; border: none; color: #FF8A80; font-size: 13px; font-weight: 700; text-decoration: underline;">Supprimer mon compte</button>
+</section>
+
+</main>
+
+<nav aria-label="Navigation principale" style="flex-shrink: 0; height: 68px; box-sizing: border-box; border-top: 1px solid #1C2320; background: #0A0C0B; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));">
+<a href="HomeMobile.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8C9A92; font-size: 11px; font-weight: 600;">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" style="fill: none; stroke: #8C9A92; stroke-width: 1.9; stroke-linejoin: round;"></path></svg>
+Accueil</a>
+<a href="Mobile.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8C9A92; font-size: 11px; font-weight: 600;">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" style="fill: none; stroke: #8C9A92; stroke-width: 2; stroke-linecap: round;"></path></svg>
+Courses</a>
+<a href="FollowsMobile.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8C9A92; font-size: 11px; font-weight: 600;">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" style="fill: none; stroke: #8C9A92; stroke-width: 1.9; stroke-linejoin: round;"></path></svg>
+Suivis</a>
+<a href="ResultsMobile.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8C9A92; font-size: 11px; font-weight: 600;">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-8" style="fill: none; stroke: #8C9A92; stroke-width: 2.2; stroke-linecap: round;"></path></svg>
+Résultats</a>
+<a href="AccountMobile.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #2EE58F; font-size: 11px; font-weight: 700;">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" style="fill: none; stroke: #2EE58F; stroke-width: 1.9;"></circle><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" style="fill: none; stroke: #2EE58F; stroke-width: 1.9; stroke-linecap: round;"></path></svg>
+Compte</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  acct() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const defs = [
+      ['prenom', 'Prénom', 'Camille', 'text', 'given-name'],
+      ['nom', 'Nom', 'Martin', 'text', 'family-name'],
+      ['email', 'Adresse e-mail', 'camille.martin@exemple.fr', 'email', 'email'],
+      ['tel', 'Téléphone', '+33 6 12 34 56 78', 'tel', 'tel'],
+      ['naissance', 'Date de naissance', '14/03/1991', 'text', 'bday'],
+      ['pays', 'Pays', 'France', 'text', 'country-name']
+    ];
+    const f = st.f || {};
+    const fields = defs.map((d) => ({
+      id: 'f-' + d[0], label: d[1], type: d[3], auto: d[4],
+      value: f[d[0]] != null ? f[d[0]] : d[2],
+      change: (e) => {
+        const v = e.target.value;
+        const cur = (this.state && this.state.f) || {};
+        const next = Object.assign({}, cur); next[d[0]] = v;
+        this.setState({ f: next, saved: false });
+      }
+    }));
+    const n = st.n || {};
+    const notifDefs = [
+      ['depart', 'Alerte avant le départ', 'Un rappel 15 min avant chaque course suivie', true],
+      ['value', 'Opportunités Value', 'Quand le modèle repère un cheval sous-coté', true],
+      ['recap', 'Récapitulatif du soir', 'Les pronostics du lendemain, chaque soir à 20 h', false],
+      ['suivis', 'Engagements de mes suivis', 'Quand un cheval, jockey ou entraîneur suivi est déclaré partant', true],
+      ['cote', 'Baisse de cote', 'Quand la cote d’un cheval suivi baisse fortement', true]
+    ];
+    const notifs = notifDefs.map((d) => {
+      const on = n[d[0]] != null ? n[d[0]] : d[3];
+      return {
+        title: d[1], desc: d[2], pressed: on ? 'true' : 'false',
+        toggle: () => { const cur = Object.assign({}, (this.state && this.state.n) || {}); cur[d[0]] = !on; this.setState({ n: cur }); },
+        trackStyle: 'flex-shrink: 0; width: 48px; height: 28px; box-sizing: border-box; padding: 3px; border-radius: 999px; border: none; display: flex; align-items: center; ' + (on ? 'background: ' + G + '; justify-content: flex-end;' : 'background: #262E2A; justify-content: flex-start;'),
+        knobStyle: 'display: block; width: 22px; height: 22px; border-radius: 999px; ' + (on ? 'background: ' + INK + ';' : 'background: #8C9A92;')
+      };
+    });
+    const cancel = st.cancel || 'idle';
+    const done = cancel === 'done';
+    const invoices = [
+      { date: '18 sept. 2026', num: 'FAC-2026-0918' },
+      { date: '18 août 2026', num: 'FAC-2026-0818' },
+      { date: '18 juil. 2026', num: 'FAC-2026-0718' },
+      { date: '18 juin 2026', num: 'FAC-2026-0618' }
+    ].map((i) => Object.assign(i, { plan: 'Pass mensuel', amount: '12,99 €', status: 'Payée', dl: 'Télécharger la facture ' + i.num }));
+    return {
+      fields: fields,
+      notifs: notifs,
+      invoices: invoices,
+      saved: !!st.saved,
+      save: () => this.setState({ saved: true }),
+      isIdle: cancel === 'idle', isConfirm: cancel === 'confirm', isDone: done,
+      askCancel: () => this.setState({ cancel: 'confirm' }),
+      keep: () => this.setState({ cancel: 'idle' }),
+      confirmCancel: () => this.setState({ cancel: 'done' }),
+      reactivate: () => this.setState({ cancel: 'idle' }),
+      statusLabel: done ? 'Résilié' : 'Actif',
+      statusStyle: 'font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 4px 10px; ' + (done ? 'background: rgba(255,120,110,0.12); color: #FF8A80; border: 1px solid rgba(255,120,110,0.4);' : 'background: rgba(46,229,143,0.12); color: ' + G + '; border: 1px solid rgba(46,229,143,0.4);'),
+      billingLine: done ? 'Accès jusqu’au 18 octobre 2026 · aucun prélèvement à venir' : 'Prochain prélèvement le 18 octobre 2026'
+    };
+  }
+  renderVals() {
+    return this.acct();
+  }
+}
+</script>
+</body>
+</html>

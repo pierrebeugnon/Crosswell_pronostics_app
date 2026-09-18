@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Premiers pas mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,input,select{font-family:inherit}
+button{cursor:pointer;color:#EEF2EF}
+button:focus-visible,a:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+input:focus,select:focus{outline:2px solid #2EE58F;outline-offset:1px}
+input[type=range]{accent-color:#2EE58F}
+input[type=checkbox]{accent-color:#2EE58F}
+.cta:hover{background:#5BF0A8 !important}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+.hscroll{scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+<header style="flex-shrink: 0; height: 64px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 10px;"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="28" height="28" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 19px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<a href="HomeMobile.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #B7C2BC;">Passer</a>
+</header>
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 24px 20px 32px; display: flex; flex-direction: column; align-items: stretch;">
+<div style="width: 100%; display: flex; flex-direction: column; gap: 24px;">
+<sc-if value="{{notFin}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<span class="num" style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8C9A92;">{{stepLabel}}</span>
+<div aria-hidden="true" style="display: flex; gap: 6px;"><sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span style="{{b.style}}"></span></sc-for></div>
+</div>
+</sc-if>
+<sc-if value="{{is1}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;"><h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Quelles courses vous intéressent ?</h1><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Arrivée couvre les courses de galop. Choisissez ce qui vous intéresse : nous le mettrons en avant dans votre programme.</p></div>
+<div role="group" aria-label="Disciplines" style="display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{disc}}" as="d" hint-placeholder-count="4">
+<button onClick="{{d.pick}}" aria-pressed="{{d.pressed}}" style="{{d.style}}">
+<span style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px; background: #151A17; display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="{{d.icon}}" style="fill: none; stroke: #2EE58F; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;"><span style="font-size: 17px; font-weight: 800;">{{d.name}}</span><span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{d.desc}}</span></span>
+<span style="{{d.boxStyle}}"><sc-if value="{{d.on}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #07120C; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;"></path></svg></sc-if></span>
+</button>
+</sc-for>
+</div>
+</sc-if><sc-if value="{{is2}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;"><h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Vos hippodromes</h1><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Leurs courses apparaîtront en premier. Vous pourrez changer ça à tout moment.</p></div>
+<span style="font-size: 13px; font-weight: 700; color: #2EE58F;">{{hipCount}}</span>
+<div role="group" aria-label="Hippodromes" style="display: flex; flex-wrap: wrap; gap: 10px;">
+<sc-for list="{{hips}}" as="h" hint-placeholder-count="14"><button onClick="{{h.pick}}" aria-pressed="{{h.pressed}}" style="{{h.style}}">{{h.name}}</button></sc-for>
+</div>
+</sc-if><sc-if value="{{is3}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;"><h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Suivez vos premiers chevaux</h1><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Vous serez alerté dès qu’ils sont engagés. Suggestions selon vos disciplines.</p></div>
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{sugg}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 14px; min-height: 68px; border-top: 1px solid #1A201D;">
+<sc-if value="{{s.horse}}" hint-placeholder-val="{{ true }}"><span class="num" style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800;">{{s.init}}</span></sc-if>
+<sc-if value="{{s.person}}" hint-placeholder-val="{{ false }}"><span style="flex-shrink: 0; width: 40px; height: 40px; box-sizing: border-box; border-radius: 999px; background: #171D1A; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800;">{{s.init}}</span></sc-if>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 15px; font-weight: 700;">{{s.name}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{s.meta}}</span></span>
+<button onClick="{{s.pick}}" aria-pressed="{{s.pressed}}" aria-label="{{s.aria}}" style="{{s.style}}">{{s.label}}</button>
+</div>
+</sc-for>
+</div>
+</sc-if><sc-if value="{{is4}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;"><h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Restez prévenu</h1><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Choisissez les alertes que vous voulez recevoir. Rien de plus.</p></div>
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{notifs}}" as="x" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; border-top: 1px solid #1A201D;">
+<span style="display: flex; flex-direction: column; gap: 3px;"><span style="font-size: 15px; font-weight: 700;">{{x.title}}</span><span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{x.desc}}</span></span>
+<button onClick="{{x.toggle}}" aria-pressed="{{x.pressed}}" aria-label="{{x.title}}" style="{{x.trackStyle}}"><span style="{{x.knobStyle}}"></span></button>
+</div>
+</sc-for>
+</div>
+</sc-if><sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px;">
+<span style="width: 64px; height: 64px; border-radius: 999px; background: #2EE58F; display: flex; align-items: center; justify-content: center;"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #07120C; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 8px;"><h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Votre app est prête</h1><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Voici vos réglages. Vous pourrez tout modifier depuis Mon compte.</p></div>
+<dl style="margin: 0; display: flex; flex-direction: column; border-top: 1px solid #1A201D;">
+<sc-for list="{{summary}}" as="s" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 0; border-bottom: 1px solid #1A201D;"><dt style="font-size: 13px; font-weight: 700; color: #8C9A92;">{{s.k}}</dt><dd style="margin: 0; font-size: 15px; font-weight: 600;">{{s.v}}</dd></div></sc-for>
+</dl>
+<a class="cta" href="HomeMobile.dc.html" style="height: 52px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">Voir les pronostics du jour</a>
+</div>
+</sc-if><sc-if value="{{notFin}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 12px; padding-top: 8px;">
+<sc-if value="{{hasBack}}" hint-placeholder-val="{{ false }}"><button class="ghost" onClick="{{back}}" style="height: 52px; padding: 0 22px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; font-size: 15px; font-weight: 700;">Retour</button></sc-if>
+<button class="cta" onClick="{{next}}" style="flex-grow: 1; height: 52px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 16px; font-weight: 700;">{{nextLabel}}</button>
+</div>
+</sc-if>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"etape":{"editor":"enum","options":["1","2","3","4","fin"],"default":"2","section":"Démo"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  ob() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const demo = this.props.etape ?? '2';
+    const step = st.step || demo;
+    const DISC = [
+      { k: 'plat', name: 'Plat', desc: 'Chantilly, Longchamp, Deauville, Saint-Cloud…', icon: 'M3 17h18M5 17l3-6 4 2 3-4 4 8' },
+      { k: 'haies', name: 'Obstacle · Haies', desc: 'Auteuil, Compiègne, Enghien…', icon: 'M4 18V9M20 18V9M4 12h16M4 15h16' },
+      { k: 'steeple', name: 'Obstacle · Steeple-chase', desc: 'Auteuil, Pau, Compiègne…', icon: 'M4 18V8M20 18V8M4 11h16M4 14h16M8 8V5M16 8V5' }
+    ];
+    const HIPPOS = ['Chantilly', 'Longchamp', 'Deauville', 'Saint-Cloud', 'Auteuil', 'Compiègne', 'Enghien', 'Clairefontaine', 'Fontainebleau', 'Cagnes-sur-Mer', 'Lyon-Parilly', 'Marseille-Borély', 'Vichy', 'Pau'];
+    const SUGG = [
+      { n: 'Sirocco Blue', meta: '4 ans · Plat · engagé demain à Longchamp', d: 'plat', init: '7', horse: true },
+      { n: 'Majestic Pearl', meta: '3 ans · Plat · 2e à Deauville le 30 août', d: 'plat', init: '9', horse: true },
+      { n: 'Orage Doré', meta: '7 ans · Plat · engagé mardi à Saint-Cloud', d: 'plat', init: '11', horse: true },
+      { n: 'Iron Valley', meta: '6 ans · Haies · 1er à Enghien le 29 août', d: 'haies', init: '4', horse: true },
+      { n: 'Belle de Cordes', meta: '5 ans · Haies · 5e à Auteuil le 6 sept.', d: 'haies', init: '2', horse: true },
+      { n: 'Velours Noir', meta: '8 ans · Steeple-chase · engagé dimanche à Auteuil', d: 'steeple', init: '6', horse: true },
+      { n: 'M. Lefèvre', meta: 'Jockey · plat', d: 'plat', init: 'ML', horse: false },
+      { n: 'C. Duval', meta: 'Jockey · obstacle', d: 'haies', init: 'CD', horse: false },
+      { n: 'F. Dubois', meta: 'Entraîneur · obstacle', d: 'steeple', init: 'FD', horse: false }
+    ];
+    const disc = st.disc || (demo === '1' ? [] : ['plat', 'haies']);
+    const hip = st.hip || (demo === '1' || demo === '2' ? [] : ['Chantilly', 'Auteuil']);
+    const fol = st.fol || [];
+    const flip = (list, v) => list.indexOf(v) >= 0 ? list.filter((x) => x !== v) : list.concat([v]);
+    const selCard = (on) => 'width: 100%; display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 16px; text-align: left; background: ' + (on ? 'rgba(46,229,143,0.08)' : '#0F1311') + '; border: 2px solid ' + (on ? G : '#1F2622') + ';';
+    const chip = (on) => 'height: 44px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; ' + (on ? 'background: ' + G + '; color: ' + INK + '; border: 1px solid ' + G + ';' : 'background: transparent; color: #EEF2EF; border: 1px solid #2A332E;');
+    const small = (on) => 'flex-shrink: 0; height: 40px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; ' + (on ? 'background: rgba(46,229,143,0.12); color: ' + G + '; border: 1px solid rgba(46,229,143,0.5);' : 'background: transparent; color: #EEF2EF; border: 1px solid #2A332E;');
+    const n = st.n || { suivis: true, value: true, recap: false, depart: false };
+    const NOTIF = [['suivis', 'Engagements de mes suivis', 'Dès qu’un cheval ou une personne suivie est déclaré partant'], ['value', 'Opportunités Value', 'Quand le modèle repère un cheval sous-coté dans vos disciplines'], ['recap', 'Récapitulatif du soir', 'Les pronostics du lendemain, chaque soir à 20 h'], ['depart', 'Rappel avant le départ', '15 min avant les courses de vos hippodromes']];
+    const ORDER = ['1', '2', '3', '4', 'fin'];
+    const idx = ORDER.indexOf(step);
+    const sugg = SUGG.filter((s) => !disc.length || disc.indexOf(s.d) >= 0);
+    return {
+      is1: step === '1', is2: step === '2', is3: step === '3', is4: step === '4', isFin: step === 'fin', notFin: step !== 'fin',
+      stepLabel: 'Étape ' + Math.min(4, idx + 1) + ' sur 4',
+      bars: [0, 1, 2, 3].map((i) => ({ style: 'flex-grow: 1; height: 6px; border-radius: 999px; background: ' + (i <= idx ? G : '#1F2622') + ';' })),
+      next: () => this.setState({ step: ORDER[Math.min(4, idx + 1)] }),
+      back: () => this.setState({ step: ORDER[Math.max(0, idx - 1)] }),
+      hasBack: idx > 0 && step !== 'fin',
+      nextLabel: step === '4' ? 'Terminer' : 'Continuer',
+      disc: DISC.map((d) => { const on = disc.indexOf(d.k) >= 0; return { name: d.name, desc: d.desc, icon: d.icon, on: on, pressed: on ? 'true' : 'false', style: selCard(on), boxStyle: 'flex-shrink: 0; width: 24px; height: 24px; box-sizing: border-box; border-radius: 7px; display: flex; align-items: center; justify-content: center; ' + (on ? 'background: ' + G + ';' : 'border: 1.5px solid #3A4640;'), pick: () => this.setState({ disc: flip(disc, d.k) }) }; }),
+      hips: HIPPOS.map((h) => { const on = hip.indexOf(h) >= 0; return { name: h, on: on, pressed: on ? 'true' : 'false', style: chip(on), pick: () => this.setState({ hip: flip(hip, h) }) }; }),
+      hipCount: hip.length ? hip.length + ' sélectionné' + (hip.length > 1 ? 's' : '') : 'Aucun pour l’instant',
+      sugg: sugg.map((s) => { const on = fol.indexOf(s.n) >= 0; return { name: s.n, meta: s.meta, init: s.init, horse: s.horse, person: !s.horse, on: on, pressed: on ? 'true' : 'false', label: on ? 'Suivi' : 'Suivre', aria: (on ? 'Ne plus suivre ' : 'Suivre ') + s.n, style: small(on), pick: () => this.setState({ fol: flip(fol, s.n) }) }; }),
+      notifs: NOTIF.map((d) => { const on = !!n[d[0]]; return { title: d[1], desc: d[2], pressed: on ? 'true' : 'false', toggle: () => { const c = Object.assign({}, n); c[d[0]] = !on; this.setState({ n: c }); },
+        trackStyle: 'flex-shrink: 0; width: 48px; height: 28px; box-sizing: border-box; padding: 3px; border-radius: 999px; border: none; display: flex; align-items: center; ' + (on ? 'background: ' + G + '; justify-content: flex-end;' : 'background: #262E2A; justify-content: flex-start;'),
+        knobStyle: 'display: block; width: 22px; height: 22px; border-radius: 999px; background: ' + (on ? INK : '#8C9A92') + ';' }; }),
+      summary: [
+        { k: 'Disciplines', v: disc.length ? DISC.filter((d) => disc.indexOf(d.k) >= 0).map((d) => d.name).join(', ') : 'Toutes' },
+        { k: 'Hippodromes', v: hip.length ? hip.join(', ') : 'Tous' },
+        { k: 'Suivis', v: fol.length ? fol.join(', ') : 'Aucun pour l’instant' },
+        { k: 'Alertes', v: NOTIF.filter((d) => n[d[0]]).map((d) => d[1]).join(', ') || 'Aucune' }
+      ]
+    };
+  }
+  renderVals() {
+    return this.ob();
+  }
+}
+</script>
+</body>
+</html>

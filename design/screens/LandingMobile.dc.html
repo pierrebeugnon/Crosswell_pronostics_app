@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Accueil public mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,input,select{font-family:inherit}
+button{cursor:pointer;color:#EEF2EF}
+button:focus-visible,a:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+input:focus,select:focus{outline:2px solid #2EE58F;outline-offset:1px}
+input[type=range]{accent-color:#2EE58F}
+input[type=checkbox]{accent-color:#2EE58F}
+.cta:hover{background:#5BF0A8 !important}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+.hscroll{scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 6560px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+<header style="flex-shrink: 0; height: 64px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 10px;"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="28" height="28" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 19px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<div style="display: flex; align-items: center; gap: 8px;">
+<span aria-label="Réservé aux plus de 18 ans" style="height: 28px; padding: 0 8px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; font-size: 11px; font-weight: 800; color: #B7C2BC;">18+</span>
+<a href="LoginMobile.dc.html" style="height: 44px; padding: 0 14px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; font-size: 13px; font-weight: 700;">Connexion</a>
+</div>
+</header>
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;">
+<section style="display: flex; flex-direction: column; gap: 32px; padding: 36px 20px 8px;">
+<div style="display: flex; flex-direction: column; gap: 24px;">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2EE58F;">Pronostics hippiques · modèle statistique</span>
+<h1 style="margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; text-wrap: balance;">Chaque course, l’arrivée la plus probable.</h1>
+<p style="margin: 0; max-width: 540px; font-size: 16px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Arrivée analyse tous les partants et estime les chances de chacun, en pourcentage. Vous voyez clairement qui le modèle attend devant, et pourquoi.</p>
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<a class="cta" href="SignupMobile.dc.html" style="height: 54px; padding: 0 28px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">Essayer gratuitement</a>
+<a class="ghost" href="HowMobile.dc.html" style="height: 54px; padding: 0 28px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">Comment ça marche</a>
+</div>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">1 pronostic offert chaque jour · sans carte bancaire · réservé aux 18 ans et plus</span>
+</div>
+<figure aria-label="Exemple de pronostic" style="margin: 0; display: flex; flex-direction: column; gap: 18px; padding: 20px; border-radius: 24px; background: #0F1311; border: 1px solid #1F2622; box-shadow: 0 30px 80px rgba(0,0,0,0.45);">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span class="num" style="font-size: 12px; font-weight: 600; color: #8C9A92;"><span style="color: #2EE58F;">R1 C3</span> · Compiègne · 15:15</span>
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8C9A92;">Exemple</span>
+</div>
+<span style="font-size: 20px; font-weight: 800; letter-spacing: -0.02em;">Prix de Morlaix</span>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Arrivée prédite</span>
+<div style="display: flex; gap: 8px;"><span class="num" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; background: #2EE58F; color: #07120C;">7</span><span class="num" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;">3</span><span class="num" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;">11</span><span class="num" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;">5</span><span class="num" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;">9</span></div>
+</div>
+<div><div style="display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 60px 40px; align-items: center; gap: 10px; height: 48px; border-top: 1px solid #161C19;">
+<span class="num" style="font-size: 13px; font-weight: 800; color: #2EE58F;">1</span>
+<span class="num" style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; background: #151A17; border: 1px solid #242C28; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">7</span>
+<span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Iron Valley</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="flex-grow: 1; height: 6px; border-radius: 999px; background: #161C19; overflow: hidden;"><span style="display: block; height: 100%; width: 100%; border-radius: 999px; background: #2EE58F;"></span></span><span class="num" style="font-size: 13px; font-weight: 700;">34%</span></span>
+<span class="num" style="text-align: right; font-size: 13px; font-weight: 700; color: #B7C2BC;">3,5</span>
+</div><div style="display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 60px 40px; align-items: center; gap: 10px; height: 48px; border-top: 1px solid #161C19;">
+<span class="num" style="font-size: 13px; font-weight: 800; color: #2EE58F;">2</span>
+<span class="num" style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; background: #151A17; border: 1px solid #242C28; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">3</span>
+<span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Belle de Cordes</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="flex-grow: 1; height: 6px; border-radius: 999px; background: #161C19; overflow: hidden;"><span style="display: block; height: 100%; width: 56%; border-radius: 999px; background: #2EE58F;"></span></span><span class="num" style="font-size: 13px; font-weight: 700;">19%</span></span>
+<span class="num" style="text-align: right; font-size: 13px; font-weight: 700; color: #B7C2BC;">6</span>
+</div><div style="display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 60px 40px; align-items: center; gap: 10px; height: 48px; border-top: 1px solid #161C19;">
+<span class="num" style="font-size: 13px; font-weight: 800; color: #2EE58F;">3</span>
+<span class="num" style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; background: #151A17; border: 1px solid #242C28; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">11</span>
+<span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Orage Doré</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="flex-grow: 1; height: 6px; border-radius: 999px; background: #161C19; overflow: hidden;"><span style="display: block; height: 100%; width: 35%; border-radius: 999px; background: #2EE58F;"></span></span><span class="num" style="font-size: 13px; font-weight: 700;">12%</span></span>
+<span class="num" style="text-align: right; font-size: 13px; font-weight: 700; color: #B7C2BC;">9</span>
+</div><div style="display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 60px 40px; align-items: center; gap: 10px; height: 48px; border-top: 1px solid #161C19;">
+<span class="num" style="font-size: 13px; font-weight: 800; color: #6F7C75;">4</span>
+<span class="num" style="width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; background: #151A17; border: 1px solid #242C28; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">5</span>
+<span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sirocco Blue</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="flex-grow: 1; height: 6px; border-radius: 999px; background: #161C19; overflow: hidden;"><span style="display: block; height: 100%; width: 26%; border-radius: 999px; background: #2C6A4D;"></span></span><span class="num" style="font-size: 13px; font-weight: 700;">9%</span></span>
+<span class="num" style="text-align: right; font-size: 13px; font-weight: 700; color: #B7C2BC;">14</span>
+</div></div>
+<figcaption style="font-size: 12px; font-weight: 500; color: #8C9A92;">Chevaux et chiffres fictifs, pour illustration.</figcaption>
+</figure>
+</section><section aria-labelledby="t-feat" style="display: flex; flex-direction: column; gap: 28px; padding: 56px 20px 0;">
+<h2 id="t-feat" style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em;">Tout ce qu’il faut pour lire une course</h2>
+<div style="display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 14px;"><div style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46,229,143,0.12); display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-8" style="fill: none; stroke: #2EE58F; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">L’arrivée la plus probable</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Pour chaque course du jour et du lendemain, l’ordre d’arrivée que le modèle juge le plus probable.</p>
+</div><div style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46,229,143,0.12); display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z M14 3.3A9 9 0 0 1 20.7 10H14z" style="fill: none; stroke: #2EE58F; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Des chances en pourcentage</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Chaque partant a son pourcentage de victoire et de place. Vous voyez qui est attendu devant, et avec quel écart.</p>
+</div><div style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46,229,143,0.12); display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8M15 8h5v5" style="fill: none; stroke: #2EE58F; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Cotes et Value</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">La cote en direct, son évolution depuis le matin, et les chevaux que le modèle voit mieux que le marché.</p>
+</div><div style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46,229,143,0.12); display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" style="fill: none; stroke: #2EE58F; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Fiches, suivis, comparateur</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">La fiche de chaque cheval, les facteurs du pronostic, et des alertes quand vos chevaux sont engagés.</p>
+</div></div>
+</section><section aria-labelledby="t-how" style="display: flex; flex-direction: column; gap: 28px; padding: 56px 20px 0;">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<h2 id="t-how" style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em;">Comment ça marche</h2>
+<a href="HowMobile.dc.html" style="font-size: 15px; font-weight: 700; color: #2EE58F;">Tout comprendre sur la méthode</a>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 14px;"><li style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; border: 1px solid #1F2622;">
+<span class="num" style="width: 40px; height: 40px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800;">1</span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Le modèle analyse chaque partant</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Forme récente, distance, terrain, jockey, entraîneur, hippodrome, cotes du marché…</p></li><li style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; border: 1px solid #1F2622;">
+<span class="num" style="width: 40px; height: 40px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800;">2</span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Il estime les chances de chacun</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Le résultat : une probabilité de victoire par cheval. Elles s’additionnent à 100 %.</p></li><li style="display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; border: 1px solid #1F2622;">
+<span class="num" style="width: 40px; height: 40px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800;">3</span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Vous lisez et décidez</h3>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Arrivée prédite, niveau de confiance, Value : tout est expliqué, rien n’est promis.</p></li></ol>
+</section><section style="margin: 56px 20px 0; display: flex; flex-direction: column; gap: 20px; padding: 28px 22px; border-radius: 28px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 700px;">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2EE58F;">Transparence</span>
+<h2 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15;">Tous nos pronostics sont vérifiés après l’arrivée officielle, et publiés. Les bons comme les mauvais.</h2>
+<p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;">Filtrez par type de course, distance, hippodrome ou période, et jugez par vous-même.</p>
+</div>
+<a class="ghost" href="ResultsMobile.dc.html" style="flex-shrink: 0; height: 52px; padding: 0 26px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;">Voir nos résultats</a>
+</section><section id="tarifs" aria-labelledby="t-price" style="display: flex; flex-direction: column; gap: 32px; padding: 56px 20px 0;">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<h2 id="t-price" style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em;">Tarifs</h2>
+<span style="font-size: 15px; font-weight: 500; color: #B7C2BC;">Une course offerte chaque jour. Un Pass pour tout débloquer, le temps d’une journée, d’un mois ou d’une année.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 22px; padding-top: 8px;"><div style="position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 22px; background: #0F1311; border: 1px solid #1F2622;">
+
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Gratuit</h3>
+<div class="num" style="display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em;">0 €</span><span style="font-size: 14px; font-weight: 600; color: #8C9A92;">pour toujours</span></div>
+<span class="num" style="margin-top: -12px; min-height: 20px; font-size: 13px; font-weight: 600; color: #2EE58F;">Sans carte bancaire</span>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;"><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>1 course offerte chaque jour, pronostic complet</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Programme du jour et du lendemain</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Nos résultats, en toute transparence</li></ul>
+<a class="ghost" href="SignupMobile.dc.html" style="height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; background: transparent; border: 1px solid #2A332E; color: #EEF2EF;">Commencer gratuitement</a>
+</div><div style="position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 22px; background: #0F1311; border: 1px solid #1F2622;">
+
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Pass 1 jour</h3>
+<div class="num" style="display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em;">4,99 €</span><span style="font-size: 14px; font-weight: 600; color: #8C9A92;">/ 24&nbsp;h</span></div>
+<span class="num" style="margin-top: -12px; min-height: 20px; font-size: 13px; font-weight: 600; color: #2EE58F;">Sans abonnement</span>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;"><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Toutes les courses pendant 24&nbsp;h</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Pourcentages, cotes et Value en direct</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Paiement unique, rien à résilier</li></ul>
+<a class="ghost" href="SignupMobilePlans.dc.html" style="height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; background: transparent; border: 1px solid #2A332E; color: #EEF2EF;">Prendre le Pass 1 jour</a>
+</div><div style="position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 22px; background: #0F1311; border: 1px solid #2EE58F;">
+<span style="position: absolute; top: -13px; left: 28px; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #07120C; background: #2EE58F; border-radius: 999px; padding: 5px 10px;">Recommandé</span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Pass mensuel</h3>
+<div class="num" style="display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em;">12,99 €</span><span style="font-size: 14px; font-weight: 600; color: #8C9A92;">/ mois</span></div>
+<span class="num" style="margin-top: -12px; min-height: 20px; font-size: 13px; font-weight: 600; color: #2EE58F;">Sans engagement</span>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;"><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Tous les pronostics, toutes les courses</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Fiches, comparateur, suivis et alertes</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Résiliable en deux clics, à tout moment</li></ul>
+<a class="cta" href="SignupMobilePlans.dc.html" style="height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; background: #2EE58F; color: #07120C;">Prendre le Pass mensuel</a>
+</div><div style="position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 22px; background: #0F1311; border: 1px solid #1F2622;">
+
+<h3 style="margin: 0; font-size: 18px; font-weight: 700;">Pass annuel</h3>
+<div class="num" style="display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em;">99 €</span><span style="font-size: 14px; font-weight: 600; color: #8C9A92;">/ an</span></div>
+<span class="num" style="margin-top: -12px; min-height: 20px; font-size: 13px; font-weight: 600; color: #2EE58F;">Soit 8,25 € / mois</span>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;"><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Tout le Pass mensuel, toute l’année</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>36 % moins cher que 12 mois au mensuel</li><li style="display: flex; gap: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD;"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #2EE58F; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Rappel par e-mail avant le renouvellement</li></ul>
+<a class="ghost" href="SignupMobilePlans.dc.html" style="height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; background: transparent; border: 1px solid #2A332E; color: #EEF2EF;">Prendre le Pass annuel</a>
+</div></div>
+</section><section style="margin: 40px 20px 0; display: flex; gap: 16px; padding: 22px 24px; border-radius: 18px; border: 1px dashed #2E3833;">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0;"><path d="M12 3l9 16H3zM12 10v4M12 17h.01" style="fill: none; stroke: #EEF2EF; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;"></path></svg>
+<p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: #C9D2CD;"><strong style="color: #EEF2EF;">Un pronostic reste une probabilité.</strong> Aucun modèle ne garantit un gain, et un cheval donné à 34 % perd deux fois sur trois. Si vous pariez, ne misez que ce que vous pouvez vous permettre de perdre.</p>
+</section><section aria-labelledby="t-faq" style="display: flex; flex-direction: column; gap: 20px; padding: 56px 20px 56px;">
+<h2 id="t-faq" style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em;">Questions fréquentes</h2>
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{faq}}" as="f" hint-placeholder-count="5">
+<div style="border-top: 1px solid #1C2320;">
+<h3 style="margin: 0;"><button onClick="{{f.toggle}}" aria-expanded="{{f.expanded}}" aria-controls="{{f.id}}" style="width: 100%; min-height: 64px; padding: 16px 0; background: transparent; border: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; text-align: left; font-size: 15px; font-weight: 700;">{{f.q}}<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0;"><path d="{{f.icon}}" style="fill: none; stroke: #2EE58F; stroke-width: 2.2; stroke-linecap: round;"></path></svg></button></h3>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p id="{{f.id}}" style="margin: 0; padding: 0 0 20px; max-width: 760px; font-size: 14px; font-weight: 500; line-height: 1.65; color: #B7C2BC;">{{f.a}}</p></sc-if>
+</div>
+</sc-for>
+</div>
+</section><footer style="display: flex; flex-direction: column; gap: 28px; padding: 32px 20px 40px; border-top: 1px solid #1C2320;">
+<div style="display: flex; flex-direction: column; gap: 28px;">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 380px;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 10px;"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="28" height="28" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 19px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<span style="font-size: 13px; font-weight: 500; line-height: 1.6; color: #8C9A92;">Arrivée publie des pronostics statistiques. Nous ne prenons aucun pari et ne sommes pas un opérateur de jeux. Service réservé aux personnes majeures.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;"><div style="display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Produit</span><a href="HowMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Comment ça marche</a><a href="ResultsMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Nos résultats</a><a href="LandingMobile.dc.html#tarifs" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Tarifs</a></div><div style="display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Légal</span><a href="LegalMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Conditions générales</a><a href="LegalMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Confidentialité</a><a href="LegalMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Mentions légales</a><a href="LegalMobile.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Jeu responsable</a></div></div>
+</div>
+<div role="note" aria-label="Mise en garde" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="flex-shrink: 0; height: 24px; padding: 0 7px; box-sizing: border-box; border-radius: 6px; background: #EEF2EF; color: #07120C; display: flex; align-items: center; font-size: 11px; font-weight: 800;">18+</span>
+<span style="font-size: 11px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">Les jeux d’argent et de hasard peuvent être dangereux : pertes d’argent, conflits familiaux, addiction… Retrouvez nos conseils sur joueurs-info-service.fr (09 74 75 13 13 – appel non surtaxé). <a href="LegalMobile.dc.html" style="color: #2EE58F; font-weight: 700;">Jeu responsable</a></span>
+</div>
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">© 2026 [RAISON SOCIALE] · Tous droits réservés</span>
+</footer>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":6560}}'>
+class Component extends DCLogic {
+  faqData() {
+    return [
+      ['Est-ce que vous prenez des paris ?', 'Non. Arrivée publie des pronostics et des probabilités. Nous ne prenons aucun pari et ne sommes pas un opérateur de jeux : si vous pariez, c’est auprès d’un opérateur agréé, sous votre seule responsabilité.'],
+      ['Un pourcentage élevé veut-il dire que le cheval va gagner ?', 'Non. 34 % signifie que sur 100 courses identiques, ce cheval en gagnerait environ 34, et en perdrait donc 66. Un pronostic reste une probabilité, jamais une certitude.'],
+      ['D’où viennent les données ?', '[À COMPLÉTER : sources des données — programmes officiels, performances passées, cotes du marché, fréquence de mise à jour.]'],
+      ['Quelle différence entre les Pass ?', 'Les trois Pass débloquent exactement les mêmes pronostics. Le Pass 1 jour (4,99 €) est un paiement unique qui donne accès à tout pendant 24 h, sans renouvellement. Le Pass mensuel (12,99 €) et le Pass annuel (99 €, soit 8,25 € par mois) se renouvellent automatiquement.'],
+      ['Puis-je résilier à tout moment ?', 'Oui. Les Pass mensuel et annuel sont sans engagement et se résilient en deux clics depuis Mon compte. Vous gardez l’accès jusqu’à la fin de la période payée. Le Pass 1 jour, lui, s’arrête tout seul au bout de 24 h.'],
+      ['Qu’est-ce que la formule gratuite ?', 'Un pronostic complet offert chaque jour, sans carte bancaire. Les autres courses restent visibles, mais leur pronostic détaillé est réservé aux détenteurs d’un Pass.']
+    ];
+  }
+  faq() {
+    const st = this.state || {};
+    const open = st.faq === undefined ? 0 : st.faq;
+    return this.faqData().map((f, i) => ({
+      q: f[0], a: f[1], open: open === i, expanded: open === i ? 'true' : 'false', id: 'faq-' + i,
+      toggle: () => this.setState({ faq: open === i ? -1 : i }),
+      icon: open === i ? 'M6 12h12' : 'M12 6v12M6 12h12'
+    }));
+  }
+  renderVals() {
+    return { faq: this.faq() };
+  }
+}
+</script>
+</body>
+</html>

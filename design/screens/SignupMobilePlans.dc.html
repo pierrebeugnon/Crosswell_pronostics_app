@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Inscription mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,input,select{font-family:inherit}
+button{cursor:pointer;color:#EEF2EF}
+button:focus-visible,a:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+input:focus,select:focus{outline:2px solid #2EE58F;outline-offset:1px}
+input[type=range]{accent-color:#2EE58F}
+input[type=checkbox]{accent-color:#2EE58F}
+.cta:hover{background:#5BF0A8 !important}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+.hscroll{scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+<header style="flex-shrink: 0; height: 64px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 10px;"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="28" height="28" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 19px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;"><a href="LoginMobile.dc.html" style="color: #2EE58F; font-weight: 700;">Se connecter</a></span>
+</header>
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 24px 20px 32px; display: flex; flex-direction: column; align-items: stretch; gap: 32px;">
+<ol aria-label="Étapes de l’inscription" style="margin: 0; padding: 0; list-style: none; display: flex; align-items: center; gap: 10px;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<li aria-current="{{s.current}}" style="display: flex; align-items: center; gap: 8px;">
+<span class="num" style="{{s.dotStyle}}"><sc-if value="{{s.done}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #07120C; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;"></path></svg></sc-if><sc-if value="{{s.todo}}" hint-placeholder-val="{{ true }}">{{s.n}}</sc-if></span>
+<span style="{{s.labelStyle}}">{{s.label}}</span>
+</li>
+</sc-for>
+</ol><sc-if value="{{isCompte}}" hint-placeholder-val="{{ false }}">
+<form style="width: 100%; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">Créer votre compte</h1>
+<span style="font-size: 14px; font-weight: 500; color: #B7C2BC;">Gratuit, sans carte bancaire. Vous choisirez votre formule ensuite.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-prenom" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Prénom</label>
+<input id="su-prenom" type="text" autocomplete="given-name" placeholder="" value="{{f.prenom}}" onChange="{{on.prenom}}" aria-invalid="{{inv.prenom}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.prenom}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.prenom}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-email" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Adresse e-mail</label>
+<input id="su-email" type="email" autocomplete="email" placeholder="" value="{{f.email}}" onChange="{{on.email}}" aria-invalid="{{inv.email}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.email}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.email}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-mdp" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Mot de passe</label>
+<input id="su-mdp" type="password" autocomplete="new-password" placeholder="" value="{{f.mdp}}" onChange="{{on.mdp}}" aria-invalid="{{inv.mdp}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">8 caractères minimum</span>
+<sc-if value="{{has.mdp}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.mdp}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-naissance" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Date de naissance</label>
+<input id="su-naissance" type="text" autocomplete="bday" placeholder="JJ/MM/AAAA" value="{{f.naissance}}" onChange="{{on.naissance}}" aria-invalid="{{inv.naissance}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">Nécessaire pour vérifier que vous êtes majeur.</span>
+<sc-if value="{{has.naissance}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.naissance}}</span></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 14px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label style="display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD; cursor: pointer;">
+<input type="checkbox" checked="{{f.age18}}" onChange="{{on.age18}}" aria-invalid="{{inv.age18}}" style="width: 20px; height: 20px; margin: 1px 0 0; flex-shrink: 0;">
+<span>Je certifie avoir <strong style="color: #EEF2EF;">18 ans ou plus</strong>. Arrivée peut me demander un justificatif.</span>
+</label>
+<sc-if value="{{has.age18}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80; padding-left: 32px;">{{err.age18}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 6px;">
+<label style="display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD; cursor: pointer;">
+<input type="checkbox" checked="{{f.cgu}}" onChange="{{on.cgu}}" aria-invalid="{{inv.cgu}}" style="width: 20px; height: 20px; margin: 1px 0 0; flex-shrink: 0;">
+<span>J’accepte les <a href="LegalMobile.dc.html" style="color: #2EE58F; font-weight: 700;">conditions générales</a> et la <a href="LegalMobile.dc.html" style="color: #2EE58F; font-weight: 700;">politique de confidentialité</a>.</span>
+</label>
+<sc-if value="{{has.cgu}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80; padding-left: 32px;">{{err.cgu}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 6px;">
+<label style="display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 500; line-height: 1.5; color: #C9D2CD; cursor: pointer;">
+<input type="checkbox" checked="{{f.news}}" onChange="{{on.news}}" aria-invalid="{{inv.news}}" style="width: 20px; height: 20px; margin: 1px 0 0; flex-shrink: 0;">
+<span>Recevoir les pronostics du lendemain par e-mail (facultatif).</span>
+</label>
+<sc-if value="{{has.news}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80; padding-left: 32px;">{{err.news}}</span></sc-if>
+</div>
+</div>
+<button type="button" onClick="{{goAccount}}" class="cta" style="height: 52px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 16px; font-weight: 700; width: 100%;">Continuer</button>
+</form>
+</sc-if><sc-if value="{{isFormule}}" hint-placeholder-val="{{ false }}">
+<div style="width: 100%; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">Choisissez votre formule</h1>
+<span style="font-size: 14px; font-weight: 500; color: #B7C2BC;">Une course offerte chaque jour, ou un Pass pour tout débloquer. Les Pass mensuel et annuel sont sans engagement.</span>
+</div>
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 12px;">
+<legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Formule</legend>
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="4">
+<label for="{{p.id}}" style="{{p.style}}">
+<input id="{{p.id}}" type="radio" name="plan" checked="{{p.checked}}" onChange="{{p.pick}}" style="width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: #2EE58F;">
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><span style="font-size: 17px; font-weight: 800;">{{p.name}}</span><sc-if value="{{p.hasTag}}" hint-placeholder-val="{{ false }}"><span style="font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #07120C; background: #2EE58F; border-radius: 999px; padding: 3px 8px;">{{p.tag}}</span></sc-if></span>
+<span style="font-size: 13px; font-weight: 500; line-height: 1.5; color: #B7C2BC;">{{p.desc}}</span>
+</span>
+<span class="num" style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end;"><span style="font-size: 17px; font-weight: 800;">{{p.price}}</span><span style="font-size: 12px; font-weight: 600; color: #8C9A92;">{{p.per}}</span></span>
+</label>
+</sc-for>
+</fieldset>
+<div style="display: flex; gap: 12px;">
+<button type="button" class="ghost" onClick="{{back}}" style="height: 52px; padding: 0 22px; box-sizing: border-box; border-radius: 999px; background: transparent; border: 1px solid #2A332E; font-size: 15px; font-weight: 700;">Retour</button>
+<button type="button" class="cta" onClick="{{goPlan}}" style="height: 52px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 16px; font-weight: 700; width: 100%; flex-grow: 1; width: auto;"><sc-if value="{{isFree}}" hint-placeholder-val="{{ false }}">Continuer gratuitement</sc-if><sc-if value="{{isPaid}}" hint-placeholder-val="{{ true }}">Continuer</sc-if></button>
+</div>
+</div>
+</sc-if><sc-if value="{{isPaiement}}" hint-placeholder-val="{{ false }}">
+<div style="width: 100%; display: flex; flex-direction: column; gap: 24px;">
+<form style="display: flex; flex-direction: column; gap: 18px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">Paiement</h1>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #B7C2BC;"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3" style="fill: none; stroke: #2EE58F; stroke-width: 2; stroke-linejoin: round;"></path></svg>Paiement sécurisé par [PRESTATAIRE DE PAIEMENT]</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-titulaire" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Nom sur la carte</label>
+<input id="su-titulaire" type="text" autocomplete="cc-name" placeholder="" value="{{f.titulaire}}" onChange="{{on.titulaire}}" aria-invalid="{{inv.titulaire}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.titulaire}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.titulaire}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-numero" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Numéro de carte</label>
+<input id="su-numero" type="text" autocomplete="cc-number" placeholder="1234 5678 9012 3456" value="{{f.numero}}" onChange="{{on.numero}}" aria-invalid="{{inv.numero}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.numero}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.numero}}</span></sc-if>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;"><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-exp" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Expiration</label>
+<input id="su-exp" type="text" autocomplete="cc-exp" placeholder="MM/AA" value="{{f.exp}}" onChange="{{on.exp}}" aria-invalid="{{inv.exp}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.exp}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.exp}}</span></sc-if>
+</div><div style="display: flex; flex-direction: column; gap: 7px;">
+<label for="su-cvc" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">Cryptogramme</label>
+<input id="su-cvc" type="text" autocomplete="cc-csc" placeholder="123" value="{{f.cvc}}" onChange="{{on.cvc}}" aria-invalid="{{inv.cvc}}" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 15px; font-weight: 500; width: 100%;">
+
+<sc-if value="{{has.cvc}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 12px; font-weight: 600; color: #FF8A80;">{{err.cvc}}</span></sc-if>
+</div></div>
+<div style="display: flex; gap: 12px;">
+<button type="button" class="ghost" onClick="{{back}}" style="height: 52px; padding: 0 22px; box-sizing: border-box; border-radius: 999px; background: transparent; border: 1px solid #2A332E; font-size: 15px; font-weight: 700;">Retour</button>
+<button type="button" class="cta" onClick="{{goPay}}" style="height: 52px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 16px; font-weight: 700; width: 100%; flex-grow: 1; width: auto;">{{payLabel}}</button>
+</div>
+</form>
+<aside aria-label="Récapitulatif" style="display: flex; flex-direction: column; gap: 14px; padding: 22px; border-radius: 18px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Récapitulatif</span>
+<span style="font-size: 17px; font-weight: 800;">{{planName}}</span>
+<span class="num" style="font-size: 26px; font-weight: 800;">{{planPrice}}</span>
+<ul style="margin: 0; padding: 14px 0 0; border-top: 1px solid #1A201D; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 500; line-height: 1.5; color: #B7C2BC;">
+<sc-if value="{{isDay}}" hint-placeholder-val="{{ false }}"><li>Paiement unique, aucun renouvellement</li>
+<li>Accès à toutes les courses pendant 24 h dès le paiement</li></sc-if>
+<sc-if value="{{isSub}}" hint-placeholder-val="{{ true }}"><li>Sans engagement, résiliable à tout moment</li>
+<li>{{renewLine}}</li></sc-if>
+<li>Facture disponible dans Mon compte</li>
+</ul>
+</aside>
+</div>
+</sc-if><sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}">
+<div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 18px; text-align: center; padding-top: 24px;">
+<span style="align-self: center; width: 72px; height: 72px; border-radius: 999px; background: #2EE58F; display: flex; align-items: center; justify-content: center;"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill: none; stroke: #07120C; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;"></path></svg></span>
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">{{hello}}</h1>
+<p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6; color: #B7C2BC;"><sc-if value="{{isFree}}" hint-placeholder-val="{{ false }}">Votre course offerte du jour vous attend. Un Pass débloque toutes les autres, dès 4,99 €.</sc-if><sc-if value="{{isPaid}}" hint-placeholder-val="{{ true }}">{{finLine}}</sc-if></p>
+<a class="cta" href="OnboardingMobile.dc.html" style="align-self: stretch; height: 52px; padding: 0 28px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">Personnaliser mon app · 1 min</a>
+<a href="HomeMobile.dc.html" style="align-self: center; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #B7C2BC;">Plus tard, voir les pronostics du jour</a>
+<p style="margin: 8px 0 0; font-size: 13px; font-weight: 500; line-height: 1.6; color: #8C9A92;">Un conseil : si vous pariez, fixez-vous un budget avant de commencer, et tenez-vous-y.</p>
+</div>
+</sc-if>
+<div style="width: 100%;"><div role="note" aria-label="Mise en garde" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="flex-shrink: 0; height: 24px; padding: 0 7px; box-sizing: border-box; border-radius: 6px; background: #EEF2EF; color: #07120C; display: flex; align-items: center; font-size: 11px; font-weight: 800;">18+</span>
+<span style="font-size: 11px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">Les jeux d’argent et de hasard peuvent être dangereux : pertes d’argent, conflits familiaux, addiction… Retrouvez nos conseils sur joueurs-info-service.fr (09 74 75 13 13 – appel non surtaxé). <a href="LegalMobile.dc.html" style="color: #2EE58F; font-weight: 700;">Jeu responsable</a></span>
+</div></div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"etape":{"editor":"enum","options":["compte","formule","paiement","fin"],"default":"formule","section":"Démo"},"formule":{"editor":"enum","options":["gratuit","jour","mensuel","annuel"],"default":"mensuel","section":"Démo"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  su() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const demo = this.props.etape ?? 'formule';
+    const step = st.step || demo;
+    const D = { prenom: 'Camille', email: 'camille.martin@exemple.fr', mdp: 'motdepasse2026', naissance: '14/03/1991', age18: true, cgu: true, news: false, titulaire: 'Camille Martin', numero: '4242 4242 4242 4242', exp: '08/28', cvc: '123' };
+    const blank = demo === 'compte' ? { prenom: '', email: '', mdp: '', naissance: '', age18: false, cgu: false, news: false } : {};
+    const f = Object.assign({}, D, blank, st.f || {});
+    if (demo !== 'paiement' && !(st.f && st.f.titulaire !== undefined)) { f.titulaire = ''; f.numero = ''; f.exp = ''; f.cvc = ''; }
+    const err = st.err || {};
+    const setF = (k, isBox) => (e) => { const cur = Object.assign({}, (this.state && this.state.f) || {}); cur[k] = isBox ? e.target.checked : e.target.value; const er = Object.assign({}, (this.state && this.state.err) || {}); delete er[k]; this.setState({ f: cur, err: er }); };
+    const keys = ['prenom', 'email', 'mdp', 'naissance', 'age18', 'cgu', 'news', 'titulaire', 'numero', 'exp', 'cvc'];
+    const on = {}, has = {}, inv = {};
+    keys.forEach((k) => { on[k] = setF(k, k === 'age18' || k === 'cgu' || k === 'news'); has[k] = !!err[k]; inv[k] = err[k] ? 'true' : 'false'; });
+    const ageOf = (s) => {
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec((s || '').trim());
+      if (!m) return null;
+      const d = +m[1], mo = +m[2], y = +m[3];
+      if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1900) return null;
+      let a = 2026 - y; if (mo > 9 || (mo === 9 && d > 18)) a -= 1;
+      return a;
+    };
+    const plan = st.plan || (this.props.formule ?? 'mensuel');
+    const PLANS = [
+      { k: 'gratuit', name: 'Gratuit', price: '0 €', per: 'pour toujours', desc: '1 course offerte chaque jour', tag: '' },
+      { k: 'jour', name: 'Pass 1 jour', price: '4,99 €', per: '/ 24 h', desc: '24 h d’accès complet · sans abonnement', tag: '' },
+      { k: 'mensuel', name: 'Pass mensuel', price: '12,99 €', per: '/ mois', desc: 'Tout débloqué · sans engagement', tag: 'Recommandé' },
+      { k: 'annuel', name: 'Pass annuel', price: '99 €', per: '/ an', desc: 'Soit 8,25 € / mois · 36 % moins cher', tag: '' }
+    ];
+    const plans = PLANS.map((p) => ({ name: p.name, price: p.price, per: p.per, desc: p.desc, tag: p.tag, hasTag: !!p.tag, id: 'plan-' + p.k, checked: p.k === plan,
+      pick: () => this.setState({ plan: p.k }),
+      style: 'display: flex; align-items: center; gap: 16px; padding: 20px 22px; border-radius: 18px; cursor: pointer; background: #0F1311; ' + (p.k === plan ? 'border: 2px solid ' + G + ';' : 'border: 2px solid #1F2622;') }));
+    const cur = PLANS.filter((p) => p.k === plan)[0];
+    const goAccount = () => {
+      const e = {};
+      if (!f.prenom.trim()) e.prenom = 'Indiquez votre prénom.';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) e.email = 'Adresse e-mail invalide.';
+      if ((f.mdp || '').length < 8) e.mdp = '8 caractères minimum.';
+      const a = ageOf(f.naissance);
+      if (a === null) e.naissance = 'Format attendu : JJ/MM/AAAA.';
+      else if (a < 18) e.naissance = 'Arrivée est réservé aux personnes majeures.';
+      if (!f.age18) e.age18 = 'Cette attestation est obligatoire.';
+      if (!f.cgu) e.cgu = 'Vous devez accepter les conditions pour continuer.';
+      if (Object.keys(e).length) this.setState({ err: e }); else this.setState({ err: {}, step: 'formule', f: f });
+    };
+    const goPlan = () => this.setState({ step: plan === 'gratuit' ? 'fin' : 'paiement' });
+    const goPay = () => {
+      const e = {};
+      if (!f.titulaire.trim()) e.titulaire = 'Indiquez le nom sur la carte.';
+      if (f.numero.replace(/\s/g, '').length < 16) e.numero = 'Numéro de carte incomplet.';
+      if (!/^\d{2}\/\d{2}$/.test(f.exp.trim())) e.exp = 'Format MM/AA.';
+      if (!/^\d{3,4}$/.test(f.cvc.trim())) e.cvc = '3 ou 4 chiffres.';
+      if (Object.keys(e).length) this.setState({ err: e }); else this.setState({ err: {}, step: 'fin' });
+    };
+    const ORDER = ['compte', 'formule', 'paiement'];
+    const si = step === 'fin' ? 3 : ORDER.indexOf(step);
+    const steps = [['Compte', 0], ['Formule', 1], ['Paiement', 2]].map((s) => {
+      const done = s[1] < si, now = s[1] === si;
+      return { label: s[0], n: String(s[1] + 1), done: done, todo: !done, current: now ? 'step' : 'false',
+        dotStyle: 'width: 30px; height: 30px; box-sizing: border-box; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; ' + (done || now ? 'background: ' + G + '; color: ' + INK + ';' : 'border: 1px solid #2A332E; color: #8C9A92;'),
+        labelStyle: 'font-size: 13px; font-weight: 700; color: ' + (done || now ? '#EEF2EF' : '#8C9A92') + ';' };
+    });
+    return {
+      f: f, on: on, has: has, inv: inv, err: err, steps: steps, plans: plans,
+      isCompte: step === 'compte', isFormule: step === 'formule', isPaiement: step === 'paiement', isFin: step === 'fin',
+      goAccount: goAccount, goPlan: goPlan, goPay: goPay,
+      back: () => this.setState({ step: step === 'paiement' ? 'formule' : 'compte', err: {} }),
+      planName: cur.name, planPrice: cur.price + ' ' + cur.per, isFree: plan === 'gratuit', isPaid: plan !== 'gratuit',
+      payLabel: plan === 'jour' ? 'Payer ' + cur.price + ' et débloquer 24 h' : 'Payer ' + cur.price + ' et démarrer',
+      isDay: plan === 'jour', isSub: plan === 'mensuel' || plan === 'annuel',
+      finLine: plan === 'jour' ? 'Votre Pass 1 jour est actif jusqu’à demain, même heure. Toutes les courses sont débloquées.' : 'Votre ' + cur.name + ' est actif. Tous les pronostics sont débloqués.',
+      renewLine: plan === 'annuel' ? 'Renouvellement automatique chaque année, rappel par e-mail 30 jours avant' : 'Renouvellement automatique chaque mois, rappel par e-mail avant chaque échéance',
+      hello: 'Bienvenue, ' + (f.prenom || 'parmi nous') + ' !'
+    };
+  }
+  renderVals() {
+    return this.su();
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Account.dc.html": {
+      "h": 2560,
+      "is_interactive": true,
+      "title": "Compte — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 2720
+    },
+    "AccountMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Compte — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 2720
+    },
+    "Follows.dc.html": {
+      "h": 1400,
+      "is_interactive": true,
+      "title": "Mes suivis — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 8120
+    },
+    "FollowsMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Mes suivis — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 8120
+    },
+    "Home.dc.html": {
+      "h": 1380,
+      "is_interactive": true,
+      "title": "Accueil — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 1220
+    },
+    "HomeMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Accueil — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 1220
+    },
+    "How.dc.html": {
+      "h": 4250,
+      "is_interactive": true,
+      "title": "Comment ça marche — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 16920
+    },
+    "HowMobile.dc.html": {
+      "h": 7100,
+      "is_interactive": true,
+      "title": "Comment ça marche — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 16920
+    },
+    "Jockey.dc.html": {
+      "h": 2050,
+      "is_interactive": true,
+      "title": "Fiche jockey — Desktop",
+      "w": 1440,
+      "x": 2070,
+      "y": 5400
+    },
+    "JockeyMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Fiche jockey — Mobile",
+      "w": 390,
+      "x": 3563,
+      "y": 5400
+    },
+    "Landing.dc.html": {
+      "h": 3700,
+      "is_interactive": true,
+      "title": "Page vitrine — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 9640
+    },
+    "LandingMobile.dc.html": {
+      "h": 6560,
+      "is_interactive": true,
+      "title": "Page vitrine — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 9640
+    },
+    "Legal.dc.html": {
+      "h": 2100,
+      "is_interactive": true,
+      "title": "Légal & jeu responsable — Desktop",
+      "w": 1440,
+      "x": 1990,
+      "y": 16920
+    },
+    "LegalMobile.dc.html": {
+      "h": 2700,
+      "is_interactive": true,
+      "title": "Légal & jeu responsable — Mobile",
+      "w": 390,
+      "x": 3510,
+      "y": 16920
+    },
+    "Login.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Connexion — Desktop",
+      "w": 1440,
+      "x": 1990,
+      "y": 9640
+    },
+    "LoginMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Connexion — Mobile",
+      "w": 390,
+      "x": 3510,
+      "y": 9640
+    },
+    "Main.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "Web app — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "MainCompare.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "État · Comparateur — Desktop",
+      "w": 1440,
+      "x": 3980,
+      "y": 0
+    },
+    "MainFiche.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "État · Fiche cheval — Desktop",
+      "w": 1440,
+      "x": 1990,
+      "y": 0
+    },
+    "MainFree.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "État · Formule gratuite (paywall) — Desktop",
+      "w": 1440,
+      "x": 7960,
+      "y": 0
+    },
+    "MainPending.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "État · Pronostic en attente — Desktop",
+      "w": 1440,
+      "x": 9950,
+      "y": 0
+    },
+    "MainResult.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "État · Résultat officiel — Desktop",
+      "w": 1440,
+      "x": 5970,
+      "y": 0
+    },
+    "Mobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Web app — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 0
+    },
+    "MobileCompare.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "État · Comparateur — Mobile",
+      "w": 390,
+      "x": 5500,
+      "y": 0
+    },
+    "MobileFiche.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "État · Fiche cheval — Mobile",
+      "w": 390,
+      "x": 3510,
+      "y": 0
+    },
+    "MobileFree.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "État · Formule gratuite (paywall) — Mobile",
+      "w": 390,
+      "x": 9480,
+      "y": 0
+    },
+    "MobilePending.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "État · Pronostic en attente — Mobile",
+      "w": 390,
+      "x": 11470,
+      "y": 0
+    },
+    "MobileResult.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "État · Résultat officiel — Mobile",
+      "w": 390,
+      "x": 7490,
+      "y": 0
+    },
+    "Onboarding.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "Premiers pas · 1 Disciplines — Desktop",
+      "w": 1440,
+      "x": 9480,
+      "y": 9640
+    },
+    "OnboardingFollow.dc.html": {
+      "h": 1100,
+      "is_interactive": true,
+      "title": "Premiers pas · 3 Suivis — Desktop",
+      "w": 1440,
+      "x": 11000,
+      "y": 9640
+    },
+    "OnboardingMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Premiers pas · 1 Disciplines — Mobile",
+      "w": 390,
+      "x": 12520,
+      "y": 9640
+    },
+    "OnboardingMobileHippo.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Premiers pas · 2 Hippodromes — Mobile",
+      "w": 390,
+      "x": 12990,
+      "y": 9640
+    },
+    "Results.dc.html": {
+      "h": 2600,
+      "is_interactive": true,
+      "title": "Nos résultats — Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 5400
+    },
+    "ResultsMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Nos résultats — Mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 5400
+    },
+    "Signup.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Inscription · 1 Compte — Desktop",
+      "w": 1440,
+      "x": 3980,
+      "y": 9640
+    },
+    "SignupMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Inscription · 1 Compte — Mobile",
+      "w": 390,
+      "x": 8540,
+      "y": 9640
+    },
+    "SignupMobilePlans.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Inscription · 2 Formule — Mobile",
+      "w": 390,
+      "x": 9010,
+      "y": 9640
+    },
+    "SignupPay.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Inscription · 3 Paiement — Desktop",
+      "w": 1440,
+      "x": 7020,
+      "y": 9640
+    },
+    "SignupPlans.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Inscription · 2 Formule — Desktop",
+      "w": 1440,
+      "x": 5500,
+      "y": 9640
+    },
+    "Trainer.dc.html": {
+      "h": 2560,
+      "is_interactive": true,
+      "title": "Fiche entraîneur — Desktop",
+      "w": 1440,
+      "x": 4007,
+      "y": 5400
+    },
+    "TrainerMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Fiche entraîneur — Mobile",
+      "w": 390,
+      "x": 5500,
+      "y": 5400
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-18T08:51:55Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {},
+  "order": [
+    "Main.dc.html",
+    "Mobile.dc.html",
+    "Home.dc.html",
+    "HomeMobile.dc.html",
+    "Account.dc.html",
+    "AccountMobile.dc.html",
+    "MainFiche.dc.html",
+    "MobileFiche.dc.html",
+    "Results.dc.html",
+    "ResultsMobile.dc.html",
+    "MainCompare.dc.html",
+    "MobileCompare.dc.html",
+    "MainResult.dc.html",
+    "MobileResult.dc.html",
+    "Follows.dc.html",
+    "FollowsMobile.dc.html",
+    "MainFree.dc.html",
+    "MobileFree.dc.html",
+    "Landing.dc.html",
+    "LandingMobile.dc.html",
+    "Login.dc.html",
+    "LoginMobile.dc.html",
+    "Signup.dc.html",
+    "SignupPlans.dc.html",
+    "SignupPay.dc.html",
+    "SignupMobile.dc.html",
+    "SignupMobilePlans.dc.html",
+    "How.dc.html",
+    "HowMobile.dc.html",
+    "Legal.dc.html",
+    "LegalMobile.dc.html",
+    "MainPending.dc.html",
+    "MobilePending.dc.html",
+    "Onboarding.dc.html",
+    "OnboardingFollow.dc.html",
+    "OnboardingMobile.dc.html",
+    "OnboardingMobileHippo.dc.html",
+    "Jockey.dc.html",
+    "JockeyMobile.dc.html",
+    "Trainer.dc.html",
+    "TrainerMobile.dc.html"
+  ],
+  "pages": [],
+  "title": "Arrivée — Pronostics hippiques"
+}

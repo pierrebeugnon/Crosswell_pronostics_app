@@ -1,19 +1,19 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '@/auth/AuthContext'
+import { AccesProvider } from '@/auth/AccesContext'
 import { ProtectedRoute } from '@/auth/ProtectedRoute'
 import { DonneesProvider } from '@/data/DonneesContext'
 import { AppShell } from '@/components/layout/AppShell'
 
 import Connexion from '@/pages/Connexion'
+import Inscription from '@/pages/Inscription'
 import Aujourdhui from '@/pages/Aujourdhui'
 import Reunions from '@/pages/Reunions'
 import Reunion from '@/pages/Reunion'
-import Course from '@/pages/Course'
-import Partant from '@/pages/Partant'
+import Courses from '@/pages/Courses'
+import Professionnel from '@/pages/Professionnel'
 import Resultats from '@/pages/Resultats'
 import Methode from '@/pages/Methode'
-import Hippodromes from '@/pages/Hippodromes'
-import Hippodrome from '@/pages/Hippodrome'
 import Compte from '@/pages/Compte'
 import NonTrouve from '@/pages/NonTrouve'
 
@@ -25,6 +25,7 @@ import NonTrouve from '@/pages/NonTrouve'
 const routeur = createBrowserRouter(
   [
     { path: '/connexion', element: <Connexion /> },
+    { path: '/inscription', element: <Inscription /> },
     {
       path: '/',
       element: (
@@ -38,10 +39,11 @@ const routeur = createBrowserRouter(
         { index: true, element: <Aujourdhui /> },
         { path: 'reunions', element: <Reunions /> },
         { path: 'reunions/:date/:hippodrome', element: <Reunion /> },
-        { path: 'courses/:date/:hippodrome/:numero', element: <Course /> },
-        { path: 'courses/:date/:hippodrome/:numero/partants/:cheval', element: <Partant /> },
-        { path: 'hippodromes', element: <Hippodromes /> },
-        { path: 'hippodromes/:nom', element: <Hippodrome /> },
+        { path: 'courses', element: <Courses /> },
+        { path: 'courses/:date/:hippodrome/:numero', element: <Courses /> },
+        { path: 'courses/:date/:hippodrome/:numero/partants/:cheval', element: <Courses /> },
+        { path: 'jockeys/:nom', element: <Professionnel key="jockey" role="jockey" /> },
+        { path: 'entraineurs/:nom', element: <Professionnel key="entraineur" role="entraineur" /> },
         { path: 'resultats', element: <Resultats /> },
         { path: 'methode', element: <Methode /> },
         { path: 'compte', element: <Compte /> },
@@ -66,7 +68,9 @@ const routeur = createBrowserRouter(
 export default function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={routeur} future={{ v7_startTransition: true }} />
+      <AccesProvider>
+        <RouterProvider router={routeur} future={{ v7_startTransition: true }} />
+      </AccesProvider>
     </AuthProvider>
   )
 }

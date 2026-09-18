@@ -71,7 +71,7 @@ export function ToastArrivees() {
           onClick={() => setVisibles(null)}
           aria-label="Fermer la notification"
           className="tap shrink-0 w-8 h-8 rounded-full grid place-items-center text-faint
-                     hover:text-ink hover:bg-white/[0.08] transition-colors"
+                     hover:text-ink hover:bg-raised transition-colors"
         >
           <X size={14} />
         </button>

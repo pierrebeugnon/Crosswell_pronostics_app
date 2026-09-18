@@ -1,0 +1,422 @@
+/* SITE VITRINE — COPIE CONFORME de `../src/index.css` (la charte de l’app,
+   refonte du 18/09/2026), plus le court bloc « SITE » tout en bas. Une teinte ou
+   une primitive qui change là-bas change ici : c’est la même marque. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOIR PLAT, BORDURES OPAQUES — la refonte du 18/09/2026
+
+   Les valeurs viennent des maquettes de `design/` (voir design/INTEGRATION.md).
+   Le verre dépoli et les halos sont abandonnés : la maquette pose des surfaces
+   opaques à peine teintées de vert sur un fond immobile, et c'est la bordure,
+   pas la transparence, qui sépare les plans.
+
+   Trois familles, et rien d'autre :
+     1. les fonds — canvas < sunken < surface < raised, du plus sombre au plus
+        clair ;
+     2. les filets — sep (séparateurs), line (cartes), line-strong
+        (contrôles), line-hover (survol) ;
+     3. le texte — ink > soft > muted > faint > dim.
+
+   Aucune couleur littérale dans les composants : tout passe par ces jetons.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  :root {
+    --c-canvas: 10 12 11; /* #0A0C0B — le fond de page */
+    --c-sunken: 13 16 14; /* #0D100E — éléments de liste, tiroir */
+    --c-well: 17 21 19; /* #111513 — rail d'un sélecteur segmenté */
+    --c-surface: 15 19 17; /* #0F1311 — cartes */
+    --c-raised: 21 26 23; /* #151A17 — surface 2 : onglet actif, pastilles */
+    --c-raised-2: 23 29 26; /* #171D1A — surface 2, un cran au-dessus */
+    --c-track: 22 28 25; /* #161C19 — rail des barres, filets de ligne */
+
+    --c-ink: 238 242 239; /* #EEF2EF */
+    --c-soft: 201 210 205; /* #C9D2CD — secondaire appuyé */
+    --c-muted: 183 194 188; /* #B7C2BC — secondaire */
+    --c-faint: 140 154 146; /* #8C9A92 — labels, tertiaire */
+    --c-dim: 111 124 117; /* #6F7C75 — le plus éteint */
+
+    --c-sep: 28 35 32; /* #1C2320 — séparateurs */
+    --c-line: 31 38 34; /* #1F2622 — bordure légère (cartes) */
+    --c-line-strong: 42 51 46; /* #2A332E — contrôles */
+    --c-line-hover: 58 70 64; /* #3A4640 — survol */
+
+    /* LE VERT DE MARQUE, et la seule teinte d'accent. `--c-accent-ink` est le
+       texte posé SUR un aplat vert : un vert presque noir, pas un blanc. */
+    --c-accent: 46 229 143; /* #2EE58F */
+    --c-accent-soft: 46 229 143;
+    --c-accent-ink: 7 18 12; /* #07120C */
+    --c-accent-hover: 91 240 168; /* #5BF0A8 */
+    /* Fond d'un élément sélectionné (course choisie dans le programme). */
+    --c-accent-deep: 15 34 25; /* #0F2219 */
+    /* Barre d'un partant hors des trois premiers : le vert, éteint. */
+    --c-accent-dim: 44 106 77; /* #2C6A4D */
+    /* Les bornes des anciens dégradés d'accent. La maquette n'en a plus : les
+       deux bornes valent l'accent, et chaque dégradé devient un aplat sans
+       qu'on ait à toucher aux composants qui les composent encore. */
+    --c-accent-hi: 46 229 143;
+    --c-accent-lo: 46 229 143;
+
+    /* `win` partage la teinte de l'accent : c'est le poids (aplat plein ou
+       simple teinte) qui sépare la marque du résultat, pas la couleur. */
+    --c-win: 46 229 143;
+    --c-win-soft: 46 229 143;
+    --c-loss: 255 138 128; /* #FF8A80 */
+    --c-loss-soft: 255 138 128;
+    /* Course reportée, avertissement. */
+    --c-warn: 245 185 74; /* #F5B94A */
+    --c-wait: 140 154 146;
+    --c-wait-soft: 140 154 146;
+    /* « Placé » — la maquette n'a pas de bleu. Gardé en attendant l'arbitrage
+       (design/INTEGRATION.md, jetons). */
+    --c-info: 127 167 245;
+    --c-info-soft: 127 167 245;
+
+    --c-shadow: 0 0 0;
+    --c-scroll: 35 42 38; /* #232A26 — le pouce des barres de défilement */
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    background: rgb(var(--c-canvas));
+    /* iOS peint un voile gris sur tout élément tapé : sur du verre sombre, ce
+       flash système écrase la matière. Nos propres états pressés (active:)
+       prennent le relais, surface par surface. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    /* 15 px par défaut, comme `text-base` : les tailles ont été réduites d’un cran
+       le 18/09/2026, à la demande du fondateur (titres nettement, texte courant un peu). */
+    font-size: 0.9375rem;
+    padding-bottom: env(safe-area-inset-bottom);
+    /*
+     * Les sections immersives s'étendent en `w-screen`, qui inclut la largeur
+     * de la barre de défilement : sur Windows, la page gagnait 15 px de
+     * défilement horizontal. `clip` et non `hidden` — hidden ferait du body un
+     * conteneur de défilement et casserait les éléments `sticky` de la page.
+     */
+    overflow-x: clip;
+  }
+
+  .num,
+  table,
+  input[type='number'] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* La règle des 16 px sur les champs de saisie vit HORS des couches, tout en
+     bas de ce fichier — voir le commentaire qui l'accompagne. */
+
+  /* L'anneau de focus vit HORS des couches, en bas de ce fichier : posé ici en
+     `box-shadow`, il était écrasé par le filet intérieur des surfaces de verre. */
+
+  ::selection {
+    background: rgb(var(--c-accent) / 0.3);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--c-scroll));
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--c-line-hover));
+    background-clip: content-box;
+  }
+  html {
+    scrollbar-color: rgb(var(--c-scroll)) transparent;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRIMITIVES
+
+   Les noms `glass-*` datent du verre dépoli. Ils sont gardés pour ne pas
+   réécrire d'un coup toutes les pages, mais ne floutent plus rien : ce sont
+   désormais des aplats bordés, aux valeurs de la maquette.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* La surface de base : une carte. */
+  .glass {
+    background: rgb(var(--c-surface));
+    border: 1px solid rgb(var(--c-line));
+  }
+
+  /* Une surface posée DANS une carte : un cran plus clair. */
+  .glass-nest {
+    background: rgb(var(--c-raised));
+    border: 1px solid rgb(var(--c-line));
+  }
+
+  /* Ce qui flotte au-dessus de la page (menus, bulles, barres flottantes). */
+  .glass-strong {
+    background: rgb(var(--c-raised));
+    border: 1px solid rgb(var(--c-line-strong));
+    box-shadow: 0 12px 40px rgb(var(--c-shadow) / 0.5);
+  }
+
+  /* Cartes : 20 px de rayon (`rounded-3xl`), la maquette va de 18 à 22. */
+  .card {
+    @apply glass rounded-3xl;
+  }
+  .card-nest {
+    @apply glass-nest rounded-2xl;
+  }
+
+  /* La carte qui porte notre sélection : filet vert sur un fond vert profond,
+     comme la course choisie dans le programme de la maquette. */
+  .card-accent {
+    @apply rounded-3xl;
+    background: rgb(var(--c-accent-deep));
+    border: 1px solid rgb(var(--c-accent));
+  }
+
+  /* 44 px sur téléphone, 40 sur grand écran : la cible tactile de la maquette
+     ne descend jamais sous 44 px là où l'on tape au doigt. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-[1.125rem] h-11 sm:h-10
+           text-sm font-bold transition-colors select-none
+           active:scale-[0.985]
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+  /* L'action principale : l'aplat vert. `btn-primary` et `btn-accent` sont
+     désormais le même bouton — la maquette n'a qu'un seul bouton plein. */
+  .btn-accent,
+  .btn-primary {
+    @apply btn bg-accent text-accent-ink hover:bg-accent-hover;
+  }
+  /* Le secondaire : transparent, bordé. */
+  .btn-glass {
+    @apply btn bg-transparent border border-line-strong text-ink hover:border-line-hover;
+  }
+  .btn-ghost {
+    @apply btn text-muted hover:text-ink hover:bg-raised;
+  }
+
+  /* Étiquette d'information (Plat, 2 400 m, 12 partants). */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5
+           text-[0.8125rem] font-semibold whitespace-nowrap border;
+  }
+  .chip-neutral {
+    @apply chip bg-surface border-line text-soft;
+  }
+  /* Les pastilles d'état (Value, Gagnant…) : capitales serrées, teinte + filet. */
+  .chip-accent,
+  .chip-win,
+  .chip-loss,
+  .chip-wait,
+  .chip-info {
+    @apply chip px-[0.5625rem] py-1 text-[0.6875rem] font-bold uppercase tracking-[0.06em];
+  }
+  .chip-accent {
+    @apply bg-accent/10 border-accent/40 text-accent;
+  }
+  .chip-win {
+    @apply bg-win/10 border-win/40 text-win;
+  }
+  .chip-loss {
+    @apply bg-loss/10 border-loss/40 text-loss;
+  }
+  .chip-wait {
+    @apply bg-raised-2 border-line-strong text-faint;
+  }
+  .chip-info {
+    @apply bg-info/10 border-info/40 text-info;
+  }
+
+  .label {
+    @apply text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-faint;
+  }
+
+  .link {
+    @apply text-ink underline decoration-line-hover underline-offset-4
+           hover:decoration-accent transition-colors;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-2xl bg-surface border border-line;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(90deg, transparent, rgb(var(--c-raised)), transparent);
+  }
+
+  .scroll-x {
+    @apply overflow-x-auto [scrollbar-width:thin];
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Titre de page : 23 px sur téléphone, 34 px sur grand écran (réduits le 18/09), en extra-gras
+     et à approche serrée, comme les H1 de la maquette. */
+  .titre-page {
+    @apply font-display font-extrabold text-[1.4375rem] sm:text-[2.125rem] leading-[1.05]
+           tracking-[-0.025em];
+  }
+
+  /*
+   * Fondu de route — OPACITY SEULE, et SANS fill-mode résiduel.
+   *
+   * La première version posait `animate-fade-up` (transform + fill both) sur
+   * le <main> : `both` laisse l'animation appliquée pour toujours, et une
+   * animation de transform active fait de <main> un stacking context et un
+   * containing block permanents. Conséquence observée : les backdrop-filter
+   * des cartes descendantes échantillonnaient un fond corrompu et peignaient
+   * des nappes vertes fantômes par-dessus la page (bug de composition
+   * Chromium). Ici : ni transform, ni fill — l'animation joue 350 ms puis
+   * disparaît complètement du calcul de style.
+   */
+  .fondu-route {
+    animation: fondu-route 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes fondu-route {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  /*
+   * ZONE TACTILE. Étend la surface cliquable à 44 px sans toucher à la mise en
+   * page ni à la taille visible de l'élément.
+   *
+   * Sert aux cibles qu'on ne PEUT pas grossir : le point d'interrogation d'une
+   * bulle d'aide mesure 14 px et doit rester discret au milieu d'un intitulé,
+   * un lien de bas de page fait la hauteur de sa ligne de texte. Les agrandir
+   * visuellement déséquilibrerait l'écran ; les laisser tels quels les rend
+   * inatteignables au doigt. Le pseudo-élément règle les deux.
+   */
+  .tap {
+    position: relative;
+  }
+  .tap::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Séparateurs internes. */
+  .hairline-y > * + * {
+    @apply border-t border-sep;
+  }
+
+  .fade-r {
+    mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent);
+  }
+
+  /*
+   * Masque de la courbe du héros : la toile de fond s'éteint vers la gauche —
+   * là où les grands chiffres se posent — et naît en fondu plutôt que sur une
+   * arête. Deux dégradés composés en intersection : sans `mask-composite`, les
+   * couches s'additionnent et le masque ne bloque plus rien.
+   */
+  .masque-courbe {
+    mask-image:
+      linear-gradient(90deg, transparent 0%, #000 38%, #000 100%),
+      linear-gradient(180deg, transparent 0%, #000 42%);
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+
+  /* Un filet vert autour d'un élément précis (la maquette n'a pas de lueur). */
+  .halo-accent {
+    box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.5);
+  }
+
+  .texte-accent {
+    background: linear-gradient(120deg, rgb(var(--c-accent-hi)), rgb(var(--c-accent-lo)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/*
+ * SEIZE PIXELS DANS LES CHAMPS DE SAISIE, SUR TÉLÉPHONE.
+ *
+ * Safari iOS zoome la page dès qu'un champ porte une police inférieure à 16 px.
+ * On tape trois lettres dans la recherche d'hippodrome, la mise en page part de
+ * travers, et rien ne la remet en place autrement qu'en pinçant l'écran.
+ *
+ * `!important` ET hors de toute couche `@layer`, et les deux sont nécessaires.
+ * Dans `@layer base`, la règle ne s'appliquait jamais. Hors couche mais sans
+ * `!important`, elle perdait encore : un sélecteur d'élément pèse (0,0,1) face
+ * au (0,1,0) d'un `text-sm`, et la classe l'emporte quel que soit l'ordre
+ * d'écriture. C'est précisément le genre de règle qui doit être impossible à
+ * défaire par mégarde — un `text-sm` posé un jour sur un futur champ
+ * réintroduirait un zoom que plus personne ne saurait expliquer.
+ *
+ * Bornée au mobile : sur grand écran le problème n'existe pas, et un champ à
+ * 14 px y est plus juste.
+ */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/*
+ * L'ANNEAU DE FOCUS, HORS DES COUCHES — et en contour, pas en ombre.
+ *
+ * La règle de base (`@layer base`) posait l'anneau en `box-shadow`. Les surfaces
+ * de verre (`.glass-nest`, `.btn-glass`, `.card`…) déclarent aussi un
+ * `box-shadow` (leur filet intérieur), dans la couche `components`, qui passe
+ * APRÈS la base : sur tous les boutons et liens en verre, l'anneau disparaissait
+ * au clavier (WCAG 2.4.7). Un `outline` ne se bat avec aucune ombre, et une règle
+ * hors couche l'emporte sur toutes les couches.
+ */
+:focus-visible {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
+}
+
+/* ═══ SITE — ce que la vitrine ajoute ═══════════════════════════════════════
+   Les ancres de page (#tarifs, sommaire de « Comment ça marche ») s’arrêtent
+   sous l’en-tête collé plutôt que dessous. */
+html {
+  scroll-padding-top: 6rem;
+}
