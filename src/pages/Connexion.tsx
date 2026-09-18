@@ -6,9 +6,19 @@ import { Chargement } from '@/components/ui/Chargement'
 import { Champ } from '@/components/ui/Champ'
 import { Logo } from '@/components/brand/Logo'
 import { EncartMajeurs } from '@/components/layout/EncartMajeurs'
-import { DEMO, RYTHME_PUBLICATION_COURT } from '@/config/app'
+import { DEMO, RYTHME_PUBLICATION_COURT, URL_SITE } from '@/config/app'
 
 const EMAIL_VALIDE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+/** Le logo mène au site vitrine, comme sur la maquette (lien vers `Landing`). */
+function LogoVersSite() {
+  if (!URL_SITE) return <Logo />
+  return (
+    <a href={URL_SITE} aria-label="Crosswell Pronostics, le site">
+      <Logo />
+    </a>
+  )
+}
 
 /**
  * CONNEXION — `design/screens/Login.dc.html`.
@@ -21,7 +31,9 @@ const EMAIL_VALIDE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
  * - la connexion par lien reçu par e-mail est gardée, en lien discret sous le
  *   bouton : elle existe déjà et évite un mot de passe oublié ;
  * - « Créer un compte » mène à l'inscription (`pages/Inscription.tsx`, lot 8) ;
- * - pas de « cotes en direct » dans l'accroche : on n'en a pas.
+ * - pas de « cotes en direct » dans l'accroche : on n'en a pas ;
+ * - sur téléphone, « Découvrir le service » double le logo pour aller au site
+ *   vitrine (demande du fondateur du 18/09 : on arrivait ici sans voir le site).
  */
 export default function Connexion() {
   const { connecter, lienMagique, reinitialiser, chargement } = useAuth()
@@ -232,7 +244,7 @@ export default function Connexion() {
     <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-[35rem_minmax(0,1fr)]">
       {/* Grand écran : la colonne de marque. */}
       <aside className="hidden lg:flex flex-col justify-between gap-10 px-12 pt-10 pb-12 bg-surface border-r border-sep">
-        <Logo />
+        <LogoVersSite />
         <div className="flex flex-col gap-[1.125rem]">
           <p className="text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05]">
             Les pronostics du jour vous attendent.
@@ -244,9 +256,15 @@ export default function Connexion() {
         <EncartMajeurs lienMethode={false} />
       </aside>
 
-      {/* Téléphone : le bandeau. */}
-      <header className="lg:hidden h-16 shrink-0 px-5 flex items-center border-b border-sep">
-        <Logo />
+      {/* Téléphone : le bandeau. Un logo cliquable se devine mal au doigt : le
+          lien vers le site est aussi écrit en toutes lettres (écart à la maquette). */}
+      <header className="lg:hidden h-16 shrink-0 px-5 flex items-center justify-between gap-4 border-b border-sep">
+        <LogoVersSite />
+        {URL_SITE && (
+          <a href={URL_SITE} className="inline-flex items-center min-h-11 text-[0.8125rem] font-bold text-accent hover:text-accent-hover">
+            Découvrir le service
+          </a>
+        )}
       </header>
 
       <main className="flex-1 flex flex-col lg:items-center lg:justify-center gap-10 px-5 pt-10 pb-8 lg:p-10">
