@@ -15,10 +15,16 @@ import { useTitre } from '@/lib/useTitre'
  * ce qu'il est. D'où l'encart d'en-tête, que personne ne peut manquer, et les
  * `[TROUS]` laissés VISIBLES plutôt que comblés au jugé.
  *
+ * L'IDENTITÉ DE LA SOCIÉTÉ est renseignée depuis le 25/09/2026 (registre
+ * national des entreprises, via `EDITEUR` dans config/site.ts) : dénomination,
+ * forme, capital, siège, SIREN, SIRET, TVA.
+ *
  * CE QUI RESTE À FAIRE AVANT L'OUVERTURE DES VENTES (docs/cgv-brouillon.md) :
- * combler les huit trous (Kbis, statuts, siège, médiateur, date), trancher les
- * six questions du juriste — dont le régime de rétractation du Pass 1 jour —,
- * et remplacer cette transcription par la version validée.
+ * choisir le médiateur de la consommation et y adhérer, fixer les quatre
+ * délais laissés ouverts (articles 5, 6, 7, 13, 14), dater l'entrée en
+ * vigueur, trancher les six questions du juriste — dont le régime de
+ * rétractation du Pass 1 jour —, et remplacer cette transcription par la
+ * version validée.
  *
  * DEUX ÉCARTS ASSUMÉS AU BROUILLON, pour ne pas publier une promesse fausse :
  * les articles 3 et 9 y annoncent des analyses publiées « la veille de la
@@ -58,10 +64,10 @@ export default function ConditionsVente() {
     >
       <SectionLegale titre="Article 1 — Identification du vendeur">
         <p>
-          Le service est édité par <strong>{EDITEUR.raisonSociale}</strong>, société par actions simplifiée au capital
-          de <Trou>[CAPITAL]</Trou> euros, dont le siège social est situé <Trou>[ADRESSE COMPLÈTE]</Trou>, immatriculée
-          au registre du commerce et des sociétés de <Trou>[RCS + ville]</Trou> sous le numéro <Trou>[SIREN]</Trou>,
-          numéro de TVA intracommunautaire <Trou>[TVA]</Trou>.
+          Le service est édité par <strong>{EDITEUR.raisonSociale}</strong>, {EDITEUR.formeJuridique} au capital de{' '}
+          {EDITEUR.capital}, dont le siège social est situé {EDITEUR.siege}, immatriculée au registre du commerce et des
+          sociétés de Paris sous le numéro {EDITEUR.siren} (SIRET {EDITEUR.siret}), numéro de TVA intracommunautaire{' '}
+          {EDITEUR.tva}.
         </p>
         <p>
           Directeur de la publication&nbsp;: {EDITEUR.directeurPublication}. Contact&nbsp;:{' '}

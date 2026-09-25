@@ -13,13 +13,30 @@
 
 ## À combler avant relecture
 
+**Mise à jour du 25/09/2026 — l'identité de la société est connue**, relevée au registre
+national des entreprises (INSEE / INPI) et posée dans `site/src/config/site.ts` (`EDITEUR`) :
+
+| Champ | Valeur |
+| --- | --- |
+| Dénomination | CROSSWELL (forme : SAS) |
+| `[SIREN]` | 105 309 322 |
+| `[SIRET]` | 105 309 322 00011 |
+| `[RCS + ville]` | RCS Paris 105 309 322 — **à confirmer sur le Kbis** |
+| `[TVA]` | FR45 105 309 322 |
+| `[CAPITAL]` | 1 € (fixe) |
+| `[ADRESSE COMPLÈTE]` | 47 rue Vivienne, 75002 Paris |
+
+Restent ouverts :
+
 | Trou | Où le trouver |
 | --- | --- |
-| `[SIREN]`, `[SIRET]`, `[RCS + ville]`, `[TVA]` | Extrait Kbis |
-| `[CAPITAL]` | Statuts |
-| `[ADRESSE COMPLÈTE]` | Siège social — « Paris, France » ne suffit pas dans des CGV |
 | `[MÉDIATEUR]` | Médiateur de la consommation à choisir et à adhérer (obligation légale) |
 | `[DATE]` | Date d'entrée en vigueur |
+| `[délai]` (articles 5, 6, 7, 13, 14) | À fixer avec le juriste |
+
+**À vérifier dans les statuts** : le code APE est 62.01Z « programmation informatique ».
+L'objet social couvre-t-il la publication d'analyses statistiques vendues par abonnement ?
+Stripe posera la question (voir `stripe-declaration-activite.md`).
 
 ---
 

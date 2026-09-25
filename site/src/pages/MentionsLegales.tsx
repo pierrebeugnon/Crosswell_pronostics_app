@@ -15,11 +15,11 @@ export default function MentionsLegales() {
     <PageLegale titre="Mentions légales">
       <SectionLegale titre="Éditeur">
         <p>
-          <strong>{EDITEUR.raisonSociale}</strong>, siège social&nbsp;: {EDITEUR.siege}. Contact&nbsp;:{' '}
-          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+          <strong>{EDITEUR.raisonSociale}</strong>, {EDITEUR.formeJuridique} au capital de {EDITEUR.capital}, siège
+          social&nbsp;: {EDITEUR.siege}. Contact&nbsp;: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
         </p>
-        <p className="text-[0.8125rem] text-faint">
-          Numéro RCS, SIRET et numéro de TVA intracommunautaire&nbsp;: à compléter avant la mise en ligne.
+        <p>
+          {EDITEUR.rcs} — SIRET {EDITEUR.siret} — TVA intracommunautaire {EDITEUR.tva}.
         </p>
       </SectionLegale>
 

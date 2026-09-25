@@ -193,10 +193,25 @@ export const AVERTISSEMENT = {
   ageMinimum: 18,
 } as const
 
-/** Éditeur, pour les mentions légales. Les champs manquants sont dits manquants. */
+/**
+ * Éditeur, pour les mentions légales et les CGV. Renseigné le 25/09/2026
+ * depuis le Registre national des entreprises (INSEE / INPI, via
+ * l'Annuaire des Entreprises) : société immatriculée le 21/05/2026.
+ *
+ * `raisonSociale` est la DÉNOMINATION déposée, « CROSSWELL » — la forme
+ * juridique se dit à part (`formeJuridique`), elle ne fait pas partie du nom.
+ * `rcs` reprend le SIREN, greffe du siège ; à confirmer sur le Kbis.
+ * Les champs manquants restent dits manquants, jamais inventés.
+ */
 export const EDITEUR = {
-  raisonSociale: 'Crosswell SAS',
-  siege: 'Paris, France',
+  raisonSociale: 'CROSSWELL',
+  formeJuridique: 'SAS, société par actions simplifiée',
+  capital: '1 €',
+  siren: '105 309 322',
+  siret: '105 309 322 00011',
+  rcs: 'RCS Paris 105 309 322',
+  tva: 'FR45 105 309 322',
+  siege: '47 rue Vivienne, 75002 Paris, France',
   directeurPublication: 'Pierre Beugnon',
   hebergeur: {
     nom: 'Vercel Inc.',
