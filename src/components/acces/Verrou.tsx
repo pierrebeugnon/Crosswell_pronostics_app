@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Course } from '@/types'
 import { PASS_MOINS_CHER } from '@/config/formules'
+import { hippodrome as formatHippodrome } from '@/lib/format'
 import { lienCourse } from '@/lib/programme'
 
 /**
@@ -22,12 +23,27 @@ export function Cadenas({ taille = 14, className = '' }: { taille?: number; clas
   )
 }
 
-export function BandeauGratuit({ className = '' }: { className?: string }) {
+/**
+ * Le bandeau de la formule Gratuit. Il NOMME la course offerte quand on la
+ * connaît : « 1 pronostic offert par jour » laissait chercher laquelle, alors
+ * que la règle la désigne dès le matin (`db/009`, la plus belle du jour).
+ */
+export function BandeauGratuit({ className = '', offerte = null }: { className?: string; offerte?: Course | null }) {
   return (
     <div className={`flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl bg-accent/[0.08] border border-accent/35 ${className}`}>
-      <span className="flex flex-col gap-0.5">
+      <span className="flex flex-col gap-0.5 min-w-0">
         <span className="text-[0.8125rem] font-extrabold">Formule gratuite</span>
-        <span className="text-xs font-medium text-muted">1 pronostic offert par jour</span>
+        {offerte ? (
+          <Link to={lienCourse(offerte)} className="text-xs font-medium text-muted truncate hover:text-ink">
+            Offert aujourd’hui&nbsp;:{' '}
+            <span className="num font-bold text-accent">
+              C{offerte.numero} {formatHippodrome(offerte.hippodrome)}
+              {offerte.heureDepart ? ` · ${offerte.heureDepart}` : ''}
+            </span>
+          </Link>
+        ) : (
+          <span className="text-xs font-medium text-muted">1 pronostic offert par jour</span>
+        )}
       </span>
       <Link to={LIEN_PASS} className="shrink-0 h-10 px-3.5 rounded-full bg-accent text-accent-ink flex items-center text-[0.8125rem] font-bold hover:bg-accent-hover">
         Voir les Pass
@@ -86,7 +102,9 @@ export function CartePass({
           className="w-full min-h-12 px-4 py-2 rounded-full border border-line-strong flex items-center justify-center text-sm font-bold hover:border-line-hover"
         >
           <span>
-            Voir mon pronostic offert ·{' '}
+            {/* Une course offerte déjà courue reste ouverte — mais l'annoncer
+                comme un pronostic à venir ferait une promesse fausse. */}
+            {offerte.courue ? 'Voir le pronostic offert du jour, déjà couru' : 'Voir mon pronostic offert'} ·{' '}
             <span className="num text-accent">
               C{offerte.numero}
               {offerte.nom ? ` · ${offerte.nom}` : ''}

@@ -14,6 +14,7 @@ import { Opportunites } from '@/components/accueil/Opportunites'
 import { CoursesDuJour } from '@/components/accueil/CoursesDuJour'
 import { Demain } from '@/components/accueil/Demain'
 import { BandeauGratuit } from '@/components/acces/Verrou'
+import { courseOfferte } from '@/lib/acces'
 import { useAcces } from '@/auth/AccesContext'
 
 function Squelette() {
@@ -93,7 +94,7 @@ export default function Aujourdhui() {
         )}
       </header>
 
-      {!complet && <BandeauGratuit />}
+      {!complet && <BandeauGratuit offerte={courseOfferte(duJour)} />}
 
       {erreur ? (
         <Erreur message={erreur} onReessayer={rafraichir} />

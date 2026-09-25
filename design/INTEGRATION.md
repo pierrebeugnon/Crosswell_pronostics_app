@@ -111,8 +111,10 @@ bloque au moins un écran. Les autres écrans peuvent avancer en attendant.
   Montrer avant le départ qu'un cheval « vaut mieux que sa cote » ferait un service de value
   bets. La maquette annonce une Value à **+25 % relatifs** ; `MARGE_VALUE` vaut 10 %, et
   environ 4 réunions sur 10 n'ont pas de cote de clôture.
-- **A5. La course offerte.** Le paywall suppose que la règle « 1 course offerte par jour » est
-  tranchée. Elle ne l'est pas. Quelle course, choisie par qui ?
+- **A5. La course offerte.** ~~Quelle course, choisie par qui ?~~ **Tranchée le 25/09/2026**
+  (lot 11) : LA PLUS BELLE COURSE DU JOUR — le plus gros peloton, puis la catégorie la plus
+  relevée, puis la première au départ. Une par jour, aujourd'hui comme les jours à venir.
+  `db/009`, appliquée en production.
 - **A6. Les formules et le paiement.**
   - ~~Prix~~ **Tranché le 18/09** : les tarifs de la maquette (Gratuit, Pass 1 jour 4,99 €,
     Pass mensuel 12,99 €, Pass annuel 99 €). Le site les affiche (lot 7).
@@ -760,3 +762,38 @@ pas un pronostic — et le pronostic des courses verrouillées (007) reste, lui,
   désormais la seule DÉMONSTRATION, qui n'a pas de base. Les libellés suivent les relevés
   (« Cote 5,2 à 11:53 → 4,2 à 12:23 », « Depuis le relevé de 11:53 », « Cote relevée toutes
   les 30 minutes, de 11 h à 19 h »).
+
+### Lot 11 — La course offerte : la plus belle du jour (25/09/2026)
+
+**Demande du fondateur (25/09) :** « gérer les courses masquées par la formule gratuite qui
+affiche uniquement la première course de la journée ».
+
+**Le défaut.** 007 ouvrait la PREMIÈRE course de chaque jour. Elle part en début d'après-midi,
+et ensuite un compte gratuit n'a plus rien de lisible à venir : en démonstration, à 15 h,
+l'accueil affichait « Avec un Pass » trente-huit fois et « Offert » zéro fois. C'est aussi
+rarement la course qui donne envie — la première d'une réunion est souvent la plus petite.
+
+**Deux arbitrages, tranchés par le fondateur :**
+- **Quelle course** : la plus belle du jour — le plus gros peloton (`field_size`, le nombre de
+  DÉCLARÉS, qui ne bouge pas quand un cheval est retiré), puis la catégorie la plus relevée
+  (Groupe I, II, III, Listed), puis la première au départ, l'hippodrome et le numéro. Le choix
+  est donc déterminé, et stable du matin au soir.
+- **Combien** : une par jour, « tous les jours » — aujourd'hui comme les jours à venir.
+
+**Réserve dite au fondateur :** les plus gros pelotons sont presque toujours des handicaps ;
+sur quatre jours observés, aucun Groupe n'a été choisi. Inverser les deux critères (catégorie
+d'abord) reste possible, c'est une ligne de SQL et une ligne de TypeScript.
+
+**Base** — `db/009_course_offerte.sql`, **appliquée en production le 25/09/2026** avec l'accord
+du fondateur. Seul le CTE `offertes` change. Vérifié pour un compte sans Pass : la seule course
+à venir ouverte est Saint-Cloud C6 (16 partants, 16 h 38), aucune fuite de rang ni de
+probabilité ; le reste de ce qui est lisible, ce sont les courses déjà jugées.
+
+**Application :**
+- `courseOfferte` et le miroir de démonstration (`lib/acces.ts`) suivent la même règle. Le
+  nombre de déclarés absent range la course en DERNIER, comme `NULLS LAST` en base : deux
+  règles qui divergeraient feraient pointer l'app vers une course en fait verrouillée ;
+- le bandeau Gratuit NOMME la course offerte (« Offert aujourd'hui : C6 Saint-Cloud · 16:38 »)
+  au lieu du vague « 1 pronostic offert par jour » ;
+- la carte d'une course verrouillée dit « déjà couru » quand la course offerte est partie,
+  plutôt que d'inviter à un pronostic qui n'en est plus un.

@@ -33,15 +33,15 @@ describe('lecture de l’accès', () => {
 
 describe('règle de la base, reproduite pour la démo', () => {
   const lignes = [
-    ligne({ course_num: 1, heure_depart: '15:00:00' }),
-    ligne({ course_num: 2, heure_depart: '13:10:00' }), // la première du jour : offerte
-    ligne({ hippodrome: 'AUTEUIL', course_num: 1, heure_depart: '16:00:00' }),
-    ligne({ reunion_date: '2026-09-18', course_num: 3, actual_place: null }), // jour passé
-    ligne({ reunion_date: '2026-09-19', hippodrome: 'DEAUVILLE', course_num: 4, actual_place: 2 }), // jugée
+    ligne({ course_num: 1, heure_depart: '15:00:00', field_size: 8 }),
+    ligne({ course_num: 2, heure_depart: '13:10:00', field_size: 16 }), // le plus gros peloton : offerte
+    ligne({ hippodrome: 'AUTEUIL', course_num: 1, heure_depart: '16:00:00', field_size: 12 }),
+    ligne({ reunion_date: '2026-09-18', course_num: 3, actual_place: null, field_size: 18 }), // jour passé
+    ligne({ reunion_date: '2026-09-19', hippodrome: 'DEAUVILLE', course_num: 4, actual_place: 2, field_size: 9 }), // jugée
   ]
   const r = verrouillerLignes(lignes, '2026-09-19')
 
-  it('ouvre la première course du jour, les jours passés et les courses jugées', () => {
+  it('ouvre la plus belle course du jour, les jours passés et les courses jugées', () => {
     expect(r.map((l) => l.verrouille)).toEqual([true, false, true, false, false])
   })
 
@@ -51,10 +51,27 @@ describe('règle de la base, reproduite pour la démo', () => {
   })
 })
 
-describe('course offerte', () => {
-  it('la première au départ', () => {
-    const c = (numero: number, heureDepart: string | null) => ({ numero, hippodrome: 'X', heureDepart }) as Course
-    expect(courseOfferte([c(1, '15:00'), c(2, '13:10'), c(3, null)])?.numero).toBe(2)
+describe('course offerte — la plus belle du jour', () => {
+  const c = (numero: number, o: Partial<Course> = {}) =>
+    ({ numero, hippodrome: 'X', heureDepart: '15:00', declares: 10, categorie: null, ...o }) as Course
+
+  it('le plus gros peloton d’abord', () => {
+    expect(courseOfferte([c(1), c(2, { declares: 16 }), c(3, { declares: 7 })])?.numero).toBe(2)
     expect(courseOfferte([])).toBeNull()
+  })
+
+  it('à peloton égal, la catégorie la plus relevée', () => {
+    const lot = [c(1, { categorie: 'HAND.' }), c(2, { categorie: 'GR.III' }), c(3, { categorie: 'GR.I' }), c(4, { categorie: 'Listed' })]
+    expect(courseOfferte(lot)?.numero).toBe(3)
+    expect(courseOfferte([c(1, { categorie: 'GR.III' }), c(2, { categorie: 'GR.II' })])?.numero).toBe(2)
+  })
+
+  it('puis la première au départ, et le choix reste déterminé', () => {
+    expect(courseOfferte([c(1, { heureDepart: '16:00' }), c(2, { heureDepart: '13:10' }), c(3, { heureDepart: null })])?.numero).toBe(2)
+    expect(courseOfferte([c(2), c(1)])?.numero).toBe(1)
+  })
+
+  it('range en dernier une course sans nombre de déclarés, comme la base', () => {
+    expect(courseOfferte([c(1, { declares: null, partants: 18 }), c(2, { declares: 9 })])?.numero).toBe(2)
   })
 })

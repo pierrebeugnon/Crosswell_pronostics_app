@@ -68,36 +68,73 @@ export function lireAcces(brut: unknown): Acces {
 }
 
 /**
- * LA COURSE OFFERTE du jour — même règle que la base (`db/007`) : la première
- * au départ, puis par hippodrome et numéro. Null si le jour n'a pas de course.
+ * LE RANG D'UNE CATÉGORIE, du plus relevé au reste : Groupe I, II, III, Listed.
+ * L'ordre des tests compte — « GR.III » commence par « GR.I ». Les libellés
+ * viennent de France Galop et portent parfois un suffixe (« GR.I PA »,
+ * « GR.III AQ ») ; le préfixe suffit à trancher.
+ */
+export function prestigeCategorie(categorie: string | null | undefined): number {
+  const c = categorie ?? ''
+  if (/^gr\.?\s*iii/i.test(c)) return 2
+  if (/^gr\.?\s*ii/i.test(c)) return 3
+  if (/^gr\.?\s*i/i.test(c)) return 4
+  if (/listed/i.test(c)) return 1
+  return 0
+}
+
+/**
+ * LA COURSE OFFERTE du jour — même règle que la base (`db/009`), décision du
+ * fondateur du 25/09/2026 : LA PLUS BELLE COURSE DU JOUR, c'est-à-dire le plus
+ * gros peloton ; à égalité, la catégorie la plus relevée, puis la première au
+ * départ, l'hippodrome et le numéro. Le champ `declares` est celui que la base
+ * trie (`field_size`) ; il ne bouge pas quand un cheval est retiré, donc la
+ * course offerte annoncée le matin reste la même toute la journée.
+ *
+ * ON NE REMPLACE PAS un nombre de déclarés absent par les partants au départ :
+ * la base range ces courses en DERNIER (`NULLS LAST`), et cette fonction sert à
+ * NOMMER la course que la base a ouverte. Deux règles qui divergent, et l'app
+ * renvoie vers une course en fait verrouillée. (En production `field_size` est
+ * toujours renseigné ; ce cas est celui de données incomplètes.)
+ *
+ * Null si le jour n'a pas de course.
  */
 export function courseOfferte(duJour: readonly Course[]): Course | null {
-  const rang = (c: Course) => (c.heureDepart ? minutesDe(c.heureDepart) : Number.POSITIVE_INFINITY)
+  const peloton = (c: Course) => c.declares ?? -1
+  const heure = (c: Course) => (c.heureDepart ? minutesDe(c.heureDepart) : Number.POSITIVE_INFINITY)
   return (
-    [...duJour].sort((a, b) => rang(a) - rang(b) || a.hippodrome.localeCompare(b.hippodrome) || a.numero - b.numero)[0] ??
-    null
+    [...duJour].sort(
+      (a, b) =>
+        peloton(b) - peloton(a) ||
+        prestigeCategorie(b.categorie) - prestigeCategorie(a.categorie) ||
+        heure(a) - heure(b) ||
+        a.hippodrome.localeCompare(b.hippodrome) ||
+        a.numero - b.numero,
+    )[0] ?? null
   )
 }
 
 /**
- * DÉMONSTRATION SEULEMENT : la règle de `client_predictions` (`db/007`) appliquée
+ * DÉMONSTRATION SEULEMENT : la règle de `client_predictions` (`db/009`) appliquée
  * aux lignes fictives, pour montrer la formule Gratuit sans base. Une course à
- * venir (jour ≥ aujourd'hui, aucune place relevée) autre que la première du jour
- * perd rang et probabilités, et porte `verrouille`.
+ * venir (jour ≥ aujourd'hui, aucune place relevée) autre que la plus belle du
+ * jour perd rang et probabilités, et porte `verrouille`.
  */
 export function verrouillerLignes(lignes: readonly LignePrediction[], aujourdhui: string): LignePrediction[] {
   const cle = (l: LignePrediction) => `${l.reunion_date}|${l.hippodrome}|${l.course_num}`
   const jugees = new Set(lignes.filter((l) => l.actual_place != null).map(cle))
   const heure = (l: LignePrediction) => (l.heure_depart ? minutesDe(l.heure_depart.slice(0, 5)) : Number.POSITIVE_INFINITY)
+  // Même ordre que `courseOfferte` et que la base : peloton, catégorie, heure.
+  const devance = (l: LignePrediction, o: LignePrediction) =>
+    (l.field_size ?? -1) - (o.field_size ?? -1) ||
+    prestigeCategorie(l.categorie) - prestigeCategorie(o.categorie) ||
+    heure(o) - heure(l) ||
+    (o.hippodrome ?? '').localeCompare(l.hippodrome ?? '') ||
+    o.course_num - l.course_num
   const offertes = new Map<string, LignePrediction>()
   for (const l of lignes) {
     if (l.reunion_date < aujourdhui || !l.hippodrome) continue
     const o = offertes.get(l.reunion_date)
-    const avant =
-      !o ||
-      heure(l) - heure(o) < 0 ||
-      (heure(l) === heure(o) && (l.hippodrome.localeCompare(o.hippodrome ?? '') < 0 || (l.hippodrome === o.hippodrome && l.course_num < o.course_num)))
-    if (avant) offertes.set(l.reunion_date, l)
+    if (!o || devance(l, o) > 0) offertes.set(l.reunion_date, l)
   }
   const cleOfferte = new Set([...offertes.values()].map(cle))
   return lignes.map((l) => {

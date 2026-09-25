@@ -292,7 +292,7 @@ export default function Courses() {
         className="hidden lg:flex flex-col gap-7 py-7 pr-6 border-r border-sep sticky top-[4.8125rem] h-[calc(100dvh-4.8125rem)] overflow-y-auto [scrollbar-width:thin]"
       >
         <BasculeJour actif={actif} onChoisir={choisirJour} />
-        {!complet && <BandeauGratuit />}
+        {!complet && <BandeauGratuit offerte={offerte} />}
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-faint">{titreProgramme}</h2>
           {nbCourses > 0 && (
@@ -330,7 +330,7 @@ export default function Courses() {
           )}
           {!actif && <p className="text-[0.8125rem] font-semibold text-faint">{titreProgramme}</p>}
         </div>
-        {!complet && <BandeauGratuit className="lg:hidden mb-6" />}
+        {!complet && <BandeauGratuit className="lg:hidden mb-6" offerte={offerte} />}
         {detail}
         {/* Collée en bas de l'écran tant que la colonne défile, puis posée
             sous la liste : elle ne masque jamais le dernier partant. */}
