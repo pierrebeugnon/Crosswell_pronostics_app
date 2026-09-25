@@ -5,7 +5,8 @@
 // qui n'importe rien et se teste depuis vitest (`tests/stripe/`). Ici, on ne
 // garde que ce qui parle au réseau.
 //
-// NON DÉPLOYÉES tant que le fondateur ne l'a pas validé — voir README.md.
+// Déployées sur le projet CROSSWELL — voir README.md pour la marche à suivre
+// et le passage en mode réel.
 
 import Stripe from 'npm:stripe@16.12.0'
 import { createClient, type SupabaseClient, type User } from 'npm:@supabase/supabase-js@2.45.0'
