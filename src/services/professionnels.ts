@@ -8,6 +8,14 @@ import type { AssociationPro, MontePro, ProfilPro, RangPro, RolePro, StatPro } f
 /** Vues de `db/005_fiches_professionnels.sql`, lecture seule, `authenticated`. */
 const COLONNES_MONTE = 'date, hippodrome, place, distance, specialite, categorie, jockey, entraineur, cheval'
 
+/**
+ * LE PALMARÈS N'A PAS DE COLONNE `place` : la vue ne garde que les victoires
+ * (`WHERE f.place = '1'`, db/005). La demander quand même faisait répondre 400
+ * à PostgREST, et l'erreur emportait toute la fiche — c'est ce qu'on voyait en
+ * cliquant sur un jockey ou un entraîneur depuis une fiche cheval.
+ */
+const COLONNES_PALMARES = 'date, hippodrome, distance, specialite, categorie, jockey, entraineur, cheval'
+
 /** Le rang affiché en tête du classement : les huit premiers, comme dans la maquette. */
 const TETE_CLASSEMENT = 8
 
@@ -84,7 +92,7 @@ export async function chargerProfilPro(role: RolePro, nom: string): Promise<Prof
       .order('montes', { ascending: false })
       .limit(20),
     supabase.from('client_montes').select(COLONNES_MONTE).eq(colonne, nom).order('date', { ascending: false }).limit(10),
-    supabase.from('client_palmares').select(COLONNES_MONTE).eq(colonne, nom).order('date', { ascending: false }).limit(12),
+    supabase.from('client_palmares').select(COLONNES_PALMARES).eq(colonne, nom).order('date', { ascending: false }).limit(12),
     role === 'entraineur'
       ? supabase.from('client_entourage_du_jour').select('id_fg').eq('entraineur', nom)
       : Promise.resolve({ data: [] as { id_fg: string }[], error: null }),
@@ -103,7 +111,8 @@ export async function chargerProfilPro(role: RolePro, nom: string): Promise<Prof
       (a): AssociationPro => ({ partenaire: String(a[partenaire]), montes: Number(a.montes), victoires: Number(a.victoires) }),
     ),
     montes: verifier(montes) as MontePro[],
-    palmares: verifier(palmares) as MontePro[],
+    // La place est rétablie ici : la vue ne rend que des victoires.
+    palmares: (verifier(palmares) as Omit<MontePro, 'place'>[]).map((p) => ({ ...p, place: '1' })),
     programme: (verifier(programme) as { id_fg: string }[]).map((p) => p.id_fg),
   }
 }
