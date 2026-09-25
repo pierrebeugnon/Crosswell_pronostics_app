@@ -54,11 +54,22 @@ export default function Confidentialite() {
       <SectionLegale titre="Vos droits">
         <p>
           Conformément au règlement général sur la protection des données, vous disposez d’un droit d’accès, de
-          rectification, d’opposition et de suppression des données qui vous concernent. Pour l’exercer, ou pour{' '}
-          <strong>supprimer votre compte</strong>, écrivez à{' '}
-          <a href={`mailto:${CONTACT}?subject=${encodeURIComponent('Mes données personnelles')}`}>{CONTACT}</a>. La
-          demande est traitée manuellement, et la suppression est définitive. Vous pouvez aussi adresser une
-          réclamation à la CNIL.
+          rectification, d’opposition et de suppression des données qui vous concernent. La{' '}
+          <strong>suppression de votre compte</strong> se fait en ligne, depuis « Mon compte » dans l’application.
+          Elle arrête immédiatement l’abonnement en cours, efface votre adresse de connexion et votre prénom, et
+          supprime votre fiche client chez Stripe, notre prestataire de paiement.
+        </p>
+        <p>
+          Deux choses lui survivent, parce que la loi nous oblige à les conserver. Les <strong>factures</strong> et les
+          preuves de paiement, gardées <strong>dix ans</strong> (article L123-22 du code de commerce) chez Stripe, qui
+          les émet. Et la preuve de votre demande d’accès immédiat au service, gardée avec l’adresse utilisée pour
+          payer (article L221-28 du code de la consommation). C’est l’exception prévue par l’article 17, paragraphe 3,
+          du règlement&nbsp;: l’obligation légale.
+        </p>
+        <p>
+          Pour toute autre demande, écrivez à{' '}
+          <a href={`mailto:${CONTACT}?subject=${encodeURIComponent('Mes données personnelles')}`}>{CONTACT}</a>. Vous
+          pouvez aussi adresser une réclamation à la CNIL.
         </p>
       </SectionLegale>
     </PageLegale>

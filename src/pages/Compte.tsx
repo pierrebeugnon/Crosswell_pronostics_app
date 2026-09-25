@@ -9,6 +9,7 @@ import { ACCES_SANS_FILTRE, libelleStatut, type Acces } from '@/lib/acces'
 import { formule } from '@/config/formules'
 import { LIEN_PASS } from '@/components/acces/Verrou'
 import { ouvrirPortail } from '@/services/paiement'
+import { MOT_DE_CONFIRMATION, supprimerCompte } from '@/services/compte'
 import { PRENOM_MAX, initiales, nettoyerPrenom } from '@/lib/prenom'
 import { Champ } from '@/components/ui/Champ'
 
@@ -446,6 +447,99 @@ function Resiliation() {
 }
 
 /**
+ * LA SUPPRESSION DU COMPTE — un vrai bouton, à la place d'un `mailto:`.
+ *
+ * Ce n'est pas la résiliation, et la page ne doit pas laisser croire l'inverse :
+ * la résiliation garde l'accès jusqu'au terme déjà payé (CGV, article 7), la
+ * suppression coupe tout de suite et ne rembourse rien. Le client abonné lit
+ * donc cette phrase-là AVANT de confirmer, et l'autre chemin est juste au-dessus.
+ *
+ * Le mot se tape, il ne se coche pas : c'est le dernier geste réversible. Et
+ * l'appel part vers `supprimer-compte`, qui arrête l'abonnement Stripe avant
+ * d'effacer quoi que ce soit.
+ */
+function SupprimerCompte() {
+  const { acces } = useAcces()
+  const { deconnecter } = useAuth()
+  const naviguer = useNavigate()
+  const [ouvert, setOuvert] = useState(false)
+  const [saisie, setSaisie] = useState('')
+  const [enCours, setEnCours] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
+  const abonne = Boolean(acces?.clientStripe && (acces.formule === 'mois' || acces.formule === 'an'))
+
+  async function supprimer() {
+    setErreur(null)
+    setEnCours(true)
+    try {
+      await supprimerCompte(MOT_DE_CONFIRMATION)
+      // Le compte n'existe plus : la session locale est morte avec lui, et
+      // `signOut` peut échouer pour cette raison même. On l'ignore — il ne
+      // s'agit plus que de vider le navigateur.
+      await deconnecter().catch(() => {})
+      naviguer('/connexion', { replace: true })
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : 'La suppression n’a pas abouti.')
+      setEnCours(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4 pt-4 lg:pt-6 border-t border-track">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+        <p className="text-sm font-medium leading-[1.55] text-muted max-w-[30rem]">
+          Nous ne conservons que votre adresse de connexion et, si vous l’avez saisi, votre prénom&nbsp;: la
+          suppression les efface, et ferme votre fiche chez Stripe. Les factures déjà émises restent dix ans, comme la
+          loi comptable l’impose.
+        </p>
+        <button
+          type="button"
+          aria-expanded={ouvert}
+          onClick={() => {
+            setOuvert((o) => !o)
+            setErreur(null)
+            setSaisie('')
+          }}
+          className="self-center sm:self-auto shrink-0 h-11 inline-flex items-center text-[0.8125rem] font-bold text-loss underline underline-offset-4"
+        >
+          {ouvert ? 'Annuler' : 'Supprimer mon compte'}
+        </button>
+      </div>
+      {ouvert && (
+        <div className="flex flex-col gap-4 px-[1.125rem] py-4 rounded-xl bg-canvas border border-loss/30">
+          <p className="text-sm font-medium leading-[1.55] text-muted">
+            {abonne
+              ? 'Votre abonnement sera arrêté immédiatement. Les jours déjà payés de la période en cours sont perdus et ne sont pas remboursés. Pour garder l’accès jusqu’au terme, résiliez plutôt ci-dessus.'
+              : 'La suppression est immédiate, et elle ne peut pas être annulée.'}
+          </p>
+          <Champ
+            id="confirmer-suppression"
+            libelle={`Tapez ${MOT_DE_CONFIRMATION} pour confirmer`}
+            type="text"
+            autoComplete="off"
+            spellCheck={false}
+            value={saisie}
+            onChange={(e) => setSaisie(e.target.value.toUpperCase())}
+            erreur={erreur}
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={supprimer}
+              disabled={enCours || DEMO || saisie !== MOT_DE_CONFIRMATION}
+              className={`${BOUTON_DANGER} shrink-0 disabled:opacity-40`}
+            >
+              {enCours ? 'Suppression…' : 'Supprimer définitivement'}
+            </button>
+            {DEMO && <span className="text-xs text-faint">Indisponible en mode démonstration.</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
  * AU RETOUR DU PORTAIL STRIPE, ON RELIT PLUSIEURS FOIS.
  *
  * Stripe redirige le navigateur et envoie son webhook en parallèle. La lecture
@@ -566,18 +660,7 @@ export default function Compte() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
             <Resiliation />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between pt-4 lg:pt-6 border-t border-track">
-            <p className="text-sm font-medium leading-[1.55] text-muted max-w-[30rem]">
-              Nous ne conservons que votre adresse de connexion et, si vous l’avez saisi, votre prénom. La
-              suppression du compte et de ces données est définitive.
-            </p>
-            <a
-              href={mailto('Supprimer mon compte et mes données')}
-              className="self-center sm:self-auto shrink-0 h-11 inline-flex items-center text-[0.8125rem] font-bold text-loss underline underline-offset-4"
-            >
-              Supprimer mon compte
-            </a>
-          </div>
+          <SupprimerCompte />
         </Carte>
       </div>
     </div>

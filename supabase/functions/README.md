@@ -9,6 +9,15 @@ appliquée (tables `abonnements`, `paiements_consentements`, `stripe_evenements`
 | `paiement-session` | l'étape Paiement de l'inscription (`src/services/paiement.ts`) | Crée la page de paiement Stripe Checkout d'un Pass, garde la preuve du consentement. |
 | `stripe-webhook` | Stripe | **Seule à ouvrir ou fermer l'accès** (`public.abonnements`), sur événement signé. |
 | `portail-stripe` | la page Compte (`src/services/paiement.ts`) | Ouvre le portail client Stripe : carte, factures, **résiliation en ligne** (L215-1-1). |
+| `supprimer-compte` | la page Compte (`src/services/compte.ts`) | Annule les abonnements Stripe, supprime le client, **puis** le compte — dans cet ordre (`db/011`). |
+
+**L'ordre de `supprimer-compte` n'est pas une préférence.** `public.abonnements.user_id` est
+en ON DELETE CASCADE et cette table est le seul endroit où vivent `stripe_customer_id` et
+`stripe_subscription_id` : supprimer l'utilisateur en premier, c'est perdre le lien avec un
+abonnement qui continue de prélever. Si l'annulation échoue, la fonction NE SUPPRIME RIEN —
+un compte encore là se resupprime, un abonnement orphelin ne se retrouve plus. Ce qui reste
+chez Stripe après coup, factures et encaissements, y reste exprès : dix ans (code de
+commerce, L123-22).
 
 Principes : aucune donnée de carte ne passe par l'app (pages hébergées par Stripe) ; la clé
 secrète ne vit que dans les secrets Supabase ; une adresse de retour « succès » ne prouve
@@ -65,11 +74,17 @@ aucun paiement, seul le webhook fait foi.
    ```bash
    supabase functions deploy paiement-session --project-ref erwypjqonrhwofzdbnbo
    supabase functions deploy portail-stripe --project-ref erwypjqonrhwofzdbnbo
+   supabase functions deploy supprimer-compte --project-ref erwypjqonrhwofzdbnbo
    supabase functions deploy stripe-webhook --project-ref erwypjqonrhwofzdbnbo --no-verify-jwt
    ```
 
    `--no-verify-jwt` pour le webhook SEULEMENT : Stripe n'a pas de session Supabase, la
-   signature Stripe en tient lieu. Les deux autres exigent le jeton du client.
+   signature Stripe en tient lieu. Les trois autres exigent le jeton du client —
+   `supprimer-compte` plus que tout autre.
+
+   `supprimer-compte` suppose la migration `db/011_suppression_compte.sql` APPLIQUÉE :
+   sans la table `public.suppressions_comptes`, la fonction s'arrête avant d'avoir rien
+   touché (et c'est le bon sens de l'échec, mais plus aucune suppression ne passe).
 
 ## Deux règles tranchées par le fondateur le 20/09/2026
 

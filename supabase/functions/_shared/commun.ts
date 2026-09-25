@@ -17,6 +17,7 @@ export {
   PASS,
   abonnementEnCours,
   abonnementImpaye,
+  abonnementsAAnnuler,
   accesOffertSansEcheance,
   decisionAbonnement,
   decisionContestation,

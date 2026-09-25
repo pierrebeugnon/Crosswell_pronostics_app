@@ -43,8 +43,12 @@ export interface Redirection {
  * Le message d'une fonction serveur en erreur (« Vous avez déjà un abonnement
  * en cours… »), ou le repli donné. `supabase.functions.invoke` range la réponse
  * dans `error.context`.
+ *
+ * EXPORTÉ, et non recopié : `src/services/compte.ts` en a besoin pour la
+ * suppression de compte, et deux lecteurs d'erreur qui divergent, c'est un
+ * message du serveur perdu le jour où il compte le plus.
  */
-async function messageDe(error: unknown, repli: string): Promise<string> {
+export async function messageDe(error: unknown, repli: string): Promise<string> {
   const reponse = (error as { context?: Response } | null)?.context
   if (reponse && typeof reponse.json === 'function') {
     try {

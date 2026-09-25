@@ -97,9 +97,29 @@ async function appliquer(d: Decision): Promise<void> {
   if (!error) return
   // 23503 : clé étrangère violée, donc le compte a été supprimé. La colonne
   // `user_id` est en CASCADE et c'est le seul endroit où vivent nos
-  // identifiants Stripe : aucun rejeu ne fera revenir le compte.
+  // identifiants Stripe : aucun rejeu ne fera revenir le compte. C'est la SEULE
+  // clé étrangère de la table, donc ce code n'a pas d'autre cause possible.
   if (error.code === '23503') {
-    throw new ErreurDefinitive(`Compte ${d.ligne.user_id} supprimé : abonnement Stripe à annuler à la main.`)
+    // LE FILET. `supprimer-compte` annule l'abonnement AVANT d'effacer le
+    // compte ; mais une suppression faite à la main depuis le tableau de bord
+    // Supabase ne passe pas par elle, et c'est l'événement suivant qui nous
+    // l'apprend. Le journaliser pendant que le client continue d'être prélevé
+    // n'est pas une réponse : on annule ici même.
+    const abonnement = d.ligne.stripe_subscription_id
+    // `expire` : l'abonnement est déjà mort chez Stripe (c'est souvent notre
+    // propre annulation qui revient) — `cancel` lèverait pour rien.
+    if (abonnement && d.ligne.statut !== 'expire') {
+      try {
+        await stripe.subscriptions.cancel(abonnement)
+        console.error(`Compte ${d.ligne.user_id} supprimé : abonnement ${abonnement} ANNULÉ par le webhook.`)
+      } catch (e) {
+        // On ne relève pas en erreur transitoire : un 500 ferait rejouer trois
+        // jours un événement que le rejeu ne réparera pas, et Stripe finirait
+        // par couper le point de terminaison — donc les vrais clients.
+        console.error(`Compte ${d.ligne.user_id} supprimé : abonnement ${abonnement} À ANNULER À LA MAIN.`, e)
+      }
+    }
+    throw new ErreurDefinitive(`Compte ${d.ligne.user_id} supprimé (abonnement ${abonnement ?? '—'}).`)
   }
   throw error
 }

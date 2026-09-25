@@ -292,3 +292,36 @@ export function decisionContestation(
       'CONTESTATION : accès coupé. Un futur événement d’abonnement peut le rouvrir — vérifier à la main.',
   }
 }
+
+/**
+ * LES STATUTS STRIPE QUI PRÉLÈVENT ENCORE, ou qui le peuvent.
+ *
+ * `incomplete` en fait partie : la première facture peut encore aboutir.
+ * `paused` aussi — une collecte en pause ne débite rien aujourd'hui, mais un
+ * compte supprimé ne doit plus rien laisser de vivant chez Stripe. Sont exclus
+ * `canceled` et `incomplete_expired` : `subscriptions.cancel` lèverait sur un
+ * abonnement déjà mort, et ferait échouer la suppression pour rien.
+ */
+export const STATUTS_VIVANTS: readonly string[] = [
+  'active',
+  'trialing',
+  'past_due',
+  'unpaid',
+  'incomplete',
+  'paused',
+]
+
+/**
+ * Les abonnements Stripe à annuler quand un compte disparaît.
+ *
+ * ON NE SE FIE PAS À `abonnements.stripe_subscription_id` : cette colonne ne
+ * garde que le DERNIER abonnement vu. Un client qui a résilié puis repris en a
+ * eu deux, et c'est la liste renvoyée par Stripe qui fait foi — sinon un
+ * abonnement survit à la suppression, et c'est précisément le défaut qu'on
+ * corrige.
+ */
+export function abonnementsAAnnuler(
+  abonnements: readonly { id: string; status: string }[],
+): string[] {
+  return abonnements.filter((a) => STATUTS_VIVANTS.includes(a.status)).map((a) => a.id)
+}
