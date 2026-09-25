@@ -98,12 +98,71 @@ export async function verifierTarif(p: Pass): Promise<void> {
   if ((p !== 'jour') !== Boolean(prix.recurring)) {
     throw new Error(`Tarif ${p} incohérent : ${prix.recurring ? 'récurrent' : 'ponctuel'} chez Stripe.`)
   }
-  // Pas bloquant : sans Stripe Tax actif, rien ne s'ajoute. Le jour où il l'est,
-  // un tarif « unspecified » ferait payer la TVA EN PLUS du prix annoncé.
+  /*
+   * DEVENU BLOQUANT EN MODE RÉEL, depuis que la session demande le calcul de la
+   * TVA (`automatic_tax`). Tant que Stripe Tax dormait, un tarif mal réglé
+   * n'avait aucun effet : rien ne s'ajoutait. Maintenant qu'il calcule, un
+   * tarif « exclusive » ferait payer la TVA EN PLUS du prix annoncé — 5,99 €
+   * encaissés sur un Pass 1 jour affiché 4,99 € dans l'app, sur le site et à
+   * l'article 5 des CGV. « unspecified » retombe sur le réglage par défaut du
+   * compte, c'est-à-dire sur quelque chose qui peut changer sans nous.
+   *
+   * ET CELA NE SE RATTRAPE PAS : `tax_behavior` ne se règle qu'une fois.
+   * « unspecified » → « inclusive » reste possible ; un tarif déjà
+   * « exclusive » impose de créer un nouveau `price_…` et de changer le secret
+   * `STRIPE_PRIX_*` correspondant.
+   */
   if (prix.tax_behavior !== 'inclusive') {
-    console.warn(`Tarif ${p} : tax_behavior=${prix.tax_behavior}, attendu « inclusive » (prix annoncés TTC).`)
+    const message = `Tarif ${p} : tax_behavior=${prix.tax_behavior}, attendu « inclusive » (prix annoncés TTC).`
+    if (MODE_REEL) throw new Error(message)
+    console.warn(`${message} Toléré hors mode réel.`)
   }
   tarifsVerifies.add(p)
+}
+
+/**
+ * LE MODE RÉEL SE RECONNAÎT À LA CLÉ. Les garde-fous fiscaux ne doivent pas
+ * bloquer un bac à sable mal réglé — on y essaie, justement —, mais ils ne
+ * doivent rien laisser passer dès qu'un vrai euro est en jeu.
+ */
+export const MODE_REEL = exiger('STRIPE_SECRET_KEY').startsWith('sk_live_')
+
+/** Vérifié une fois par instance, comme les tarifs. */
+let tvaVerifiee = false
+
+/**
+ * LE GARDE-FOU DE TVA. Stripe Tax ne proteste jamais tout seul : mal réglé, il
+ * calcule zéro, le paiement passe, et on encaisse du TTC sans jamais rien
+ * ventiler — une erreur qui ne se voit qu'au contrôle, des mois plus tard.
+ *
+ * Deux conditions, et elles sont distinctes : le calcul doit être ACTIF (une
+ * adresse de siège renseignée chez Stripe), et il faut au moins une
+ * IMMATRICULATION à la TVA, sans quoi Stripe calcule un taux de zéro en toute
+ * légalité apparente.
+ *
+ * Hors mode réel, on se contente de le dire : un bac à sable sans
+ * immatriculation doit rester utilisable pour essayer le parcours.
+ */
+export async function verifierTva(): Promise<void> {
+  if (tvaVerifiee) return
+  try {
+    const reglages = await stripe.tax.settings.retrieve()
+    const immatriculations = await stripe.tax.registrations.list({ status: 'active', limit: 1 })
+    const actif = reglages.status === 'active'
+    const immatricule = immatriculations.data.length > 0
+    if (!actif || !immatricule) {
+      const manque = !actif ? 'le calcul de la taxe n’est pas actif (adresse de l’établissement d’origine ?)' : 'aucune immatriculation à la TVA n’est active'
+      const message = `Stripe Tax : ${manque}. Les prix sont annoncés TTC : sans cela, on encaisse sans collecter.`
+      if (MODE_REEL) throw new Error(message)
+      console.warn(`${message} Toléré hors mode réel.`)
+    }
+  } catch (e) {
+    // Une panne de lecture n'est pas une preuve de bon réglage : en mode réel,
+    // on refuse d'ouvrir une page de paiement plutôt que de supposer.
+    if (MODE_REEL) throw e
+    console.warn(`Stripe Tax : contrôle impossible (${e instanceof Error ? e.message : e}). Toléré hors mode réel.`)
+  }
+  tvaVerifiee = true
 }
 
 /** Le client de SERVICE : il écrit l'état d'abonnement, que les clients ne font que lire. */

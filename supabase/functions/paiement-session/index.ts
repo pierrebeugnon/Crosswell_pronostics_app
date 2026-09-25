@@ -25,6 +25,7 @@ import {
   texteConsentement,
   utilisateur,
   verifierTarif,
+  verifierTva,
   type Pass,
 } from '../_shared/commun.ts'
 
@@ -59,6 +60,11 @@ Deno.serve(async (req) => {
     // Ce que Stripe facture doit être ce que l'application affiche. Contrôlé une
     // fois par instance, avant d'envoyer qui que ce soit sur une page de paiement.
     await verifierTarif(formule)
+
+    // ET LA TVA DOIT ÊTRE COLLECTABLE. Stripe Tax mal réglé calcule zéro sans
+    // rien dire : on encaisserait du TTC sans jamais rien ventiler. Bloquant en
+    // mode réel seulement — un bac à sable doit rester utilisable.
+    await verifierTva()
 
     const abonnement = await lireAbonnement(moi.id)
     if (abonnementImpaye(abonnement)) {
@@ -133,6 +139,35 @@ Deno.serve(async (req) => {
         cancel_url: corps.annulation,
         locale: 'fr',
         metadata,
+        /*
+         * LA TVA SE CALCULE CHEZ STRIPE, PAS CHEZ NOUS.
+         *
+         * Les deux modes en ont besoin, pour deux raisons différentes :
+         * - `payment` (Pass 1 jour) émet une facture (`invoice_creation` plus
+         *   bas), et une facture doit ventiler la taxe ;
+         * - `subscription` transmet le réglage à l'abonnement créé, donc à tous
+         *   ses renouvellements. C'est le seul endroit où on peut le poser : le
+         *   deuxième mois se facture sans nous.
+         *
+         * Les tarifs étant en « taxe incluse » (`verifierTarif` le refuse
+         * autrement en mode réel), le total encaissé reste 4,99 / 12,99 / 99 € :
+         * la TVA est prise DEDANS, elle ne s'ajoute pas au prix annoncé.
+         */
+        automatic_tax: { enabled: true },
+        /*
+         * SANS CECI, L'ADRESSE SAISIE À LA CAISSE EST JETÉE. Le client Stripe
+         * est créé avec l'e-mail seul ; Checkout demande le pays (et le code
+         * postal avec la carte), ce qui suffit à déterminer le taux dans l'UE,
+         * mais ne l'écrit sur le client que si on l'y autorise. Or les factures
+         * de renouvellement se calculent sur l'adresse DU CLIENT : sans elle,
+         * le deuxième mois partirait sans TVA. `name` suit la même logique :
+         * une facture porte le nom de l'acheteur.
+         *
+         * Pas de `billing_address_collection: 'required'` : avec le calcul
+         * automatique, Checkout demande déjà ce qu'il lui faut, et la TVA se
+         * décide au pays. Trois champs de plus n'y changeraient rien.
+         */
+        customer_update: { address: 'auto', name: 'auto' },
         // Environ une heure, au lieu des vingt-quatre par défaut. Une page de
         // paiement laissée ouverte reste payable : un client pouvait ouvrir un
         // Pass 1 jour, souscrire un abonnement, puis revenir payer l'ancienne

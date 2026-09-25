@@ -133,11 +133,83 @@ Après le paiement, la ligne du compte dans `public.abonnements` doit passer à 
 quelques secondes, et l'app débloquer toutes les courses. Les événements se rejouent depuis
 le tableau de bord Stripe ; `stripe_evenements` empêche qu'ils s'appliquent deux fois.
 
-## Avant de passer en mode réel
+## Passer en mode réel — la marche à suivre (25/09/2026)
 
-- Conditions générales de vente publiées sur le site (`/cgu`), textes de consentement
-  (`src/lib/inscription.ts`, `texteConsentement`) validés par un juriste.
-- Confirmer auprès de Stripe que l'activité (analyses statistiques hippiques, sans prise de
-  pari ni gain) est acceptée : voir la note « Abonnement et paiement » du projet.
-- Les e-mails de confirmation (reçus Stripe, rappel avant le renouvellement annuel) :
-  activer les reçus et les rappels de renouvellement dans les paramètres Stripe.
+**Rien ne se copie d'un bac à sable vers le mode réel** : produits, tarifs, portail, webhook et
+clés sont propres à chaque environnement. Les `price_…` créés le 20/09 sont ceux du bac à sable
+et feront échouer `verifierTarif` en production. Tout ce qui suit est saisi PAR LE FONDATEUR :
+aucune clé, aucun secret, aucune coordonnée bancaire ne passe par une conversation ni par le
+dépôt.
+
+L'identité à déclarer, relevée au registre et vérifiée le 25/09/2026 : **CROSSWELL**, SAS au
+capital de 1 €, 47 rue Vivienne 75002 Paris, SIREN 105 309 322, SIRET 105 309 322 00011, TVA
+**FR45 105 309 322**, APE 62.01Z. L'objet social des statuts couvre la vente d'analyses par
+abonnement (vérifié par le fondateur).
+
+1. **Le site doit être examinable.** Stripe regarde le site avant d'activer un compte : CGV,
+   tarifs, mentions légales et résiliation en ligne doivent être visibles à l'adresse déclarée.
+2. **Activer le compte réel** (identité du représentant, bénéficiaires effectifs, pièce
+   d'identité, compte bancaire de versement).
+3. **Décrire l'activité** avec le texte ci-dessous, mot pour mot. Secteur : contenu numérique
+   par abonnement — **jamais** « jeux d'argent et paris ». Libellé sur le relevé bancaire :
+   `CROSSWELL` (un libellé illisible produit des contestations, et une contestation coupe
+   l'accès sans période de grâce).
+4. **Obtenir de Stripe une confirmation ÉCRITE** de l'acceptation et du code d'activité (MCC),
+   AVANT le premier euro. Le risque n'est pas le refus : c'est l'acceptation suivie d'une
+   requalification, compte gelé et fonds retenus, avec des abonnés payants en face.
+   Voir `docs/stripe-declaration-activite.md`.
+5. **Créer les trois produits et leurs tarifs**, en euros, avec l'option **« taxe incluse dans
+   le prix »** — réglage IMMUABLE après création, un tarif mal réglé se remplace :
+   Pass 1 jour 4,99 € en paiement unique (499), Pass mensuel 12,99 € récurrent (1299),
+   Pass annuel 99 € récurrent annuel (9900).
+6. **Configurer le portail client** (carte, factures, résiliation en ligne).
+7. **Créer le webhook** sur `https://erwypjqonrhwofzdbnbo.supabase.co/functions/v1/stripe-webhook`
+   et l'abonner aux **huit** événements du tableau plus haut — les trois `checkout.session.*`,
+   les trois `customer.subscription.*`, `charge.refunded` et `charge.dispute.created`.
+8. **Stripe Tax : obligatoire, désormais.** Déclarer l'immatriculation TVA France
+   (FR45 105 309 322) et renseigner l'adresse de l'établissement d'origine. Depuis le 25/09,
+   la session Checkout demande le calcul de la taxe (`automatic_tax`) et `verifierTva` **refuse
+   d'ouvrir une page de paiement en mode réel** tant que le calcul n'est pas actif et qu'aucune
+   immatriculation n'est active — sans quoi on encaisserait du TTC sans rien collecter. Hors
+   mode réel, ce contrôle se contente d'un avertissement dans les journaux.
+9. **Activer les reçus de paiement et le rappel avant renouvellement annuel** (L215-1) : le code
+   n'envoie aucun e-mail.
+10. **Saisir les six secrets** dans Supabase (Edge Functions → Secrets), en valeurs de mode réel :
+    `STRIPE_SECRET_KEY` (`sk_live_…`), `STRIPE_WEBHOOK_SECRET` (`whsec_…` du webhook réel),
+    `STRIPE_PRIX_JOUR`, `STRIPE_PRIX_MOIS`, `STRIPE_PRIX_AN` (les nouveaux `price_…`), et
+    `APP_URL` = `https://crosswell-pronostics.vercel.app` **seul, sans `localhost`** : la même
+    liste sert aux adresses de retour et aux en-têtes CORS.
+11. **Redéployer les trois fonctions** (voir plus haut ; `--no-verify-jwt` pour le webhook seul).
+    Les fonctions en production datent du 20/09 et ne portent ni les correctifs de facturation
+    relus le 25/09, ni la TVA.
+12. **Essayer de bout en bout** avec un vrai paiement, remboursé ensuite : Pass 1 jour, Pass
+    mensuel, résiliation depuis le portail, remboursement. Vérifier sur la facture que la TVA
+    est ventilée, et dans `stripe_evenements` qu'un événement n'est traité qu'une fois.
+
+### Le texte à coller dans Stripe
+
+> Crosswell édite et publie, par abonnement, des analyses statistiques sur les courses hippiques
+> françaises. Pour chaque partant, un modèle probabiliste estime ses chances de victoire et de
+> place ; ces estimations sont publiées le matin même, pour les courses du jour, et leur taux de
+> réussite réel est publié après les courses.
+>
+> Le service est vendu au consommateur sous forme d'abonnement à un contenu éditorial numérique :
+> une formule gratuite, un accès 24 heures à 4,99 €, un abonnement mensuel à 12,99 € et un
+> abonnement annuel à 99 €, prix TTC. La résiliation se fait en ligne, depuis le compte client.
+>
+> Crosswell n'est pas un opérateur de jeux d'argent et ne détient aucun agrément de l'Autorité
+> nationale des jeux (ANJ). Nous n'acceptons aucune mise, ne détenons aucun fonds de joueur, ne
+> versons aucun gain et ne sommes intéressés d'aucune façon à l'issue des courses. Nous ne
+> fournissons ni conseil en investissement, ni conseil personnalisé, et ne promettons aucune
+> performance. La rémunération provient uniquement de l'abonnement au contenu éditorial.
+
+### Ce qui reste bloquant, hors Stripe
+
+- **CGV** : publiées le 25/09 en version de travail (`/cgv` et `/cgu`), identité de la société
+  comblée. Restent le médiateur de la consommation, les quatre délais et la date d'entrée en
+  vigueur — puis la relecture par un juriste.
+- **Suppression de compte** : aucune n'existe dans le code (un `mailto:` dans Mon compte). Une
+  suppression faite à la main en base laisse l'abonnement Stripe prélever. Plan prêt, arbitrages
+  en attente (remboursement ou non, suppression ou anonymisation du client Stripe).
+- **Preuve de consentement** : la ligne ne porte ni montant, ni devise, ni version du texte, et
+  n'est jamais confirmée après paiement. Plan prêt, arbitrages en attente.
