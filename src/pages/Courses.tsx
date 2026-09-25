@@ -18,7 +18,7 @@ import { ArriveePredite } from '@/components/courses/ArriveePredite'
 import { FaceArrivee } from '@/components/courses/FaceArrivee'
 import { ListePartants } from '@/components/courses/ListePartants'
 import { FicheCheval } from '@/components/courses/FicheCheval'
-import { MouvementsCote, useHistoriques } from '@/components/courses/EvolutionCote'
+import { MouvementsCote, useCotes } from '@/components/courses/EvolutionCote'
 import { BandeauGratuit, CartePass } from '@/components/acces/Verrou'
 import { useAcces } from '@/auth/AccesContext'
 import { courseOfferte } from '@/lib/acces'
@@ -184,7 +184,7 @@ function DetailCourse({
   /** Formule Gratuit : la course offerte du jour, proposée depuis la carte « Pass ». */
   offerte: Course | null
 }) {
-  const historiques = useHistoriques(course)
+  const { historiques, dernier } = useCotes(course)
   // Pronostic réservé aux Pass : la base n'en a rien donné (`db/007`).
   if (course.verrouillee) {
     return (
@@ -199,8 +199,8 @@ function DetailCourse({
       <EnTeteCourse course={course} />
       <AvisNonPartant course={course} />
       {course.courue ? <FaceArrivee course={course} /> : <ArriveePredite course={course} />}
-      <ListePartants course={course} historiques={historiques} comparaison={comparaison} />
-      {historiques && <MouvementsCote course={course} historiques={historiques} />}
+      <ListePartants course={course} historiques={historiques} dernieres={dernier} comparaison={comparaison} />
+      {historiques.size > 0 && <MouvementsCote course={course} historiques={historiques} />}
       {/* Les textes de `config/app`, repris tels quels : une formulation propre
           à cette page finirait par contredire l'accueil et Méthode. */}
       <p className="text-xs text-faint leading-relaxed max-w-prose">

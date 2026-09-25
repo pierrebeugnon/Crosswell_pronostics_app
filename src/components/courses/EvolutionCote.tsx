@@ -1,18 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import type { Course, Partant } from '@/types'
 import { COTES_SIMULEES } from '@/config/app'
 import { cote as formatCote } from '@/lib/format'
 import {
+  COTES_VIDES,
+  cotesDeCourse,
   flecheCote,
   heureMinute,
   historiqueSimule,
   tendanceCote,
   tracer,
+  type CotesCourse,
   type HistoriqueCote,
   type SensCote,
 } from '@/lib/cotes'
+import { chargerCotes } from '@/services/cotes'
 import { DEPUIS_LA_COURSE, lienPartant } from '@/lib/programme'
 import { useHeureParis } from '@/lib/useHeureParis'
 import { Panneau } from '@/components/resultats/Panneaux'
@@ -22,8 +26,9 @@ import { Panneau } from '@/components/resultats/Panneaux'
  * de la cote »), flèches du tableau des partants, et un panneau de course qui
  * reprend les mini-courbes du comparateur de la maquette.
  *
- * Tout est SIMULÉ (`lib/cotes.ts`) et le dit : pastille « Simulée » et phrase
- * d'explication. Rien ne s'affiche quand `COTES_SIMULEES` est coupé.
+ * Les relevés sont RÉELS depuis le 25/09/2026 (`services/cotes.ts`, toutes les
+ * 30 minutes de 11 h à 19 h). La DÉMONSTRATION, qui n'a pas de base, garde la
+ * courbe simulée : elle le dit, pastille « Simulée » et phrase d'explication.
  */
 
 export const TON_SENS: Record<SensCote, string> = {
@@ -32,26 +37,77 @@ export const TON_SENS: Record<SensCote, string> = {
   hausse: 'text-loss',
 }
 
-/** Les historiques de tous les partants d'une course, par numéro. */
-export function useHistoriques(course: Course): Map<number, HistoriqueCote> | null {
+/** Les relevés déjà lus, par course : une course ouverte, lue une fois. */
+const lues = new Map<string, { a: number; cotes: CotesCourse }>()
+const enCours = new Map<string, Promise<CotesCourse>>()
+
+/** Au-delà, une course du jour non courue se relit : un relevé toutes les 30 minutes. */
+const FRAICHEUR = 10
+
+/**
+ * Les relevés de cote d'une course. Une seule requête sert le tableau, la
+ * fiche, le comparateur et le panneau ; une course du jour se relit toutes les
+ * dix minutes, une course courue ou passée jamais. Une lecture en échec (vue
+ * absente, session refusée) laisse la course sans cote du jour, sans rien
+ * casser.
+ */
+export function useCotes(course: Course): CotesCourse {
   const m = useHeureParis()
+  const vivante = course.date >= m.jour && !course.courue
+  const fenetre = vivante ? Math.floor(m.minutes / FRAICHEUR) : 0
+  const [reelles, setReelles] = useState<CotesCourse>(() => lues.get(course.cle)?.cotes ?? COTES_VIDES)
+
+  useEffect(() => {
+    if (COTES_SIMULEES) return
+    let attendue = true
+    const deja = lues.get(course.cle)
+    if (deja && (!vivante || m.minutes - deja.a < FRAICHEUR)) {
+      setReelles(deja.cotes)
+      return
+    }
+    let demande = enCours.get(course.cle)
+    if (!demande) {
+      demande = chargerCotes(course)
+        .then((releves) => {
+          const cotes = cotesDeCourse(releves, course)
+          lues.set(course.cle, { a: m.minutes, cotes })
+          return cotes
+        })
+        .catch(() => lues.get(course.cle)?.cotes ?? COTES_VIDES)
+        .finally(() => enCours.delete(course.cle))
+      enCours.set(course.cle, demande)
+    }
+    void demande.then((cotes) => {
+      if (attendue) setReelles(cotes)
+    })
+    return () => {
+      attendue = false
+    }
+    // `fenetre` rythme la relecture ; `m.minutes` ne doit pas la déclencher.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [course, vivante, fenetre])
+
+  // La démonstration n'a pas de relevés : la courbe simulée en tient lieu.
   return useMemo(() => {
-    if (!COTES_SIMULEES || !course.cotee) return null
-    const r = new Map<number, HistoriqueCote>()
+    if (!COTES_SIMULEES) return reelles
+    if (!course.cotee) return COTES_VIDES
+    const historiques = new Map<number, HistoriqueCote>()
     for (const p of course.liste) {
       const h = historiqueSimule(course, p, m)
-      if (h) r.set(p.numero, h)
+      if (h) historiques.set(p.numero, h)
     }
-    return r.size > 0 ? r : null
-  }, [course, m])
+    return { dernier: new Map(), historiques }
+  }, [course, m, reelles])
+}
+
+/** Les historiques de tous les partants d'une course, par numéro. */
+export function useHistoriques(course: Course): Map<number, HistoriqueCote> | null {
+  const { historiques } = useCotes(course)
+  return historiques.size > 0 ? historiques : null
 }
 
 export function useHistorique(course: Course, partant: Partant): HistoriqueCote | null {
-  const m = useHeureParis()
-  return useMemo(
-    () => (COTES_SIMULEES && course.cotee ? historiqueSimule(course, partant, m) : null),
-    [course, partant, m],
-  )
+  return useCotes(course).historiques.get(partant.numero) ?? null
 }
 
 export function PastilleSimulee() {
@@ -65,11 +121,15 @@ export function PastilleSimulee() {
   )
 }
 
-/** « 09:00 », …, « Maintenant » ou « Départ 15:10 » pour le dernier point. */
+/**
+ * L'heure de chaque point. Le dernier porte le nom de ce qu'il est : l'heure
+ * de son relevé (cotes réelles), « Maintenant » ou « Départ 15:10 » (courbe
+ * simulée, qui s'arrête à l'un ou l'autre).
+ */
 function libellesTemps(h: HistoriqueCote): string[] {
   const n = h.points.length
   return h.points.map((p, i) => {
-    if (i < n - 1) return heureMinute(p.minute)
+    if (i < n - 1 || h.fin === 'releve') return heureMinute(p.minute)
     if (h.fin === 'maintenant') return 'Maintenant'
     return h.heureConnue ? `Départ ${heureMinute(p.minute)}` : 'Départ'
   })
@@ -93,14 +153,23 @@ export function EvolutionCote({ historique: h }: { historique: HistoriqueCote })
       <div className="flex items-baseline justify-between gap-2.5 lg:gap-4">
         <h3 id="evolution-cote" className="flex items-center gap-2 text-[0.9375rem] lg:text-[0.9375rem] font-bold">
           Évolution de la cote
-          <PastilleSimulee />
+          {h.simulee && <PastilleSimulee />}
         </h3>
         <span className={`num text-xs lg:text-[0.8125rem] font-extrabold whitespace-nowrap ${TON_SENS[tendance.sens]}`}>
           {tendance.libelle}
         </span>
       </div>
       <span className="num text-xs lg:text-[0.8125rem] font-medium text-muted">
-        Cote du matin {formatCote(h.matin)} → {h.fin === 'depart' ? 'au départ' : 'maintenant'} {formatCote(h.derniere)}
+        {h.fin === 'releve' ? (
+          <>
+            Cote {formatCote(h.matin)} à {temps[0]} → {formatCote(h.derniere)} à {temps[n - 1]}
+          </>
+        ) : (
+          <>
+            Cote du matin {formatCote(h.matin)} → {h.fin === 'depart' ? 'au départ' : 'maintenant'}{' '}
+            {formatCote(h.derniere)}
+          </>
+        )}
       </span>
 
       <div className="flex gap-2.5 mt-[1.875rem] lg:mt-0">
@@ -151,15 +220,19 @@ export function EvolutionCote({ historique: h }: { historique: HistoriqueCote })
               {temps[i]} · cote {formatCote(valeurs[i])}
             </span>
           </div>
+          {/* Trois repères de temps — deux seulement quand il n'y a que deux
+              relevés, sinon le milieu répéterait le premier. */}
           <div className="num flex justify-between text-[0.625rem] lg:text-[0.6875rem] font-semibold text-muted" aria-hidden>
             <span>{temps[0]}</span>
-            <span>{temps[Math.floor((n - 1) / 2)]}</span>
+            {n > 2 && <span>{temps[Math.floor((n - 1) / 2)]}</span>}
             <span>{temps[n - 1]}</span>
           </div>
         </div>
       </div>
       <p className="text-[0.6875rem] lg:text-xs font-medium text-faint leading-relaxed">
-        Courbe simulée à partir de la cote relevée : l’historique des cotes n’est pas encore enregistré.
+        {h.simulee
+          ? 'Courbe simulée à partir de la cote relevée : l’historique des cotes n’est pas encore enregistré.'
+          : `Cote relevée toutes les 30 minutes, de 11 h à 19 h. ${h.points.length} relevés pour ce partant.`}
       </p>
     </section>
   )
@@ -170,7 +243,8 @@ export function FlecheCote({ historique: h }: { historique: HistoriqueCote | und
   if (!h) return null
   const sens = flecheCote(h.variation)
   if (!sens) return null
-  const texte = `Cote en ${sens} depuis le matin, ${formatCote(h.matin)} → ${formatCote(h.derniere)} (simulation)`
+  const depuis = h.fin === 'releve' ? `depuis ${heureMinute(h.points[0].minute)}` : 'depuis le matin'
+  const texte = `Cote en ${sens} ${depuis}, ${formatCote(h.matin)} → ${formatCote(h.derniere)}${h.simulee ? ' (simulation)' : ''}`
   const Icone = sens === 'baisse' ? ArrowDown : ArrowUp
   return (
     <span role="img" aria-label={texte} title={texte} className={`shrink-0 inline-flex ${sens === 'baisse' ? 'text-accent' : 'text-dim'}`}>
@@ -222,7 +296,12 @@ export function MouvementsCote({ course, historiques }: { course: Course; histor
     .filter((x) => tendanceCote(x.h.variation).sens === 'hausse')
     .sort((a, b) => b.h.variation - a.h.variation)
     .slice(0, PAR_SENS)
-  const partie = lignes[0]?.h.fin === 'depart'
+  const premier = lignes[0]?.h
+  const simulee = premier?.simulee === true
+  const partie = premier?.fin === 'depart'
+  const depuis = simulee
+    ? `Depuis 9 h ${partie ? 'jusqu’au départ' : 'jusqu’à maintenant'}`
+    : `Depuis le relevé de ${heureMinute(premier?.points[0].minute ?? 0)}`
 
   const colonne = (titre: string, sens: SensCote, liste: typeof lignes) => (
     <div className="flex flex-col min-w-0">
@@ -263,17 +342,19 @@ export function MouvementsCote({ course, historiques }: { course: Course; histor
       titre={
         <span className="flex items-center gap-2">
           Évolution des cotes
-          <PastilleSimulee />
+          {simulee && <PastilleSimulee />}
         </span>
       }
-      sousTitre={`Depuis 9 h ${partie ? 'jusqu’au départ' : 'jusqu’à maintenant'} · les plus fortes baisses et hausses`}
+      sousTitre={`${depuis} · les plus fortes baisses et hausses`}
     >
       <div className="grid gap-5 lg:grid-cols-2 lg:gap-8">
         {colonne('Cote en baisse', 'baisse', baisses)}
         {colonne('Cote en hausse', 'hausse', hausses)}
       </div>
       <p className="text-[0.6875rem] lg:text-xs font-medium text-faint leading-relaxed">
-        Évolution simulée à partir de la cote relevée : l’historique des cotes n’est pas encore enregistré.
+        {simulee
+          ? 'Évolution simulée à partir de la cote relevée : l’historique des cotes n’est pas encore enregistré.'
+          : 'Cotes relevées toutes les 30 minutes, de 11 h à 19 h. Elles disent le marché, pas notre pronostic.'}
       </p>
     </Panneau>
   )

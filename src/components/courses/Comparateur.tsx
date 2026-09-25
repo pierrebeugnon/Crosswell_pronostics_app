@@ -18,7 +18,7 @@ import { DEPUIS_LA_COURSE, lienPartant } from '@/lib/programme'
 import { useHeureParis } from '@/lib/useHeureParis'
 import { chargerFiche } from '@/services/fiches'
 import { TON_PLACE } from '@/components/courses/FicheDetails'
-import { MiniCourbe, PastilleSimulee, TON_SENS, useHistoriques } from '@/components/courses/EvolutionCote'
+import { MiniCourbe, PastilleSimulee, TON_SENS, useCotes } from '@/components/courses/EvolutionCote'
 
 /**
  * LE COMPARATEUR — `design/screens/MainCompare.dc.html` et `MobileCompare`.
@@ -33,8 +33,8 @@ import { MiniCourbe, PastilleSimulee, TON_SENS, useHistoriques } from '@/compone
  * Écarts à la maquette (design/INTEGRATION.md) : pas de jockey du jour sous le
  * nom (non relevé) mais l'âge, le sexe et la robe ; pas de facteurs du
  * pronostic (non exportés par le modèle) ; « Value » devient « Écart au
- * marché » et « Gains » « Allocations » ; la tendance de cote est simulée et
- * le dit.
+ * marché » et « Gains » « Allocations » ; la tendance de cote vient des relevés
+ * du jour (`db/008`), simulée en démonstration seule, et le dit.
  */
 
 const CLE_STOCKAGE = 'crosswell.comparateur'
@@ -327,7 +327,7 @@ function ParFiche({ etat, children }: { etat: EtatFicheComparee; children: (f: F
 /** La comparaison elle-même. */
 export function Comparateur({ course, comparaison }: { course: Course; comparaison: Comparaison }) {
   const choisis = partantsCompares(course.liste, comparaison.numeros)
-  const historiques = useHistoriques(course)
+  const { historiques, dernier } = useCotes(course)
   const fiche = useFiches(choisis)
   const { jour } = useHeureParis()
   const fermer = useRef<HTMLButtonElement>(null)
@@ -353,8 +353,8 @@ export function Comparateur({ course, comparaison }: { course: Course; comparais
   const victoireMax = meilleure(choisis.map((p) => p.pWin))
   const placeMax = meilleure(choisis.map((p) => p.pPlace))
   const echelle = Math.max(...choisis.map((p) => p.pWin ?? 0), 0.0001)
-  const avecCote = choisis.some((p) => p.cote != null)
-  const avecSimulation = choisis.some((p) => historiques?.has(p.numero))
+  const avecCote = choisis.some((p) => p.cote != null || dernier.has(p.numero))
+  const avecSimulation = choisis.some((p) => historiques.get(p.numero)?.simulee === true)
   const repere = [`C${course.numero}`, course.nom ?? `Course ${course.numero}`, course.heureDepart].filter(Boolean).join(' · ')
 
   return (
@@ -477,13 +477,14 @@ export function Comparateur({ course, comparaison }: { course: Course; comparais
               }
             >
               {choisis.map((p) => {
-                const h = historiques?.get(p.numero)
+                const h = historiques.get(p.numero)
+                const cote = p.cote ?? dernier.get(p.numero)?.cote ?? null
                 const t = h ? tendanceCote(h.variation) : null
                 const court = t ? (t.sens === 'stable' ? 'Stable' : `${t.sens === 'baisse' ? '↓' : '↑'} ${Math.round(Math.abs(h!.variation) * 100)} %`) : null
                 return (
                   <span key={p.numero} className="flex flex-col gap-1 lg:gap-1.5 min-w-0">
                     <span className="num flex items-baseline gap-2.5">
-                      <span className="text-[0.9375rem] lg:text-[1.0625rem] font-extrabold">{p.cote != null ? formatCote(p.cote) : '—'}</span>
+                      <span className="text-[0.9375rem] lg:text-[1.0625rem] font-extrabold">{cote != null ? formatCote(cote) : '—'}</span>
                       {t && <span className={`hidden lg:inline text-[0.8125rem] font-extrabold ${TON_SENS[t.sens]}`}>{t.libelle}</span>}
                     </span>
                     {h && <MiniCourbe h={h} className="h-[2.125rem] lg:h-11" />}

@@ -103,13 +103,14 @@ bloque au moins un écran. Les autres écrans peuvent avancer en attendant.
 - **A3. Les fiches jockey et entraîneur.** Montes, victoires, gains, palmarès en Groupe,
   classement annuel : même problème de source. En plus, `client_predictions` n'a aucune
   colonne jockey ni entraîneur.
-- **A4. Les cotes et la Value.** La maquette montre une cote « en direct », son évolution
-  depuis le matin (courbe, flèches) et une Value à **+25 % relatifs**. Aujourd'hui :
-  - on n'a qu'une cote, sans historique ;
-  - `cote_avant` a été retirée de la vue exprès : un service qui l'afficherait devient un
-    service de value bets ;
-  - environ 4 réunions sur 10 n'ont pas de cote ;
-  - `MARGE_VALUE` vaut 10 %.
+- **A4. Les cotes et la Value.** ~~On n'a qu'une cote, sans historique.~~ **Tranché et livré le
+  25/09/2026** (lot 10, ci-dessous) : `cotes_jour` enregistre un relevé par partant toutes
+  les 30 minutes de 11 h à 19 h, `client_cotes` le sert (`db/008`), et l'app montre la cote
+  du moment et sa courbe. Ce qui reste écarté, par décision du fondateur du 25/09 : l'écart
+  au marché ne se calcule PAS sur ces cotes — il attend la cote de clôture, après l'arrivée.
+  Montrer avant le départ qu'un cheval « vaut mieux que sa cote » ferait un service de value
+  bets. La maquette annonce une Value à **+25 % relatifs** ; `MARGE_VALUE` vaut 10 %, et
+  environ 4 réunions sur 10 n'ont pas de cote de clôture.
 - **A5. La course offerte.** Le paywall suppose que la règle « 1 course offerte par jour » est
   tranchée. Elle ne l'est pas. Quelle course, choisie par qui ?
 - **A6. Les formules et le paiement.**
@@ -152,9 +153,10 @@ bloque au moins un écran. Les autres écrans peuvent avancer en attendant.
 - **A12. D'autres données absentes de la vue**, découvertes en intégrant Courses :
   - le numéro de réunion PMU (le « R1 » de « R1 C3 ») ;
   - le jockey (affiché sous chaque cheval dans la maquette) ;
-  - la cote avant la course : la vue ne porte que la cote de clôture, relevée après.
+  - ~~la cote avant la course~~ : **réglé le 25/09** par `client_cotes` (`db/008`, A4), qui
+    sert les relevés du jour ; `client_predictions` garde la seule cote de clôture.
 
-  Comme l'historique des cotes (A4), ce sont des sujets d'architecture, à traiter à part.
+  Le jockey reste un sujet d'architecture, à traiter à part.
 
 ## Ordre proposé et avancement
 
@@ -220,8 +222,9 @@ bloque au moins un écran. Les autres écrans peuvent avancer en attendant.
 - « C3 » au lieu de « R1 C3 », faute de numéro de réunion (A12).
 - Le % placé sous le nom du cheval, à la place du jockey (A12).
 - Le type de course (Handicap…) au lieu de la discipline (A11).
-- La cote n'apparaît que si elle existe : en production, c'est souvent après la course
-  seulement (A12). Pas de flèches « cote en baisse » (A4).
+- La cote affichée est celle de clôture quand elle existe, sinon le dernier relevé du jour,
+  avec son heure en infobulle (A4, depuis le 25/09). Les flèches « cote en baisse » suivent
+  les relevés ; sans relevé ni clôture, la colonne reste vide (A12).
 - L'avis de non-partant dit que les pourcentages **ne sont pas recalculés**. La maquette
   affirme le contraire, ce que le pipeline ne fait pas.
 - « Terminée · arrivée relevée » plutôt que « arrivée officielle ».
@@ -718,3 +721,42 @@ les fonctions Stripe ne sont pas déployées.
 portail et webhook dans Stripe (mode test) → saisir les secrets → déployer les trois
 fonctions → essayer avec la carte de test → passer en mode réel après CGV et validation
 juridique.
+
+### Lot 10 — L'historique des cotes, réel (25/09/2026)
+
+**Demande du fondateur (25/09) :** « on vient d'ajouter la table d'historisation des cotes.
+Tu peux voir pour l'ajouter à l'app en suivant le design donné sur les maquettes ? »
+
+**La source.** `modele_prediction_engagement.cotes_jour`, alimentée par la tâche pg_cron
+`crosswell-cotes-avant` (toutes les 30 minutes, de 11 h à 19 h) : une ligne par partant et
+par relevé. Les clés collent à `predictions_log` (date, hippodrome, course, numéro) ; au
+premier relevé du 25/09, les 14 courses du jour étaient couvertes, partant par partant.
+
+**Deux arbitrages, tranchés par le fondateur le 25/09 :**
+- **Portée.** Courbe ET cote du moment. Le tableau des partants affichait une colonne vide
+  toute la journée — la cote de clôture n'arrive que le soir ; il montre maintenant le
+  dernier relevé, avec son heure en infobulle.
+- **L'écart au marché ne bouge pas.** Il reste calculé sur la cote de CLÔTURE
+  (`lib/aggregate.ts`, `Partant.cote`, `Partant.pMarche`). Servir un écart au marché avant
+  le départ ferait de Crosswell un service de value bets, ce que le positionnement exclut
+  (A8). Les relevés du jour voyagent donc à part (`CotesCourse`), sans jamais alimenter
+  `aggregate`. La fiche le dit quand la clôture manque : « La comparaison au marché se fait
+  sur la cote de clôture, après la course. »
+
+**Base** — `db/008_cotes_historique.sql`, **appliquée en production le 25/09/2026** avec
+l'accord du fondateur : vue `public.client_cotes` (relevés des courses du modèle servi,
+heure de Paris, cote > 1), réservée au rôle `authenticated`. Vérifié : anonyme refusé
+(42501), 0,6 ms sur une course (index `cotes_jour_pkey`, semi-jointure sur
+`predictions_log_uniq`). Pas de filtrage par formule : une cote est une donnée de marché,
+pas un pronostic — et le pronostic des courses verrouillées (007) reste, lui, hors de portée.
+
+**Application :**
+- `services/cotes.ts` lit la vue course par course ; `lib/cotes.ts` (`cotesDeCourse`) en tire
+  le dernier relevé de chaque partant et sa courbe, dès deux relevés ;
+- `useCotes` (EvolutionCote) partage une lecture entre le tableau, la fiche, le comparateur
+  et le panneau ; une course du jour se relit toutes les dix minutes, une course courue
+  jamais ;
+- les écrans ne disent plus « simulée » que quand ils le sont : `COTES_SIMULEES` est
+  désormais la seule DÉMONSTRATION, qui n'a pas de base. Les libellés suivent les relevés
+  (« Cote 5,2 à 11:53 → 4,2 à 12:23 », « Depuis le relevé de 11:53 », « Cote relevée toutes
+  les 30 minutes, de 11 h à 19 h »).

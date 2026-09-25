@@ -60,29 +60,36 @@ export const NOTE_NON_PARTANTS =
  * LE RYTHME DE PUBLICATION — une seule formulation, reprise telle quelle par
  * toutes les pages (accueil, réunion, course, compte, connexion, Méthode).
  *
- * DÉCISION DU 17 SEPTEMBRE 2026 : le pipeline est en cours de reprogrammation
- * pour calculer PENDANT LA NUIT les pronostics du LENDEMAIN, afin que le client
- * dispose toujours de ceux d'aujourd'hui ET de ceux de demain. Les textes
- * annoncent ce rythme dès maintenant, à la demande du fondateur, alors qu'à
- * cette date la production calcule encore le jour même vers 7 h (et, avant le
- * 6 septembre 2026, la veille vers 19 h).
+ * DÉCISION DU 20 SEPTEMBRE 2026 : le pipeline N'EST PAS reprogrammé, et il ne
+ * le sera pas — « on n'a pas reprogrammé le runner et c'est très bien comme ça »
+ * (fondateur). Il calcule le jour même, vers 7 h, les courses de la journée.
  *
- * Aucune heure n'est écrite : le nouveau pipeline n'en a pas encore de garantie,
- * et une heure recopiée devient une promesse fausse dès qu'elle glisse. Si une
- * heure est un jour garantie, c'est ici seulement qu'elle s'ajoute.
+ * CES TEXTES DISAIENT L'INVERSE. Écrits le 17 septembre EN AVANCE sur une
+ * reprogrammation alors prévue, ils annonçaient « publiés dès la veille de la
+ * course » et « vous avez toujours ceux d'aujourd'hui et ceux de demain ».
+ * Tant que la reprogrammation était attendue, c'était une promesse en avance ;
+ * l'abandonner en a fait une promesse FAUSSE — affichée à huit endroits, dont
+ * la page de connexion et la FAQ, donc lue AVANT l'achat. Corrigé le
+ * 20 septembre, à l'ouverture du paiement.
+ *
+ * Aucune heure n'est écrite, et c'est délibéré : une heure recopiée devient une
+ * promesse fausse dès qu'elle glisse — ce fichier en a déjà fait l'expérience
+ * deux fois (19 h, puis « la veille »). Si une heure est un jour garantie,
+ * c'est ici seulement qu'elle s'ajoute.
  */
 export const RYTHME_PUBLICATION_COURT =
-  'Nos pronostics sont calculés dans la nuit et publiés dès la veille de la course.'
+  'Nos pronostics sont calculés chaque nuit et publiés le matin même, pour les courses du jour.'
 
 /**
- * La phrase complète, avec la promesse « toujours aujourd'hui et demain ». Elle
- * dérive de la version courte pour que les deux ne divergent jamais. Les ÉTATS
- * VIDES (« aucune réunion aujourd'hui », « demain pas encore publié ») n'en
- * affichent que la version courte : la promesse, posée sous un titre qui
- * constate l'inverse, se contredirait dans le même panneau — et c'est
- * exactement ce que le client lit tant que la production calcule le jour même.
+ * La phrase complète. Elle dérive de la version courte pour que les deux ne
+ * divergent jamais, et ajoute ce que la courte laisse ouvert : il n'y a QU'UNE
+ * publication par jour. C'est ce qui fait comprendre, sur la page d'une course,
+ * pourquoi un retrait de dernière minute ne change pas les pourcentages.
+ *
+ * Les ÉTATS VIDES n'affichent que la version courte : la précision, posée sous
+ * un titre qui constate l'absence, se contredirait dans le même panneau.
  */
-export const RYTHME_PUBLICATION = `${RYTHME_PUBLICATION_COURT.slice(0, -1)} : vous avez toujours ceux d’aujourd’hui et ceux de demain.`
+export const RYTHME_PUBLICATION = `${RYTHME_PUBLICATION_COURT.slice(0, -1)} : une seule publication par jour, sans mise à jour en cours de journée.`
 
 /**
  * Heure (Paris) approximative du relevé du soir, qui COMPLÈTE les arrivées du
@@ -146,13 +153,13 @@ export const URL_SITE: string =
 export const DEMO = import.meta.env.VITE_DEMO === '1'
 
 /**
- * L'ÉVOLUTION DE LA COTE EST SIMULÉE (`lib/cotes.ts`) : aucun historique des
- * cotes n'est encore enregistré (design/INTEGRATION.md, A4). Affichée en démo
- * et en développement pour travailler l'écran, toujours marquée « simulée » ;
- * masquée dans le build de production, où une courbe inventée passerait pour
- * une mesure. Disparaît quand l'historique réel existe.
+ * L'ÉVOLUTION DE LA COTE EST RÉELLE depuis le 25/09/2026 : les relevés sont
+ * enregistrés toutes les 30 minutes et servis par `client_cotes`
+ * (`db/008_cotes_historique.sql`, `services/cotes.ts`). Seule la
+ * DÉMONSTRATION, qui n'a pas de base, garde la courbe simulée de `lib/cotes.ts`,
+ * et le dit à chaque écran (pastille « Simulée »).
  */
-export const COTES_SIMULEES = DEMO || import.meta.env.DEV
+export const COTES_SIMULEES = DEMO
 
 /**
  * LE MARQUEUR D'ÉCART AU MARCHÉ — un seul libellé, partout où un partant est

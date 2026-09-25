@@ -2,16 +2,24 @@ import type { Course, Partant } from '@/types'
 import { minutesDe, type InstantParis } from '@/lib/journee'
 
 /**
- * L'ÉVOLUTION DE LA COTE — SIMULÉE.
+ * L'ÉVOLUTION DE LA COTE — RÉELLE depuis le 25/09/2026.
  *
- * On ne relève qu'une cote par partant, sans historique (design/INTEGRATION.md,
- * A4). En attendant que l'historique soit enregistré, la courbe de la maquette
- * est SIMULÉE : treize points de 9 h au départ (ou à maintenant), tirés au
- * hasard mais toujours les mêmes pour un partant donné, et qui finissent
- * exactement sur la cote relevée. Chaque écran qui l'affiche dit « simulée ».
+ * `modele_prediction_engagement.cotes_jour` enregistre un relevé par partant
+ * toutes les 30 minutes, de 11 h à 19 h ; `public.client_cotes` le sert à
+ * l'application (`db/008_cotes_historique.sql`, `services/cotes.ts`).
+ * `cotesDeCourse` en tire, par numéro, le dernier relevé — la cote du moment,
+ * affichée avant la course, que la cote de clôture n'a pas encore — et la
+ * courbe, dès qu'il y a deux relevés.
  *
- * Quand l'historique existera, seul `historiqueSimule` sera remplacé : la
- * forme `HistoriqueCote` est celle qu'un service réel renverra.
+ * CE QUI NE SE CALCULE PAS SUR CES COTES : l'écart au marché. Décision du
+ * fondateur du 25/09 — on montre le marché, on ne dit pas avant le départ
+ * qu'un cheval vaut mieux que sa cote. `Partant.cote` et `Partant.pMarche`
+ * restent donc la cote de CLÔTURE (`lib/aggregate.ts`), et l'« Écart + » avec
+ * eux ; les relevés du jour voyagent à part (`CotesCourse`).
+ *
+ * `historiqueSimule` survit pour la DÉMONSTRATION seule, qui n'a pas de base :
+ * treize points tirés au hasard, toujours les mêmes pour un partant donné,
+ * marqués « Simulée » partout où ils s'affichent.
  */
 
 /** L'ouverture du marché dans la maquette : 9 h. */
@@ -38,11 +46,66 @@ export interface HistoriqueCote {
   derniere: number
   /** (dernière − matin) / matin : négatif quand la cote baisse. */
   variation: number
-  /** La courbe s'arrête au départ (course partie) ou maintenant (à venir). */
-  fin: 'depart' | 'maintenant'
+  /**
+   * Ce que dit le dernier point : l'heure de son relevé (cotes réelles), le
+   * départ ou maintenant (simulation, qui va jusqu'à l'un ou l'autre).
+   */
+  fin: 'depart' | 'maintenant' | 'releve'
   /** L'heure de départ est-elle connue (pour la légende de fin de courbe). */
   heureConnue: boolean
   simulee: boolean
+}
+
+/** Un relevé de `client_cotes`, déjà converti en minutes depuis minuit à Paris. */
+export interface ReleveCote {
+  numero: number
+  minute: number
+  cote: number
+}
+
+/** Ce que les relevés d'une course donnent à l'écran. */
+export interface CotesCourse {
+  /** Le dernier relevé de chaque partant : la cote du moment. */
+  dernier: Map<number, PointCote>
+  /** L'évolution de chaque partant, dès deux relevés. */
+  historiques: Map<number, HistoriqueCote>
+}
+
+export const COTES_VIDES: CotesCourse = { dernier: new Map(), historiques: new Map() }
+
+/**
+ * Les relevés d'une course, rangés par partant : la cote du moment pour tous,
+ * la courbe pour ceux qui ont bougé au moins deux fois. Les relevés arrivent
+ * triés par heure ; on ne s'y fie pas.
+ */
+export function cotesDeCourse(releves: readonly ReleveCote[], c: Course): CotesCourse {
+  const parNumero = new Map<number, PointCote[]>()
+  for (const r of releves) {
+    if (!(r.cote > 1)) continue
+    const points = parNumero.get(r.numero)
+    if (points) points.push({ minute: r.minute, cote: r.cote })
+    else parNumero.set(r.numero, [{ minute: r.minute, cote: r.cote }])
+  }
+
+  const dernier = new Map<number, PointCote>()
+  const historiques = new Map<number, HistoriqueCote>()
+  for (const [numero, points] of parNumero) {
+    points.sort((a, b) => a.minute - b.minute)
+    dernier.set(numero, points[points.length - 1])
+    if (points.length < 2) continue
+    const matin = points[0].cote
+    const derniere = points[points.length - 1].cote
+    historiques.set(numero, {
+      points,
+      matin,
+      derniere,
+      variation: (derniere - matin) / matin,
+      fin: 'releve',
+      heureConnue: c.heureDepart != null,
+      simulee: false,
+    })
+  }
+  return { dernier, historiques }
 }
 
 /** Un générateur pseudo-aléatoire graine → [0, 1), stable d'une session à l'autre. */

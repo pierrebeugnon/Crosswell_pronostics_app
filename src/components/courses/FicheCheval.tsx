@@ -9,7 +9,8 @@ import { ligneIdentite } from '@/lib/fiche'
 import { useHeureParis } from '@/lib/useHeureParis'
 import { BarreProba } from '@/components/ui/BarreProba'
 import { Carriere, DernieresCourses, Entourage, Musique, SqueletteFiche, useFiche } from '@/components/courses/FicheDetails'
-import { EvolutionCote, useHistorique } from '@/components/courses/EvolutionCote'
+import { EvolutionCote, useCotes } from '@/components/courses/EvolutionCote'
+import { heureMinute } from '@/lib/cotes'
 import { BoutonComparer, type Comparaison } from '@/components/courses/Comparateur'
 
 /** Une valeur de la grille « Pronostic pour cette course ». */
@@ -35,8 +36,10 @@ function Chiffre({ valeur, libelle, accent = false }: { valeur: string; libelle:
  * Contenu : notre pronostic et la lecture de la cote, puis — depuis la
  * décision du fondateur du 18/09/2026 — le profil, l'entourage, les origines,
  * la musique, la carrière et les dernières courses (données France Galop,
- * `db/004_fiche_cheval.sql`). L'évolution de la cote est SIMULÉE et le dit
- * (`lib/cotes.ts`, historique à construire). Pas encore de facteurs du
+ * `db/004_fiche_cheval.sql`). L'évolution de la cote est relevée toutes les
+ * 30 minutes depuis le 25/09/2026 (`db/008`, simulée en démonstration seule) ;
+ * avant la course, le chiffre « Cote » est le dernier relevé, avec son heure,
+ * et la comparaison au marché attend la clôture. Pas encore de facteurs du
  * pronostic, ni de bouton Suivre (A7). « Comparer » alimente le comparateur.
  */
 export function FicheCheval({
@@ -60,7 +63,13 @@ export function FicheCheval({
   const fiche = details.etat === 'ok' ? details.fiche : null
   const p = partant
   const np = p.nonPartant
-  const historique = useHistorique(course, p)
+  const cotes = useCotes(course)
+  const historique = cotes.historiques.get(p.numero) ?? null
+  // Avant la course, la cote de clôture manque : on montre le dernier relevé
+  // du jour, avec son heure. La comparaison au marché, elle, ne bouge pas.
+  const dernier = cotes.dernier.get(p.numero) ?? null
+  const coteDuJour = p.cote ?? dernier?.cote ?? null
+  const heureCote = dernier ? heureMinute(dernier.minute) : ''
   const maximum = Math.max(...course.liste.filter((x) => !x.nonPartant).map((x) => x.pWin ?? 0), 0.0001)
 
   // La dernière fonction de fermeture, sans relancer l'effet à chaque rendu :
@@ -167,7 +176,10 @@ export function FicheCheval({
             <Chiffre valeur={formatRang(np ? p.rangInitial : p.rang)} libelle={np ? 'Rang publié' : 'Rang prédit'} />
             <Chiffre valeur={pourcent(p.pWin)} libelle="Victoire" accent={!np} />
             <Chiffre valeur={pourcent(p.pPlace)} libelle="Placé" />
-            <Chiffre valeur={np || p.cote == null ? '—' : formatCote(p.cote)} libelle="Cote" />
+            <Chiffre
+              valeur={np || coteDuJour == null ? '—' : formatCote(coteDuJour)}
+              libelle={p.cote == null && coteDuJour != null ? `Cote à ${heureCote}` : 'Cote'}
+            />
           </div>
           <div className="flex items-center gap-2.5 pt-3.5 border-t border-track">
             {p.value && !np && <span className="chip-accent shrink-0">{LIBELLE_ECART}</span>}
@@ -176,9 +188,11 @@ export function FicheCheval({
                 ? 'Retiré : sa cote sort de la comparaison au marché.'
                 : p.pMarche != null
                   ? `La cote implique environ ${pourcent(p.pMarche)} de chances de victoire, le modèle en donne ${pourcent(p.pWin)}.`
-                  : course.cotee
-                    ? 'Aucune cote relevée pour ce partant.'
-                    : 'Réunion sans cote : pas de comparaison au marché.'}
+                  : dernier
+                    ? 'La comparaison au marché se fait sur la cote de clôture, après la course.'
+                    : course.cotee
+                      ? 'Aucune cote relevée pour ce partant.'
+                      : 'Réunion sans cote : pas de comparaison au marché.'}
             </span>
           </div>
         </section>

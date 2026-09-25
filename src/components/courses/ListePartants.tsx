@@ -6,7 +6,7 @@ import { LIBELLE_ECART } from '@/config/app'
 import { DEPUIS_LA_COURSE, lienPartant } from '@/lib/programme'
 import { BarreProba } from '@/components/ui/BarreProba'
 import { FlecheCote, PastilleSimulee } from '@/components/courses/EvolutionCote'
-import { flecheCote, type HistoriqueCote } from '@/lib/cotes'
+import { flecheCote, heureMinute, type HistoriqueCote, type PointCote } from '@/lib/cotes'
 import { CaseComparer, type Comparaison } from '@/components/courses/Comparateur'
 
 /* Les colonnes de la maquette, avec ou sans la colonne « Arrivée ». La colonne
@@ -58,14 +58,32 @@ function Arrivee({ p }: { p: Partant }) {
  * L'échelle des barres est relative au meilleur partant au départ (voir
  * BarreProba) ; un non-partant reste en bas, estompé, sans pourcentage.
  */
+/**
+ * La cote montrée : celle de CLÔTURE dès qu'elle existe (c'est elle qui sert
+ * l'écart au marché), sinon le dernier relevé du jour, avec son heure — avant
+ * la course, c'est la seule qu'on ait (`db/008`).
+ */
+function coteAffichee(
+  p: Partant,
+  dernieres: Map<number, PointCote> | null,
+): { valeur: number; releve: string | null } | null {
+  if (p.nonPartant) return null
+  if (p.cote != null) return { valeur: p.cote, releve: null }
+  const d = dernieres?.get(p.numero)
+  return d ? { valeur: d.cote, releve: heureMinute(d.minute) } : null
+}
+
 export function ListePartants({
   course,
   historiques = null,
+  dernieres = null,
   comparaison = null,
 }: {
   course: Course
-  /** Évolution des cotes depuis le matin, simulée (`lib/cotes.ts`) : les flèches. */
+  /** Évolution de la cote de chaque partant (`services/cotes.ts`) : les flèches. */
   historiques?: Map<number, HistoriqueCote> | null
+  /** Le dernier relevé de chaque partant : la cote du moment, avant la course. */
+  dernieres?: Map<number, PointCote> | null
   /** Le comparateur : une case à cocher en tête de chaque ligne. */
   comparaison?: Comparaison | null
 }) {
@@ -74,6 +92,7 @@ export function ListePartants({
   const colonnes = c.courue ? COLONNES_APRES : COLONNES_AVANT
   const avecValue = c.liste.some((p) => p.value)
   const avecFleches = historiques != null && [...historiques.values()].some((h) => flecheCote(h.variation) != null)
+  const cotesSimulees = historiques != null && [...historiques.values()].some((h) => h.simulee)
   // Avec les cases, chaque ligne = la case + le lien vers la fiche (deux cibles distinctes).
   const ligneBureau = comparaison ? 'grid grid-cols-[3.5rem_minmax(0,1fr)] items-center' : ''
   const ligneTelephone = comparaison ? 'grid grid-cols-[2.25rem_minmax(0,1fr)] items-center' : ''
@@ -104,8 +123,8 @@ export function ListePartants({
             {avecFleches && (
               <span className="hidden lg:flex items-center gap-1.5">
                 <ArrowDown size={14} strokeWidth={2.6} className="text-accent" aria-hidden />
-                Cote en baisse depuis le matin
-                <PastilleSimulee />
+                Cote en baisse depuis le {cotesSimulees ? 'matin' : 'premier relevé'}
+                {cotesSimulees && <PastilleSimulee />}
               </span>
             )}
           </span>
@@ -134,7 +153,9 @@ export function ListePartants({
             <span />
           </div>
         </div>
-        {c.liste.map((p) => (
+        {c.liste.map((p) => {
+          const cote = coteAffichee(p, dernieres)
+          return (
           <div key={p.numero} className={`${ligneBureau} border-t border-track ${p.nonPartant ? 'opacity-[0.45]' : ''}`}>
             {comparaison && <CaseComparer partant={p} comparaison={comparaison} className="w-14 h-[3.375rem] pl-4" />}
             <Link
@@ -166,9 +187,12 @@ export function ListePartants({
               <span className="num text-right text-sm font-medium text-muted">
                 {p.nonPartant ? '—' : pourcent(p.pPlace)}
               </span>
-              <span className="num flex items-center justify-end gap-1 text-[0.9375rem] font-bold">
+              <span
+                className="num flex items-center justify-end gap-1 text-[0.9375rem] font-bold"
+                title={cote?.releve ? `Cote relevée à ${cote.releve}` : undefined}
+              >
                 {!p.nonPartant && <FlecheCote historique={historiques?.get(p.numero)} />}
-                {p.nonPartant || p.cote == null ? '—' : formatCote(p.cote)}
+                {cote ? formatCote(cote.valeur) : '—'}
               </span>
               <span className="flex items-center justify-end gap-2">
                 {p.value && <Ecart />}
@@ -176,12 +200,15 @@ export function ListePartants({
               </span>
             </Link>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Téléphone : la liste. */}
       <div className="lg:hidden">
-        {c.liste.map((p) => (
+        {c.liste.map((p) => {
+          const cote = coteAffichee(p, dernieres)
+          return (
           <div key={p.numero} className={`${ligneTelephone} border-t border-track ${p.nonPartant ? 'opacity-[0.45]' : ''}`}>
             {comparaison && <CaseComparer partant={p} comparaison={comparaison} className="w-9 self-stretch min-h-[3.75rem]" />}
             <Link
@@ -209,10 +236,13 @@ export function ListePartants({
               </span>
               <span className="flex flex-col items-end gap-0.5">
                 <span className="num text-[0.9375rem] font-extrabold">{p.nonPartant ? '—' : pourcent(p.pWin)}</span>
-                {!p.nonPartant && p.cote != null && (
-                  <span className="num flex items-center gap-0.5 text-xs font-semibold text-faint">
+                {cote && (
+                  <span
+                    className="num flex items-center gap-0.5 text-xs font-semibold text-faint"
+                    title={cote.releve ? `Cote relevée à ${cote.releve}` : undefined}
+                  >
                     <FlecheCote historique={historiques?.get(p.numero)} />
-                    {formatCote(p.cote)}
+                    {formatCote(cote.valeur)}
                   </span>
                 )}
                 {c.courue && p.arrivee != null && (
@@ -223,7 +253,8 @@ export function ListePartants({
               </span>
             </Link>
           </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

@@ -1,11 +1,52 @@
 import { describe, expect, it } from 'vitest'
-import { OUVERTURE_MARCHE, flecheCote, heureMinute, historiqueSimule, tendanceCote, tracer } from '@/lib/cotes'
+import {
+  OUVERTURE_MARCHE,
+  cotesDeCourse,
+  flecheCote,
+  heureMinute,
+  historiqueSimule,
+  tendanceCote,
+  tracer,
+} from '@/lib/cotes'
 import type { Course, Partant } from '@/types'
 
 const course = (o: Partial<Course> = {}): Course =>
   ({ cle: '2026-09-18|CHANTILLY|3', date: '2026-09-18', heureDepart: '15:10', courue: false, ...o }) as Course
 const partant = (o: Partial<Partant> = {}): Partant => ({ numero: 4, cote: 6.5, nonPartant: false, ...o }) as Partant
 const a = (jour: string, hhmm: string) => ({ jour, minutes: Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)) })
+
+describe('relevés réels', () => {
+  const releves = [
+    { numero: 4, minute: 12 * 60 + 23, cote: 4.2 },
+    { numero: 4, minute: 11 * 60 + 53, cote: 5.2 },
+    { numero: 7, minute: 11 * 60 + 53, cote: 9 },
+    { numero: 9, minute: 11 * 60 + 53, cote: 1 },
+  ]
+
+  it('trie les relevés, garde le dernier et calcule la variation', () => {
+    const { dernier, historiques } = cotesDeCourse(releves, course())
+    expect(dernier.get(4)).toEqual({ minute: 12 * 60 + 23, cote: 4.2 })
+    const h = historiques.get(4)!
+    expect(h.points.map((p) => p.cote)).toEqual([5.2, 4.2])
+    expect(h.matin).toBe(5.2)
+    expect(h.derniere).toBe(4.2)
+    expect(h.variation).toBeCloseTo((4.2 - 5.2) / 5.2)
+    expect(h.fin).toBe('releve')
+    expect(h.simulee).toBe(false)
+  })
+
+  it('donne la cote du moment sans courbe quand il n’y a qu’un relevé', () => {
+    const { dernier, historiques } = cotesDeCourse(releves, course())
+    expect(dernier.get(7)).toEqual({ minute: 11 * 60 + 53, cote: 9 })
+    expect(historiques.has(7)).toBe(false)
+  })
+
+  it('écarte une cote à 1 ou moins, et ne rend rien sans relevé', () => {
+    const { dernier } = cotesDeCourse(releves, course())
+    expect(dernier.has(9)).toBe(false)
+    expect(cotesDeCourse([], course()).dernier.size).toBe(0)
+  })
+})
 
 describe('historique simulé', () => {
   it('finit exactement sur la cote relevée, part de 9 h, treize points', () => {
