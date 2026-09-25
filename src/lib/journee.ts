@@ -8,10 +8,16 @@ import type { Course, Reunion } from '@/types'
  * Toutes les pages de prédiction lisent l'heure ICI, jamais `new Date()` : une
  * course « à venir » sur l'accueil ne peut pas être « partie » sur sa réunion.
  *
- * Aucun état « publication attendue » ici : depuis la décision du 17 septembre
- * 2026 (`RYTHME_PUBLICATION`), les pronostics de demain sont calculés dans la
- * nuit et aujourd'hui est toujours publié. L'ancien suivi de la publication du
- * matin (avant 7 h, en retard après 9 h 30) a été retiré avec ce rythme.
+ * Aucun état « publication attendue » ici — et c'est désormais un MANQUE, pas
+ * un choix. Le suivi de la publication du matin (attendue avant 7 h, en retard
+ * après 9 h 30) avait été retiré le 17 septembre 2026, parce que le pipeline
+ * devait passer au calcul de la veille. Cette reprogrammation a été abandonnée
+ * le 20 septembre (voir `RYTHME_PUBLICATION` dans config/app) : le calcul se
+ * fait toujours le matin même, vers 7 h.
+ *
+ * Conséquence à traiter : un client qui ouvre l'application avant 7 h voit une
+ * journée vide sans explication, là où l'ancien état lui disait que la
+ * publication était attendue. À restaurer si le rythme du matin reste la règle.
  */
 
 export interface InstantParis {

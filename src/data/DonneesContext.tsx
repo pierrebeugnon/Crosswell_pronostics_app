@@ -35,8 +35,12 @@ const INTERVALLE_MS = 90_000
 
 /**
  * Charge une FENÊTRE glissante — les trente derniers jours, aujourd'hui compris,
- * plus demain, toujours publié dès la veille (`RYTHME_PUBLICATION`) — et la
- * partage entre toutes les pages de suivi.
+ * plus demain — et la partage entre toutes les pages de suivi.
+ *
+ * Demain reste dans la fenêtre bien qu'il ne soit PLUS publié à l'avance : le
+ * pipeline calcule le matin même (`RYTHME_PUBLICATION` dans config/app,
+ * décision du 20/09/2026). La fenêtre ne coûte rien de plus et n'aura rien à
+ * changer si le calcul de la veille revient un jour.
  *
  * Pourquoi une fenêtre et pas tout l'historique : le suivi en direct (accueil,
  * réunions, course du jour, arrivées) ne porte que sur les jours récents, et

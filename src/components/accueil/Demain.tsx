@@ -38,8 +38,14 @@ export function Demain({ courses, demain }: { courses: Course[]; demain: string 
           <span className="shrink-0 w-11 h-11 rounded-xl bg-accent/[0.12] grid place-items-center text-accent" aria-hidden>
             <CalendarClock size={22} />
           </span>
+          {/* « pas ENCORE publiés » laissait attendre une parution dans la
+              journée. Le pipeline calcule le jour même (décision du 20/09/2026,
+              voir `RYTHME_PUBLICATION` dans config/app) : les courses de demain
+              paraissent demain matin, pas ce soir. Le dire évite d'attendre
+              pour rien — et, sur un Pass 1 jour acheté le soir, évite surtout
+              de croire qu'on a payé pour quelque chose qui manque. */}
           <span className="flex flex-col gap-1">
-            <span className="font-bold">Les pronostics de demain ne sont pas encore publiés</span>
+            <span className="font-bold">Les pronostics de demain paraîtront demain matin</span>
             <span className="text-[0.8125rem] font-medium text-muted leading-relaxed">{RYTHME_PUBLICATION_COURT}</span>
           </span>
         </div>

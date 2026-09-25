@@ -51,15 +51,16 @@ export const SEUIL_ECHANTILLON = 100
 export const FENETRE_JOURS = 30
 
 /**
- * LE RYTHME DE PUBLICATION, tel que l'application l'écrit (décision du fondateur
- * du 17/09/2026) : calcul dans la nuit, publication dès la veille. AUCUNE heure :
- * le pipeline n'en garantit pas encore, et une heure recopiée devient une
- * promesse fausse dès qu'elle glisse. Doit rester égal à
+ * LE RYTHME DE PUBLICATION, tel que l'application l'écrit. Le calcul de la
+ * VEILLE, décidé le 17/09/2026, a été ABANDONNÉ le 20/09 : le pipeline calcule
+ * le matin même. Le site promettait encore la veille, et « aujourd'hui et
+ * demain » — une promesse fausse, en ligne, corrigée le 25/09. AUCUNE heure :
+ * une heure recopiée devient fausse dès qu'elle glisse. Doit rester égal à
  * `RYTHME_PUBLICATION_COURT` et `RYTHME_PUBLICATION` de `src/config/app.ts`.
  */
 export const RYTHME_PUBLICATION_COURT =
-  'Nos pronostics sont calculés dans la nuit et publiés dès la veille de la course.'
-export const RYTHME_PUBLICATION = `${RYTHME_PUBLICATION_COURT.slice(0, -1)} : vous avez toujours ceux d’aujourd’hui et ceux de demain.`
+  'Nos pronostics sont calculés chaque nuit et publiés le matin même, pour les courses du jour.'
+export const RYTHME_PUBLICATION = `${RYTHME_PUBLICATION_COURT.slice(0, -1)} : une seule publication par jour, sans mise à jour en cours de journée.`
 
 /**
  * Heure (Paris) approximative du relevé du soir, qui complète les arrivées lues
@@ -130,7 +131,7 @@ export const FORMULES: readonly Formule[] = [
     precision: 'Sans carte bancaire',
     points: [
       '1 course offerte chaque jour, pronostic complet',
-      'Programme du jour et du lendemain',
+      'Le programme complet du jour',
       'Nos résultats, en toute transparence',
     ],
     action: 'Commencer gratuitement',

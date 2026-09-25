@@ -119,9 +119,10 @@ misez que… », page Jeu responsable) : **rien de cela n'est repris**.
 
 ## Ce que le service est, en faits (tout est vrai et vient de l'app)
 
-- **Publication** : `RYTHME_PUBLICATION` — calcul dans la nuit, publication dès la veille,
-  aujourd'hui et demain toujours disponibles (décision du 17/09/2026, que l'app annonce
-  déjà). **Aucune heure** n'est écrite. Une fois publiées, les probabilités ne sont **jamais
+- **Publication** : `RYTHME_PUBLICATION` — calcul chaque nuit, publication le matin même,
+  pour les courses du jour. Le calcul de la veille (décision du 17/09/2026) a été
+  **abandonné le 20/09** : ne promettre ni « dès la veille », ni les courses de demain.
+  **Aucune heure** n'est écrite. Une fois publiées, les probabilités ne sont **jamais
   recalculées**, même après un retrait ; un non-partant est signalé dans la journée
   (`NOTE_NON_PARTANTS`, citée telle quelle).
 - **Sur une course** : l'arrivée prédite, le pourcentage de victoire et de place de chaque

@@ -48,7 +48,7 @@ const ATOUTS: { picto: keyof typeof PICTOS; titre: string; texte: string }[] = [
   {
     picto: 'arrivee',
     titre: 'L’arrivée la plus probable',
-    texte: 'Pour chaque course du jour et du lendemain, l’ordre d’arrivée que le modèle juge le plus probable.',
+    texte: 'Pour chaque course du jour, l’ordre d’arrivée que le modèle juge le plus probable.',
   },
   {
     picto: 'pourcentage',

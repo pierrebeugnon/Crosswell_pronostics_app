@@ -101,10 +101,16 @@ export function lignesDemo(): LignePrediction[] {
   const lignes: LignePrediction[] = []
 
   /*
-   * RYTHME DE PUBLICATION (`RYTHME_PUBLICATION`, décision du 17 septembre
-   * 2026) : les pronostics du lendemain sont calculés dans la nuit. La démo a
-   * donc TOUJOURS aujourd'hui et demain, à toute heure. Seules les arrivées du
-   * jour dépendent de l'heure (`?horloge=HH:MM` pour la simuler).
+   * ⚠ LA DÉMO EST PLUS GÉNÉREUSE QUE LA PRODUCTION. Elle génère aujourd'hui ET
+   * demain (`j <= 1`), hérité du rythme annoncé le 17 septembre 2026. Or le
+   * pipeline calcule le matin même et n'a jamais demain
+   * (`RYTHME_PUBLICATION` dans config/app, décision du 20/09/2026).
+   *
+   * Laissé tel quel volontairement : la démo sert aux captures et à la
+   * conception, où un programme du lendemain est utile. Mais ne pas s'en servir
+   * pour juger de ce que voit un client. Passer à `j <= 0` pour coller à la
+   * production. Seules les arrivées du jour dépendent de l'heure
+   * (`?horloge=HH:MM` pour la simuler).
    */
   const m = instantParis()
   for (let j = -43; j <= 1; j++) {
