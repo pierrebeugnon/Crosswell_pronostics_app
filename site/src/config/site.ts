@@ -29,7 +29,7 @@ export const URL_RESULTATS = `${URL_APPLICATION}/resultats`
 export const URL_INSCRIPTION = `${URL_APPLICATION}/inscription`
 export const inscrireAvec = (cle: string) => `${URL_INSCRIPTION}?formule=${encodeURIComponent(cle)}`
 
-export const CONTACT = 'contact@crosswell.fr'
+export const CONTACT = 'contact@crosswell.io'
 
 /** Un lien e-mail avec son objet. */
 export const ecrire = (objet: string) => `mailto:${CONTACT}?subject=${encodeURIComponent(objet)}`

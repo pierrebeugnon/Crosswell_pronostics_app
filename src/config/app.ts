@@ -138,7 +138,7 @@ export const FENETRE_JOURS = 30
  * l'abonnement. Une seule écriture, reprise par la page Compte : deux adresses
  * recopiées finissent par diverger.
  */
-export const CONTACT = 'contact@crosswell.fr'
+export const CONTACT = 'contact@crosswell.io'
 
 /**
  * Le site vitrine (`site/`), où vivent les pages légales que l'inscription fait

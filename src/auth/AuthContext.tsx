@@ -233,7 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const valeur = useMemo<Auth>(
     () => ({
       session,
-      email: DEMO ? 'demo@crosswell.fr' : (session?.user.email ?? null),
+      email: DEMO ? 'demo@crosswell.io' : (session?.user.email ?? null),
       prenom: DEMO ? prenomDemo : lirePrenom(session?.user.user_metadata?.prenom),
       changerPrenom,
       chargement,

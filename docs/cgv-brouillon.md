@@ -48,7 +48,7 @@ du commerce et des sociétés de `[RCS + ville]` sous le numéro `[SIREN]`, num�
 intracommunautaire `[TVA]`.
 
 Directeur de la publication : Pierre Beugnon.
-Contact : contact@crosswell.fr
+Contact : contact@crosswell.io
 
 ## Article 2 — Objet
 
@@ -148,7 +148,7 @@ dans les conditions prévues à l'article L221-28 du code de la consommation. Ce
 cette renonciation sont recueillis explicitement au moment du paiement, et conservés à titre de
 preuve.
 
-Pour exercer son droit lorsqu'il subsiste, le client écrit à contact@crosswell.fr. Le
+Pour exercer son droit lorsqu'il subsiste, le client écrit à contact@crosswell.io. Le
 remboursement intervient dans les quatorze jours suivant la réception de la demande, par le même
 moyen de paiement.
 
@@ -189,7 +189,7 @@ légales d'ordre public.
 
 ## Article 13 — Réclamations et médiation
 
-Toute réclamation est adressée à contact@crosswell.fr. Crosswell s'engage à répondre sous
+Toute réclamation est adressée à contact@crosswell.io. Crosswell s'engage à répondre sous
 `[délai]` jours.
 
 Conformément à l'article L612-1 du code de la consommation, le client peut recourir gratuitement
