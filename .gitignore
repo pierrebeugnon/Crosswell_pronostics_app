@@ -10,3 +10,6 @@ dist
 *.tsbuildinfo
 
 .vercel
+
+# Cache du CLI Supabase (projet lié, binaires) : propre à la machine.
+supabase/.temp
