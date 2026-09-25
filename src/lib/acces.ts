@@ -9,7 +9,19 @@ import type { Course, LignePrediction } from '@/types'
  * réservés : l'application ne fait que l'afficher.
  */
 
-export type StatutAbonnement = 'aucun' | 'offert' | 'actif' | 'resiliation_programmee' | 'impaye' | 'expire'
+/**
+ * `inconnu` N'EXISTE PAS EN BASE : il est réservé au repli, quand la lecture a
+ * échoué. Il est donc volontairement ABSENT de `STATUTS`, la liste blanche du
+ * parseur — aucune valeur venue de la base ne peut le produire.
+ */
+export type StatutAbonnement =
+  | 'aucun'
+  | 'offert'
+  | 'actif'
+  | 'resiliation_programmee'
+  | 'impaye'
+  | 'expire'
+  | 'inconnu'
 const STATUTS: readonly StatutAbonnement[] = ['aucun', 'offert', 'actif', 'resiliation_programmee', 'impaye', 'expire']
 
 export interface Acces {
@@ -29,8 +41,17 @@ export interface Acces {
  * appliquée le 18/09) et les courses se verrouillent sur sa colonne
  * `verrouille`, pas sur ce repli : seuls le bandeau Gratuit et la carte des
  * fiches jockey et entraîneur en dépendent.
+ *
+ * LE STATUT EST `inconnu`, PAS `offert`. Il valait `offert` : la page Compte
+ * affichait alors « Accès complet · Accès offert » et renvoyait la gestion de
+ * l'abonnement vers un courriel — soit, mot pour mot, l'écran d'un compte
+ * réellement ouvert à la main. Une panne de lecture était indiscernable d'un
+ * accès offert, et a fait chercher au mauvais endroit le 20/09/2026.
+ *
+ * Le repli reste OUVERT (`complet: true`) : ne pas couper un client pour une
+ * panne de lecture. Mais il ne prétend plus savoir pourquoi.
  */
-export const ACCES_SANS_FILTRE: Acces = { complet: true, formule: 'gratuit', statut: 'offert', accesJusqua: null, clientStripe: false }
+export const ACCES_SANS_FILTRE: Acces = { complet: true, formule: 'gratuit', statut: 'inconnu', accesJusqua: null, clientStripe: false }
 
 /** La réponse JSON de `crosswell_mon_acces()`, vérifiée champ par champ. */
 export function lireAcces(brut: unknown): Acces {
@@ -97,7 +118,11 @@ export function libelleStatut(a: Acces): string {
     case 'resiliation_programmee':
       return 'Résiliation programmée'
     case 'impaye':
-      return 'Paiement en attente'
+      // « Paiement en attente » laissait croire que l'accès tenait encore. Il
+      // est coupé dès l'échec (pas de période de grâce, décision du 20/09/2026).
+      return 'Accès suspendu'
+    case 'inconnu':
+      return 'État indisponible'
     case 'expire':
       return 'Expiré'
     default:

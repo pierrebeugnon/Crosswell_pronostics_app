@@ -275,8 +275,17 @@ const dateEcheance = (iso: string) => dateLongue(jourParis(new Date(iso)))
 /** Le libellé de l'échéance, selon l'état de l'abonnement. */
 function echeance(a: Acces): string {
   const fin = a.accesJusqua
+  // `inconnu` : la lecture a échoué. On garde l'accès ouvert, mais on ne
+  // raconte rien sur l'abonnement — c'est ce mensonge-là qu'on vient d'enlever.
+  if (a.statut === 'inconnu') {
+    return 'Nous n’avons pas pu lire votre abonnement. Votre accès reste ouvert ; rechargez la page dans un instant.'
+  }
   if (a.statut === 'offert') return 'Accès ouvert par notre équipe.'
-  if (a.statut === 'impaye') return 'Le dernier paiement a échoué : mettez votre carte à jour pour garder l’accès.'
+  // PAS DE PÉRIODE DE GRÂCE : décision du fondateur du 20/09/2026, « si retard
+  // de paiement, on coupe ». `db/007` ne rouvre pas l'accès sur `impaye`, et ce
+  // texte doit le dire — il promettait auparavant de « garder l'accès » alors
+  // qu'il était déjà fermé.
+  if (a.statut === 'impaye') return 'Le dernier paiement a échoué : l’accès est suspendu. Mettez votre carte à jour pour le rouvrir.'
   if (!a.complet) return a.statut === 'expire' ? 'Votre Pass est terminé : 1 pronostic offert par jour, en attendant le suivant.' : '1 pronostic offert par jour.'
   if (!fin) return 'Accès complet.'
   if (a.formule === 'jour') {
@@ -301,9 +310,22 @@ function Abonnement() {
   const [enCours, setEnCours] = useState(false)
   const a = acces ?? ACCES_SANS_FILTRE
   const f = a.formule !== 'gratuit' ? formule(a.formule) : null
-  const titre = a.statut === 'offert' ? 'Accès complet' : a.complet && f ? f.nom : 'Formule gratuite'
+  const titre =
+    a.statut === 'inconnu'
+      ? 'Votre abonnement'
+      : a.statut === 'offert'
+        ? 'Accès complet'
+        : a.complet && f
+          ? f.nom
+          : 'Formule gratuite'
   const tonChip =
-    a.statut === 'impaye' ? 'chip-loss' : a.complet && a.statut !== 'resiliation_programmee' ? 'chip-accent' : 'chip-neutral'
+    a.statut === 'impaye'
+      ? 'chip-loss'
+      : a.statut === 'inconnu'
+        ? 'chip-neutral'
+        : a.complet && a.statut !== 'resiliation_programmee'
+          ? 'chip-accent'
+          : 'chip-neutral'
 
   async function portail() {
     setErreur(null)
@@ -378,7 +400,16 @@ function Abonnement() {
 function Resiliation() {
   const { acces } = useAcces()
   const [erreur, setErreur] = useState<string | null>(null)
-  const enLigne = Boolean(acces?.clientStripe && (acces.formule === 'mois' || acces.formule === 'an') && acces.statut === 'actif')
+  // `impaye` et `resiliation_programmee` DOIVENT rester résiliables en ligne.
+  // La condition `statut === 'actif'` les renvoyait vers un `mailto:` : en
+  // impayé, l'abonnement Stripe est pourtant bien vivant et continue ses
+  // relances, et le client ne pouvait pas l'arrêter lui-même. Le portail
+  // Stripe, lui, sait résilier un abonnement en attente de paiement.
+  const enLigne = Boolean(
+    acces?.clientStripe &&
+      (acces.formule === 'mois' || acces.formule === 'an') &&
+      (acces.statut === 'actif' || acces.statut === 'resiliation_programmee' || acces.statut === 'impaye'),
+  )
   if (!enLigne) {
     return (
       <>
@@ -402,7 +433,7 @@ function Resiliation() {
       <button
         type="button"
         onClick={() =>
-          ouvrirPortail()
+          ouvrirPortail('resilier')
             .then((r) => window.location.assign(r.redirection))
             .catch((e) => setErreur(e instanceof Error ? e.message : 'Le portail n’a pas pu s’ouvrir.'))
         }
@@ -414,9 +445,31 @@ function Resiliation() {
   )
 }
 
+/**
+ * AU RETOUR DU PORTAIL STRIPE, ON RELIT PLUSIEURS FOIS.
+ *
+ * Stripe redirige le navigateur et envoie son webhook en parallèle. La lecture
+ * unique faite au chargement gagne souvent la course : la page affiche alors
+ * l'état d'AVANT la résiliation, et le client en conclut qu'elle a échoué.
+ *
+ * Trois relectures espacées suffisent — le webhook arrive en une à trois
+ * secondes. L'adresse est nettoyée aussitôt pour qu'un rechargement manuel ne
+ * relance pas la série, et les minuteurs sont annulés au démontage.
+ */
+function useRelectureApresPortail() {
+  const { recharger } = useAcces()
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('maj') !== 'portail') return
+    window.history.replaceState({}, '', window.location.pathname)
+    const minuteurs = [1_500, 4_000, 8_000].map((delai) => setTimeout(() => void recharger(), delai))
+    return () => minuteurs.forEach(clearTimeout)
+  }, [recharger])
+}
+
 export default function Compte() {
   const { email, prenom, session, deconnecter } = useAuth()
   const naviguer = useNavigate()
+  useRelectureApresPortail()
   const [deconnexion, setDeconnexion] = useState(false)
   const actif = useSectionVisible()
 

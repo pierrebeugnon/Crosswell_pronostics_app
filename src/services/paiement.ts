@@ -60,11 +60,24 @@ async function messageDe(error: unknown, repli: string): Promise<string> {
 /**
  * Le portail client Stripe (carte, factures, résiliation en ligne), depuis la
  * page Compte. En démo, rien ne s'ouvre.
+ *
+ * `intention: 'resilier'` ouvre DIRECTEMENT l'écran de résiliation plutôt que
+ * l'accueil du portail : sans ça, « Gérer mon abonnement » et « Résilier en
+ * ligne » menaient au même endroit, et la résiliation « en quelques clics »
+ * (L215-1-1) restait à chercher.
  */
-export async function ouvrirPortail(): Promise<Redirection> {
+export async function ouvrirPortail(intention?: 'resilier'): Promise<Redirection> {
   if (DEMO) throw new Error('Démonstration : le portail Stripe ne s’ouvre pas.')
   const { data, error } = await supabase.functions.invoke<{ url?: string }>('portail-stripe', {
-    body: { retour: `${window.location.origin}/compte` },
+    // `?maj=portail` dit à la page Compte de RELIRE l'accès plusieurs fois au
+    // retour. Stripe redirige le navigateur et envoie son webhook en parallèle :
+    // une seule lecture, au chargement, gagne souvent la course et affiche
+    // l'état d'AVANT. Un client qui vient de résilier en conclut que ça n'a pas
+    // marché — et réessaie, ou écrit.
+    body: {
+      retour: `${window.location.origin}/compte?maj=portail`,
+      ...(intention ? { intention } : {}),
+    },
   })
   if (error || !data?.url) {
     throw new Error(await messageDe(error, 'Le portail de paiement n’est pas encore ouvert. Écrivez-nous pour gérer votre abonnement.'))
