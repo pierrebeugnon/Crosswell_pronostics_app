@@ -3,71 +3,77 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   VERRE DÉPOLI SUR FOND SOMBRE
+   NOIR PLAT, BORDURES OPAQUES — la refonte du 18/09/2026
 
-   L'application est SOMBRE, sans variante claire. Ce n'est pas un raccourci :
-   tout l'effet repose sur des halos colorés flous qui transparaissent au
-   travers de surfaces translucides. Sur un fond clair, ces halos deviennent
-   des taches, les filets lumineux disparaissent, et il ne reste qu'un thème
-   pâle qui ne ressemble plus à rien. Mieux vaut une matière tenue que deux
-   thèmes dont l'un déçoit.
+   Les valeurs viennent des maquettes de `design/` (voir design/INTEGRATION.md).
+   Le verre dépoli et les halos sont abandonnés : la maquette pose des surfaces
+   opaques à peine teintées de vert sur un fond immobile, et c'est la bordure,
+   pas la transparence, qui sépare les plans.
 
-   Trois plans, et rien entre eux :
-     1. le fond — noir chaud, immuable ;
-     2. les halos — quatre taches de couleur très floutées, en position fixe ;
-     3. le verre — les surfaces translucides qui laissent passer les halos.
+   Trois familles, et rien d'autre :
+     1. les fonds — canvas < sunken < surface < raised, du plus sombre au plus
+        clair ;
+     2. les filets — sep (séparateurs), line (cartes), line-strong
+        (contrôles), line-hover (survol) ;
+     3. le texte — ink > soft > muted > faint > dim.
+
+   Aucune couleur littérale dans les composants : tout passe par ces jetons.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    --c-canvas: 9 11 13;
-    /* `surface` et `raised` ne servent QUE de repli pour les rares éléments
-       opaques : le verre, lui, se compose en alpha (voir --v-*). */
-    --c-surface: 18 21 24;
-    --c-raised: 27 31 35;
+    --c-canvas: 10 12 11; /* #0A0C0B — le fond de page */
+    --c-sunken: 13 16 14; /* #0D100E — éléments de liste, tiroir */
+    --c-well: 17 21 19; /* #111513 — rail d'un sélecteur segmenté */
+    --c-surface: 15 19 17; /* #0F1311 — cartes */
+    --c-raised: 21 26 23; /* #151A17 — surface 2 : onglet actif, pastilles */
+    --c-raised-2: 23 29 26; /* #171D1A — surface 2, un cran au-dessus */
+    --c-track: 22 28 25; /* #161C19 — rail des barres, filets de ligne */
 
-    --c-ink: 242 241 237;
-    --c-muted: 168 166 158;
-    --c-faint: 122 120 113;
+    --c-ink: 238 242 239; /* #EEF2EF */
+    --c-soft: 201 210 205; /* #C9D2CD — secondaire appuyé */
+    --c-muted: 183 194 188; /* #B7C2BC — secondaire */
+    --c-faint: 140 154 146; /* #8C9A92 — labels, tertiaire */
+    --c-dim: 111 124 117; /* #6F7C75 — le plus éteint */
 
-    --c-line: 255 255 255;
-    --c-line-strong: 255 255 255;
+    --c-sep: 28 35 32; /* #1C2320 — séparateurs */
+    --c-line: 31 38 34; /* #1F2622 — bordure légère (cartes) */
+    --c-line-strong: 42 51 46; /* #2A332E — contrôles */
+    --c-line-hover: 58 70 64; /* #3A4640 — survol */
 
-    /* VERT ÉNERGIQUE — la couleur de marque, et la seule teinte d'accent.
-       `--c-accent-ink` est le texte posé SUR un aplat vert : à 61 220 132, le
-       blanc tombe à 2,1:1 de contraste et devient illisible, d'où un vert
-       presque noir plutôt qu'un blanc réflexe. */
-    --c-accent: 61 220 132;
-    --c-accent-soft: 61 220 132;
-    --c-accent-ink: 4 32 18;
-    /* Les deux bornes du dégradé de marque. Elles étaient recopiées en littéral
-       dans six fichiers (jauge, barres, boutons, lueurs) : changer le vert
-       Crosswell exigeait une chasse au trésor. Désormais tout dégradé d'accent
-       se compose depuis ces deux jetons. */
-    --c-accent-hi: 126 245 176;
-    --c-accent-lo: 29 190 108;
+    /* LE VERT DE MARQUE, et la seule teinte d'accent. `--c-accent-ink` est le
+       texte posé SUR un aplat vert : un vert presque noir, pas un blanc. */
+    --c-accent: 46 229 143; /* #2EE58F */
+    --c-accent-soft: 46 229 143;
+    --c-accent-ink: 7 18 12; /* #07120C */
+    --c-accent-hover: 91 240 168; /* #5BF0A8 */
+    /* Fond d'un élément sélectionné (course choisie dans le programme). */
+    --c-accent-deep: 15 34 25; /* #0F2219 */
+    /* Barre d'un partant hors des trois premiers : le vert, éteint. */
+    --c-accent-dim: 44 106 77; /* #2C6A4D */
+    /* Les bornes des anciens dégradés d'accent. La maquette n'en a plus : les
+       deux bornes valent l'accent, et chaque dégradé devient un aplat sans
+       qu'on ait à toucher aux composants qui les composent encore. */
+    --c-accent-hi: 46 229 143;
+    --c-accent-lo: 46 229 143;
 
-    /* `win` partage volontairement la teinte de l'accent. Avec une marque
-       verte, chercher un SECOND vert pour dire « gagné » produirait deux
-       nuances trop voisines pour se distinguer, et qu'on prendrait pour une
-       erreur. Ce qui sépare les deux emplois n'est donc pas la teinte mais le
-       POIDS : la marque s'exprime en dégradé et en lueur (.card-accent,
-       .btn-accent, pastille pleine), le résultat en simple aplat teinté
-       (.chip-win). « Placé » reste bleu, « battu » rouge : les trois issues
-       demeurent discernables. */
-    --c-win: 61 220 132;
-    --c-win-soft: 61 220 132;
-    --c-loss: 240 121 111;
-    --c-loss-soft: 240 121 111;
-    --c-wait: 168 166 158;
-    --c-wait-soft: 168 166 158;
+    /* `win` partage la teinte de l'accent : c'est le poids (aplat plein ou
+       simple teinte) qui sépare la marque du résultat, pas la couleur. */
+    --c-win: 46 229 143;
+    --c-win-soft: 46 229 143;
+    --c-loss: 255 138 128; /* #FF8A80 */
+    --c-loss-soft: 255 138 128;
+    /* Course reportée, avertissement. */
+    --c-warn: 245 185 74; /* #F5B94A */
+    --c-wait: 140 154 146;
+    --c-wait-soft: 140 154 146;
+    /* « Placé » — la maquette n'a pas de bleu. Gardé en attendant l'arbitrage
+       (design/INTEGRATION.md, jetons). */
     --c-info: 127 167 245;
     --c-info-soft: 127 167 245;
 
     --c-shadow: 0 0 0;
-
-    /* Matière du verre — un seul endroit à régler pour toute l'application. */
-    --v-flou: 22px;
+    --c-scroll: 35 42 38; /* #232A26 — le pouce des barres de défilement */
   }
 
   html {
@@ -94,8 +100,10 @@
   }
 
   body {
-    @apply text-ink font-sans antialiased;
-    background: rgb(var(--c-canvas));
+    @apply bg-canvas text-ink font-sans antialiased;
+    /* 15 px par défaut, comme `text-base` : les tailles ont été réduites d’un cran
+       le 18/09/2026, à la demande du fondateur (titres nettement, texte courant un peu). */
+    font-size: 0.9375rem;
     padding-bottom: env(safe-area-inset-bottom);
     /*
      * Les sections immersives s'étendent en `w-screen`, qui inclut la largeur
@@ -104,61 +112,6 @@
      * conteneur de défilement et casserait les éléments `sticky` de la page.
      */
     overflow-x: clip;
-  }
-
-  /*
-   * LES HALOS. Quatre dégradés radiaux sur un pseudo-élément FIXE, derrière
-   * tout le reste. Fixe et non `absolute` : au défilement, un fond qui suit le
-   * contenu donne l'impression d'un papier peint qui glisse, alors qu'un fond
-   * immobile donne celle d'une vitre posée devant un paysage — c'est cette
-   * seconde impression qu'on cherche.
-   *
-   * Aucun `filter: blur()` : un dégradé radial EST déjà flou, et flouter une
-   * surface plein écran coûte une passe de composition à chaque image.
-   *
-   * INTENSITÉS RELEVÉES ET DÉRIVE BRANCHÉE (audit UX, vague 1). Aux valeurs
-   * d'origine, les halos étaient imperceptibles à l'écran : l'app rendait
-   * « noir uniforme » et le verre, sans lumière à flouter, redevenait du gris.
-   * La dérive anime le transform du pseudo-élément : composité par le GPU,
-   * aucun reflow, et le kill global prefers-reduced-motion ci-dessus la coupe.
-   * Les keyframes vivent ici et non dans tailwind.config : Tailwind ne peut
-   * pas cibler un pseudo-élément de body.
-   */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: -20vmax;
-    z-index: -2;
-    pointer-events: none;
-    background:
-      radial-gradient(38vmax 34vmax at 12% 4%, rgb(var(--c-accent) / 0.3), transparent 62%),
-      radial-gradient(44vmax 40vmax at 88% 0%, rgb(22 92 78 / 0.42), transparent 64%),
-      radial-gradient(50vmax 46vmax at 78% 84%, rgb(26 122 92 / 0.28), transparent 66%),
-      radial-gradient(40vmax 40vmax at 6% 92%, rgb(44 70 108 / 0.3), transparent 64%);
-    animation: derive-halos 26s ease-in-out infinite;
-  }
-
-  @keyframes derive-halos {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-    50% {
-      transform: translate3d(2%, -2%, 0) scale(1.06);
-    }
-  }
-
-  /* Un grain très fin. Sans lui, les grands aplats de dégradé se strient en
-     bandes visibles sur les dalles 8 bits — le défaut classique du fond sombre
-     dégradé. */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.3;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
   }
 
   .num,
@@ -171,10 +124,8 @@
   /* La règle des 16 px sur les champs de saisie vit HORS des couches, tout en
      bas de ce fichier — voir le commentaire qui l'accompagne. */
 
-  :focus-visible {
-    @apply outline-none ring-2 ring-accent/70 ring-offset-2;
-    --tw-ring-offset-color: rgb(var(--c-canvas));
-  }
+  /* L'anneau de focus vit HORS des couches, en bas de ce fichier : posé ici en
+     `box-shadow`, il était écrasé par le filet intérieur des surfaces de verre. */
 
   ::selection {
     background: rgb(var(--c-accent) / 0.3);
@@ -188,58 +139,49 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 0.12);
+    background: rgb(var(--c-scroll));
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgb(255 255 255 / 0.2);
+    background: rgb(var(--c-line-hover));
     background-clip: content-box;
+  }
+  html {
+    scrollbar-color: rgb(var(--c-scroll)) transparent;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PRIMITIVES DE VERRE
+   PRIMITIVES
+
+   Les noms `glass-*` datent du verre dépoli. Ils sont gardés pour ne pas
+   réécrire d'un coup toutes les pages, mais ne floutent plus rien : ce sont
+   désormais des aplats bordés, aux valeurs de la maquette.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @layer components {
-  /*
-   * La surface de base. Le `box-shadow` intérieur en haut est le filet de
-   * lumière qui court sur l'arête supérieure : c'est lui, plus que la bordure,
-   * qui fait lire la carte comme une plaque de verre et non comme un
-   * rectangle gris. La bordure seule donne un aplat ; l'arête donne l'épaisseur.
-   */
+  /* La surface de base : une carte. */
   .glass {
-    background: rgb(255 255 255 / 0.045);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.09),
-      0 1px 2px rgb(0 0 0 / 0.3),
-      0 16px 40px -20px rgb(0 0 0 / 0.7);
-    -webkit-backdrop-filter: blur(var(--v-flou)) saturate(140%);
-    backdrop-filter: blur(var(--v-flou)) saturate(140%);
+    background: rgb(var(--c-surface));
+    border: 1px solid rgb(var(--c-line));
   }
 
-  /* Pour les surfaces IMBRIQUÉES : un second `backdrop-filter` à l'intérieur
-     d'un premier ne floute que ce qui est déjà flouté, coûte cher, et vire au
-     gris laiteux. Les enfants n'ont donc que la teinte, pas le flou. */
+  /* Une surface posée DANS une carte : un cran plus clair. */
   .glass-nest {
-    background: rgb(255 255 255 / 0.05);
-    border: 1px solid rgb(255 255 255 / 0.09);
-    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+    background: rgb(var(--c-raised));
+    border: 1px solid rgb(var(--c-line));
   }
 
+  /* Ce qui flotte au-dessus de la page (menus, bulles, barres flottantes). */
   .glass-strong {
-    background: rgb(255 255 255 / 0.075);
-    border: 1px solid rgb(255 255 255 / 0.16);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.12),
-      0 20px 50px -24px rgb(0 0 0 / 0.85);
-    -webkit-backdrop-filter: blur(28px) saturate(150%);
-    backdrop-filter: blur(28px) saturate(150%);
+    background: rgb(var(--c-raised));
+    border: 1px solid rgb(var(--c-line-strong));
+    box-shadow: 0 12px 40px rgb(var(--c-shadow) / 0.5);
   }
 
+  /* Cartes : 20 px de rayon (`rounded-3xl`), la maquette va de 18 à 22. */
   .card {
     @apply glass rounded-3xl;
   }
@@ -247,88 +189,84 @@
     @apply glass-nest rounded-2xl;
   }
 
-  /* Une carte que le vert traverse — réservée à ce qui porte notre sélection. */
+  /* La carte qui porte notre sélection : filet vert sur un fond vert profond,
+     comme la course choisie dans le programme de la maquette. */
   .card-accent {
     @apply rounded-3xl;
-    background:
-      linear-gradient(160deg, rgb(var(--c-accent) / 0.16), rgb(var(--c-accent) / 0.03) 55%),
-      rgb(255 255 255 / 0.04);
-    border: 1px solid rgb(var(--c-accent) / 0.26);
-    box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.12),
-      0 20px 50px -26px rgb(var(--c-accent) / 0.35);
-    -webkit-backdrop-filter: blur(var(--v-flou)) saturate(140%);
-    backdrop-filter: blur(var(--v-flou)) saturate(140%);
+    background: rgb(var(--c-accent-deep));
+    border: 1px solid rgb(var(--c-accent));
   }
 
-  /* 44 px sur téléphone, 40 sur grand écran. Le doigt couvre environ 9 mm ;
-     en dessous de 44 px on vise, et viser sur un quai de gare avant une course
-     est exactement ce qu'on demande à un client de ne pas avoir à faire. */
+  /* 44 px sur téléphone, 40 sur grand écran : la cible tactile de la maquette
+     ne descend jamais sous 44 px là où l'on tape au doigt. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 h-11 sm:h-10
-           text-sm font-medium transition-all select-none
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-[1.125rem] h-11 sm:h-10
+           text-sm font-bold transition-colors select-none
            active:scale-[0.985]
            disabled:opacity-40 disabled:pointer-events-none;
   }
+  /* L'action principale : l'aplat vert. `btn-primary` et `btn-accent` sont
+     désormais le même bouton — la maquette n'a qu'un seul bouton plein. */
+  .btn-accent,
   .btn-primary {
-    @apply btn bg-ink text-canvas hover:bg-ink/90;
+    @apply btn bg-accent text-accent-ink hover:bg-accent-hover;
   }
-  .btn-accent {
-    @apply btn text-accent-ink;
-    background: linear-gradient(150deg, rgb(var(--c-accent-hi)), rgb(var(--c-accent-lo)));
-    box-shadow:
-      0 6px 22px -8px rgb(var(--c-accent) / 0.6),
-      inset 0 1px 0 rgb(255 255 255 / 0.35);
-  }
-  .btn-accent:hover {
-    filter: brightness(1.06);
-  }
+  /* Le secondaire : transparent, bordé. */
   .btn-glass {
-    @apply btn glass-nest text-ink hover:bg-white/[0.09];
+    @apply btn bg-transparent border border-line-strong text-ink hover:border-line-hover;
   }
   .btn-ghost {
-    @apply btn text-muted hover:text-ink hover:bg-white/[0.06];
+    @apply btn text-muted hover:text-ink hover:bg-raised;
   }
 
+  /* Étiquette d'information (Plat, 2 400 m, 12 partants). */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
-           text-xs font-medium whitespace-nowrap border;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5
+           text-[0.8125rem] font-semibold whitespace-nowrap border;
   }
   .chip-neutral {
-    @apply chip bg-white/[0.06] border-white/10 text-muted;
+    @apply chip bg-surface border-line text-soft;
+  }
+  /* Les pastilles d'état (Value, Gagnant…) : capitales serrées, teinte + filet. */
+  .chip-accent,
+  .chip-win,
+  .chip-loss,
+  .chip-wait,
+  .chip-info {
+    @apply chip px-[0.5625rem] py-1 text-[0.6875rem] font-bold uppercase tracking-[0.06em];
   }
   .chip-accent {
-    @apply chip bg-accent/[0.15] border-accent/25 text-accent;
+    @apply bg-accent/10 border-accent/40 text-accent;
   }
   .chip-win {
-    @apply chip bg-win/[0.15] border-win/25 text-win;
+    @apply bg-win/10 border-win/40 text-win;
   }
   .chip-loss {
-    @apply chip bg-loss/[0.15] border-loss/25 text-loss;
+    @apply bg-loss/10 border-loss/40 text-loss;
   }
   .chip-wait {
-    @apply chip bg-white/[0.05] border-white/10 text-faint;
+    @apply bg-raised-2 border-line-strong text-faint;
   }
   .chip-info {
-    @apply chip bg-info/[0.15] border-info/25 text-info;
+    @apply bg-info/10 border-info/40 text-info;
   }
 
   .label {
-    @apply text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-faint;
+    @apply text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-faint;
   }
 
   .link {
-    @apply text-ink underline decoration-white/25 underline-offset-4
+    @apply text-ink underline decoration-line-hover underline-offset-4
            hover:decoration-accent transition-colors;
   }
 
   .skeleton {
-    @apply relative overflow-hidden rounded-2xl bg-white/[0.05] border border-white/[0.07];
+    @apply relative overflow-hidden rounded-2xl bg-surface border border-line;
   }
   .skeleton::after {
     content: '';
     @apply absolute inset-0 -translate-x-full animate-shimmer;
-    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.07), transparent);
+    background-image: linear-gradient(90deg, transparent, rgb(var(--c-raised)), transparent);
   }
 
   .scroll-x {
@@ -336,15 +274,10 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /*
-   * Titre de page. Montserrat est une géométrique : ses lettres sont larges et
-   * ses contreformes ouvertes, si bien qu'un titre composé au réglage d'un
-   * serif paraît flotter et manquer d'autorité. On resserre donc l'approche et
-   * on monte en graisse — c'est ce couple-là, et non la taille, qui fait tenir
-   * un titre en géométrique.
-   */
+  /* Titre de page : 23 px sur téléphone, 34 px sur grand écran (réduits le 18/09), en extra-gras
+     et à approche serrée, comme les H1 de la maquette. */
   .titre-page {
-    @apply font-display font-semibold text-[1.75rem] sm:text-[2.25rem] leading-[1.08]
+    @apply font-display font-extrabold text-[1.4375rem] sm:text-[2.125rem] leading-[1.05]
            tracking-[-0.025em];
   }
 
@@ -400,10 +333,9 @@
     min-height: 44px;
   }
 
-  /* Séparateurs internes : une hairline blanche très basse, jamais une bordure
-     opaque, qui trancherait le verre en deux morceaux. */
+  /* Séparateurs internes. */
   .hairline-y > * + * {
-    @apply border-t border-white/[0.07];
+    @apply border-t border-sep;
   }
 
   .fade-r {
@@ -424,11 +356,9 @@
     -webkit-mask-composite: source-in;
   }
 
-  /* Halo local, pour poser une lueur derrière un élément précis. */
+  /* Un filet vert autour d'un élément précis (la maquette n'a pas de lueur). */
   .halo-accent {
-    box-shadow:
-      0 0 0 1px rgb(var(--c-accent) / 0.2),
-      0 0 42px -8px rgb(var(--c-accent) / 0.45);
+    box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.5);
   }
 
   .texte-accent {
@@ -463,4 +393,19 @@
   textarea {
     font-size: 16px !important;
   }
+}
+
+/*
+ * L'ANNEAU DE FOCUS, HORS DES COUCHES — et en contour, pas en ombre.
+ *
+ * La règle de base (`@layer base`) posait l'anneau en `box-shadow`. Les surfaces
+ * de verre (`.glass-nest`, `.btn-glass`, `.card`…) déclarent aussi un
+ * `box-shadow` (leur filet intérieur), dans la couche `components`, qui passe
+ * APRÈS la base : sur tous les boutons et liens en verre, l'anneau disparaissait
+ * au clavier (WCAG 2.4.7). Un `outline` ne se bat avec aucune ombre, et une règle
+ * hors couche l'emporte sur toutes les couches.
+ */
+:focus-visible {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
 }

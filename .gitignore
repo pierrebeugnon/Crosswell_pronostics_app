@@ -8,3 +8,8 @@ dist
 
 # Cache incrémental de TypeScript : régénéré à chaque build, propre à la machine.
 *.tsbuildinfo
+
+.vercel
+
+# Cache du CLI Supabase (projet lié, binaires) : propre à la machine.
+supabase/.temp

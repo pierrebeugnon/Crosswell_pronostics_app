@@ -1,18 +1,43 @@
+import { FUSEAU } from '@/config/app'
+
 const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
-const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+/** Noms de mois en toutes lettres, partagés : un seul endroit à relire. */
+export const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
 const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 
+/** `en-CA` compose nativement AAAA-MM-JJ ; le fuseau est forcé sur Paris. */
+const JOUR_PARIS = new Intl.DateTimeFormat('en-CA', {
+  timeZone: FUSEAU,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
 /**
- * Date du jour au format ISO, dans le fuseau du navigateur.
+ * Date du jour au format ISO, À PARIS, décalée de `decalage` jours.
  *
- * `toISOString()` bascule en UTC : passé 2 h du matin en été, il renvoie déjà
- * le lendemain et la réunion du soir disparaît de « aujourd'hui ». On compose
- * donc la chaîne à la main.
+ * Deux pièges évités. `toISOString()` bascule en UTC : passé minuit en été, il
+ * renvoie encore la veille jusqu'à 2 h. Et le fuseau du navigateur fait dépendre
+ * « aujourd'hui » de l'endroit où se trouve le client — or une fenêtre de trente
+ * jours doit valoir la même chose pour tous.
  */
 export function jourISO(decalage = 0): string {
-  const d = new Date()
-  d.setDate(d.getDate() + decalage)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return decalerJour(jourParis(new Date()), decalage)
+}
+
+/** Le jour civil de Paris ('AAAA-MM-JJ') d'un instant donné — mêmes pièges évités que `jourISO`. */
+export function jourParis(d: Date): string {
+  return JOUR_PARIS.format(d)
+}
+
+/**
+ * '2026-09-14' + n jours. Calcul en UTC pur sur la date civile : aucun passage
+ * à l'heure d'été ne peut faire sauter ou doubler un jour.
+ */
+export function decalerJour(iso: string, n: number): string {
+  const [a, m, j] = iso.split('-').map(Number)
+  const d = new Date(Date.UTC(a, m - 1, j + n))
+  return d.toISOString().slice(0, 10)
 }
 
 /** '2026-08-26' → '26 août' */
@@ -26,6 +51,20 @@ export function dateLongue(iso: string): string {
   const [a, m, j] = iso.split('-').map(Number)
   const jour = JOURS[new Date(a, m - 1, j).getDay()]
   return `${jour} ${j} ${MOIS_LONG[m - 1]} ${a}`
+}
+
+const capitale = (s: string) => s.charAt(0).toLocaleUpperCase('fr-FR') + s.slice(1)
+
+/** '2026-09-18' → 'Vendredi 18 septembre' — la date de l'en-tête, sans l'année. */
+export function dateEnTete(iso: string): string {
+  const [a, m, j] = iso.split('-').map(Number)
+  return capitale(`${JOURS[new Date(a, m - 1, j).getDay()]} ${j} ${MOIS_LONG[m - 1]}`)
+}
+
+/** '2026-09-18' → 'Ven. 18 sept.' — la même, pour un téléphone. */
+export function dateEnTeteCourte(iso: string): string {
+  const [a, m, j] = iso.split('-').map(Number)
+  return capitale(`${JOURS[new Date(a, m - 1, j).getDay()].slice(0, 3)}. ${j} ${MOIS[m - 1]}`)
 }
 
 /** 'aujourd’hui', 'demain', 'hier', sinon la date courte. */

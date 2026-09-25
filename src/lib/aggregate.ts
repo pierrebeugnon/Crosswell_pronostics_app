@@ -22,16 +22,34 @@ export function litCleCourse(cle: string): { date: string; hippodrome: string; n
   return { date, hippodrome, numero }
 }
 
+/** Un non-partant est un cheval DÉCLARÉ retiré ; « jamais vérifié » compte comme partant. */
+const estNonPartant = (l: LignePrediction) => l.non_partant === true
+
 /**
- * Probabilités implicites des cotes, RENORMALISÉES sur la course.
+ * Rang effectif d'une ligne. La vue le calcule (`db/003`) ; en son absence —
+ * base non migrée — on retombe sur le rang publié, comme l'outil interne.
+ *
+ * UN CHEVAL QUE LE MODÈLE N'A PAS CLASSÉ N'A PAS DE RANG, même si la vue lui en
+ * donne un. `rank()` place tous les `pred_rank` NULL à égalité en fin de
+ * classement : dans une course où le modèle n'a rien classé, les dix chevaux
+ * recevaient le rang 1, et la course comptait une victoire pour un pronostic
+ * jamais publié. Écart assumé avec l'outil interne, qui garde ce rang (voir
+ * `tests/parite`).
+ */
+const rangEffectif = (l: LignePrediction): number | null =>
+  estNonPartant(l) || l.pred_rank == null ? null : (l.rang_effectif ?? l.pred_rank)
+
+/**
+ * Probabilités implicites des cotes, RENORMALISÉES sur les chevaux au départ.
  *
  * La somme brute des 1/cote dépasse 1 — c'est la marge de l'opérateur, environ
  * 20 %. Comparer notre probabilité à une implicite non corrigée nous ferait
  * paraître systématiquement pessimistes, et ferait passer pour « value » des
- * partants qui ne le sont pas.
+ * partants qui ne le sont pas. Un non-partant garde parfois une cote relevée
+ * avant son retrait : elle n'entre ni dans la somme ni dans la comparaison.
  */
 function probasMarche(lignes: LignePrediction[]): Map<number, number> {
-  const cotes = lignes.filter((l) => l.cote != null && Number(l.cote) > 0)
+  const cotes = lignes.filter((l) => !estNonPartant(l) && l.cote != null && Number(l.cote) > 0)
   const somme = cotes.reduce((s, l) => s + 1 / Number(l.cote), 0)
   const m = new Map<number, number>()
   if (!somme) return m
@@ -46,7 +64,10 @@ function versPartant(l: LignePrediction, marche: Map<number, number>): Partant {
   return {
     numero: l.horse_num,
     nom: l.horse_name ?? `n° ${l.horse_num}`,
-    rang: l.pred_rank,
+    idFg: l.id_fg,
+    rang: rangEffectif(l),
+    rangInitial: l.pred_rank,
+    nonPartant: estNonPartant(l),
     pWin,
     pPlace: l.p_place == null ? null : Number(l.p_place),
     cote: l.cote == null ? null : Number(l.cote),
@@ -82,23 +103,43 @@ export function construireCourses(lignes: LignePrediction[]): Course[] {
     // Un seul enregistrement par cheval, même si plusieurs modèles ont fuité.
     const vus = new Set<number>()
     const lignesCourse = brut.filter((l) => !vus.has(l.horse_num) && vus.add(l.horse_num))
-    lignesCourse.sort((a, b) => (a.pred_rank ?? 999) - (b.pred_rank ?? 999))
+    // Ordre de l'outil interne : non-partants en bas de grille (999), rang
+    // inconnu juste au-dessus (99). Le numéro départage les ex æquo, pour que
+    // deux chargements ne désignent jamais deux rangs 1 différents.
+    const cleTri = (l: LignePrediction) => (estNonPartant(l) ? 999 : (rangEffectif(l) ?? 99))
+    lignesCourse.sort((a, b) => cleTri(a) - cleTri(b) || a.horse_num - b.horse_num)
 
     const marche = probasMarche(lignesCourse)
     const liste = lignesCourse.map((l) => versPartant(l, marche))
     const tete = lignesCourse[0]
+    const auDepart = liste.filter((p) => !p.nonPartant)
 
-    const favori = liste.find((p) => p.rang === 1) ?? null
-    const podium = liste.filter((p) => p.rang != null && p.rang <= 3).sort((a, b) => a.rang! - b.rang!)
+    /*
+     * LE RANG 1 D'UNE COURSE est le premier cheval AU DÉPART de rang effectif 1.
+     * Si notre rang 1 publié a été retiré, le suivant prend sa place : la course
+     * reste jugée, et elle est jugée sur un cheval qui a couru. La compter en
+     * échec — ce que faisait l'application avant `db/003` — pénalisait le modèle
+     * pour une décision d'entraîneur.
+     */
+    const favori = auDepart.find((p) => p.rang === 1) ?? null
+    const favoriRetire = liste.find((p) => p.nonPartant && p.rangInitial === 1) ?? null
+    const podium = auDepart.filter((p) => p.rang != null && p.rang <= 3)
     const gagnant = liste.find((p) => p.arrivee === 1) ?? null
+    /*
+     * JUGÉE = au moins une place relevée. Une place NULL dans une course jugée
+     * veut dire « arrivé au-delà du dernier classé relevé » (le 5e ou le 7e selon
+     * la source) : c'est une défaite, jamais une donnée manquante.
+     */
     const courue = liste.some((p) => p.arrivee != null)
-    const cotes = liste.filter((p) => p.cote != null)
+    const cotes = auDepart.filter((p) => p.cote != null && p.cote > 0)
+    // Inégalité stricte : à cote égale, le mieux classé par nous l'emporte.
     const favoriMarche = cotes.length
       ? cotes.reduce((meilleur, p) => (p.cote! < meilleur.cote! ? p : meilleur))
       : null
 
     const nosTrois = new Set(podium.map((p) => p.numero))
     const arriveeTrois = liste.filter((p) => p.arrivee != null && p.arrivee <= 3)
+    const heure = lignesCourse.find((l) => l.heure_depart)?.heure_depart ?? null
 
     courses.push({
       cle,
@@ -110,11 +151,16 @@ export function construireCourses(lignes: LignePrediction[]): Course[] {
       type: typeCourse(tete.categorie),
       handicap: Boolean(tete.is_handicap),
       distance: tete.distance,
-      partants: tete.field_size ?? liste.length,
+      partants: auDepart.length,
+      declares: tete.field_size,
+      nonPartants: liste.length - auDepart.length,
+      heureDepart: heure ? heure.slice(0, 5) : null,
       courue,
       cotee: cotes.length > 0,
+      verrouillee: lignesCourse.some((l) => l.verrouille === true),
       liste,
       favori,
+      favoriRetire,
       podium,
       gagnant,
       favoriMarche,

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Informations légales</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,input,select{font-family:inherit}
+button{cursor:pointer;color:#EEF2EF}
+button:focus-visible,a:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+input:focus,select:focus{outline:2px solid #2EE58F;outline-offset:1px}
+input[type=range]{accent-color:#2EE58F}
+input[type=checkbox]{accent-color:#2EE58F}
+.cta:hover{background:#5BF0A8 !important}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+.hscroll{scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 2100px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+<header style="height: 76px; flex-shrink: 0; box-sizing: border-box; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<div style="display: flex; align-items: center; gap: 40px;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 12px;"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 21px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<nav aria-label="Navigation" style="display: flex; align-items: center; gap: 4px;">
+<a href="How.dc.html" style="height: 40px; padding: 0 16px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Comment ça marche</a>
+<a href="Results.dc.html" style="height: 40px; padding: 0 16px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Nos résultats</a>
+<a href="Landing.dc.html#tarifs" style="height: 40px; padding: 0 16px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Tarifs</a>
+</nav>
+</div>
+<div style="display: flex; align-items: center; gap: 10px;">
+<span aria-label="Réservé aux plus de 18 ans" style="height: 32px; padding: 0 10px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #B7C2BC;">18+</span>
+<a class="ghost" href="Login.dc.html" style="height: 44px; padding: 0 18px; box-sizing: border-box; border-radius: 999px; border: 1px solid #2A332E; display: flex; align-items: center; font-size: 14px; font-weight: 700;">Se connecter</a>
+<a class="cta" href="Signup.dc.html" style="height: 44px; padding: 0 20px; border-radius: 999px; background: #2EE58F; color: #07120C; display: flex; align-items: center; font-size: 14px; font-weight: 700;">Essayer gratuitement</a>
+</div>
+</header><main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;">
+<div style="width: 860px; min-width: 0; box-sizing: border-box; align-self: center; padding: 64px 0 96px; display: flex; flex-direction: column; gap: 28px;">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2EE58F;">Informations légales</span>
+<div role="group" aria-label="Documents" class="hscroll" style="display: flex; gap: 8px; overflow-x: auto;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+</div>
+<article style="display: flex; flex-direction: column; gap: 28px;">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;">{{title}}</h1>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{updated}}</span>
+<sc-if value="{{hasIntro}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 16px; font-weight: 500; line-height: 1.7; color: #C9D2CD;">{{intro}}</p></sc-if>
+</div>
+<sc-if value="{{isJeu}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 24px; border-radius: 18px; background: #2EE58F; color: #07120C;">
+<span style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 13px; font-weight: 700;">Joueurs Info Service · appel non surtaxé</span><span class="num" style="font-size: 28px; font-weight: 800; letter-spacing: -0.01em;">09 74 75 13 13</span></span>
+<a href="https://www.joueurs-info-service.fr" style="height: 48px; padding: 0 22px; border-radius: 999px; background: #07120C; color: #2EE58F; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;">joueurs-info-service.fr</a>
+</div>
+</sc-if>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="5">
+<section style="display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid #1C2320;">
+<h2 style="margin: 0; font-size: 22px; font-weight: 800;">{{s.h}}</h2>
+<sc-for list="{{s.body}}" as="b" hint-placeholder-count="1">
+<sc-if value="{{b.isList}}" hint-placeholder-val="{{ false }}"><ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;"><sc-for list="{{b.items}}" as="i" hint-placeholder-count="3"><li style="display: flex; gap: 12px; font-size: 15px; font-weight: 500; line-height: 1.65; color: #C9D2CD;"><span style="flex-shrink: 0; width: 6px; height: 6px; margin-top: 10px; border-radius: 999px; background: #2EE58F;"></span>{{i.x}}</li></sc-for></ul></sc-if>
+<sc-if value="{{b.t}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-size: 15px; font-weight: 500; line-height: 1.7; color: #C9D2CD;">{{b.t}}</p></sc-if>
+</sc-for>
+</section>
+</sc-for>
+</article>
+</div>
+<footer style="display: flex; flex-direction: column; gap: 28px; padding: 48px 40px 56px; border-top: 1px solid #1C2320;">
+<div style="display: flex; justify-content: space-between; gap: 40px;">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 380px;">
+<a href="Landing.dc.html" aria-label="Arrivée, accueil" style="display: flex; align-items: center; gap: 12px;"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 21px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></a>
+<span style="font-size: 13px; font-weight: 500; line-height: 1.6; color: #8C9A92;">Arrivée publie des pronostics statistiques. Nous ne prenons aucun pari et ne sommes pas un opérateur de jeux. Service réservé aux personnes majeures.</span>
+</div>
+<div style="display: flex; gap: 72px;"><div style="display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Produit</span><a href="How.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Comment ça marche</a><a href="Results.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Nos résultats</a><a href="Landing.dc.html#tarifs" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Tarifs</a></div><div style="display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Légal</span><a href="Legal.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Conditions générales</a><a href="Legal.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Confidentialité</a><a href="Legal.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Mentions légales</a><a href="Legal.dc.html" style="font-size: 14px; font-weight: 600; color: #C9D2CD;">Jeu responsable</a></div></div>
+</div>
+<div role="note" aria-label="Mise en garde" style="display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 14px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="flex-shrink: 0; height: 24px; padding: 0 7px; box-sizing: border-box; border-radius: 6px; background: #EEF2EF; color: #07120C; display: flex; align-items: center; font-size: 11px; font-weight: 800;">18+</span>
+<span style="font-size: 12px; font-weight: 500; line-height: 1.55; color: #B7C2BC;">Les jeux d’argent et de hasard peuvent être dangereux : pertes d’argent, conflits familiaux, addiction… Retrouvez nos conseils sur joueurs-info-service.fr (09 74 75 13 13 – appel non surtaxé). <a href="Legal.dc.html" style="color: #2EE58F; font-weight: 700;">Jeu responsable</a></span>
+</div>
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">© 2026 [RAISON SOCIALE] · Tous droits réservés</span>
+</footer>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2100}}'>
+class Component extends DCLogic {
+  docs() {
+    const B = (t) => ({ t: t, isList: false, items: [] });
+    const L = (items) => ({ t: '', isList: true, items: items.map((x) => ({ x: x })) });
+    return {
+      jeu: { title: 'Jeu responsable', intro: 'Arrivée publie des pronostics : nous ne prenons aucun pari. Mais nos contenus parlent de paris hippiques, et nous voulons que vous jouiez, si vous jouez, en gardant le contrôle.', sections: [
+        { h: 'Le message à retenir', body: [B('Les jeux d’argent et de hasard peuvent être dangereux : pertes d’argent, conflits familiaux, addiction… Retrouvez nos conseils sur joueurs-info-service.fr (09 74 75 13 13 – appel non surtaxé).')] },
+        { h: 'Un pronostic n’est jamais une garantie', body: [B('Nos pourcentages sont des estimations statistiques. Un cheval donné à 34 % perd deux fois sur trois. Aucun pronostic, le nôtre compris, ne permet de gagner à coup sûr.')] },
+        { h: 'Les signaux qui doivent alerter', body: [L(['Vous jouez plus d’argent ou plus longtemps que prévu.', 'Vous rejouez pour « vous refaire » après une perte.', 'Vous empruntez ou utilisez de l’argent destiné à autre chose.', 'Vous cachez votre pratique à vos proches.', 'Le jeu occupe vos pensées, vous rend irritable ou anxieux.'])] },
+        { h: 'Quelques bonnes pratiques', body: [L(['Fixez un budget avant de commencer, et considérez-le comme dépensé.', 'Fixez-vous une limite de temps.', 'Ne jouez jamais pour vous refaire.', 'Évitez de jouer sous l’effet de l’alcool, de la fatigue ou d’une émotion forte.'])] },
+        { h: 'Se faire aider', body: [B('Joueurs Info Service : 09 74 75 13 13 (appel non surtaxé), et conseils en ligne sur joueurs-info-service.fr.'), B('Vous pouvez aussi demander une interdiction volontaire de jeux auprès de l’Autorité nationale des jeux (ANJ). Elle s’applique à tous les opérateurs agréés.')] },
+        { h: 'Mineurs', body: [B('Arrivée est réservé aux personnes majeures. La date de naissance est vérifiée à l’inscription et un justificatif peut être demandé. Les paris sont interdits aux mineurs.')] }
+      ] },
+      cgu: { title: 'Conditions générales d’utilisation', intro: '[À faire rédiger et valider par un juriste. Structure proposée ci-dessous.]', sections: [
+        { h: '1. Objet', body: [B('Les présentes conditions encadrent l’utilisation du service Arrivée, édité par [RAISON SOCIALE], qui publie des pronostics hippiques statistiques. Arrivée n’est pas un opérateur de jeux et ne prend aucun pari.')] },
+        { h: '2. Accès au service', body: [B('Le service est réservé aux personnes âgées de 18 ans ou plus. L’inscription nécessite une adresse e-mail valide et une date de naissance. [RAISON SOCIALE] peut demander un justificatif d’âge.')] },
+        { h: '3. Formules et abonnement', body: [B('La formule gratuite donne accès à un pronostic complet par jour. Trois Pass donnent accès à l’ensemble des pronostics : le Pass 1 jour (4,99 € TTC, paiement unique, accès de 24 heures, sans renouvellement), le Pass mensuel (12,99 € TTC par mois) et le Pass annuel (99 € TTC par an). Les Pass mensuel et annuel sont reconduits automatiquement, sans engagement, et se résilient à tout moment depuis Mon compte ; l’accès est maintenu jusqu’à la fin de la période payée. [À valider : droit de rétractation de 14 jours et renonciation expresse en cas d’accès immédiat au service.]')] },
+        { h: '4. Nature des pronostics', body: [B('Les pronostics sont des estimations statistiques fournies à titre informatif. Ils ne constituent ni un conseil en investissement, ni une incitation à parier, ni une garantie de résultat. L’utilisateur reste seul responsable de ses décisions.')] },
+        { h: '5. Propriété intellectuelle', body: [B('[À COMPLÉTER]')] },
+        { h: '6. Responsabilité', body: [B('[À COMPLÉTER]')] },
+        { h: '7. Droit applicable', body: [B('Droit français. [À COMPLÉTER : juridiction compétente, médiation de la consommation.]')] }
+      ] },
+      privacy: { title: 'Politique de confidentialité', intro: '[À faire valider par un juriste ou votre DPO.]', sections: [
+        { h: 'Données collectées', body: [L(['Compte : prénom, e-mail, date de naissance, mot de passe (chiffré).', 'Abonnement : formule, historique de paiement (les données de carte sont traitées par [PRESTATAIRE DE PAIEMENT]).', 'Usage : suivis, préférences de notification.'])] },
+        { h: 'Pourquoi', body: [L(['Fournir le service et gérer votre abonnement.', 'Vérifier que vous êtes majeur.', 'Vous envoyer les alertes que vous avez activées.'])] },
+        { h: 'Durée de conservation', body: [B('[À COMPLÉTER]')] },
+        { h: 'Vos droits', body: [B('Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, de portabilité et d’opposition. Écrivez à [E-MAIL DPO]. Vous pouvez aussi adresser une réclamation à la CNIL.')] },
+        { h: 'Cookies', body: [B('[À COMPLÉTER : liste des cookies et gestion du consentement.]')] }
+      ] },
+      mentions: { title: 'Mentions légales', intro: '', sections: [
+        { h: 'Éditeur', body: [B('[RAISON SOCIALE], [FORME JURIDIQUE] au capital de [MONTANT] €, immatriculée au RCS de [VILLE] sous le numéro [SIREN]. Siège : [ADRESSE]. Contact : [E-MAIL].')] },
+        { h: 'Directeur de la publication', body: [B('[NOM]')] },
+        { h: 'Hébergement', body: [B('[HÉBERGEUR], [ADRESSE], [TÉLÉPHONE].')] },
+        { h: 'Activité', body: [B('Arrivée publie des pronostics hippiques. [RAISON SOCIALE] n’est pas un opérateur de jeux et ne propose aucun pari.')] }
+      ] }
+    };
+  }
+  renderVals() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const tab = st.tab || 'jeu';
+    const D = this.docs();
+    const TABS = [['jeu', 'Jeu responsable'], ['cgu', 'CGU'], ['privacy', 'Confidentialité'], ['mentions', 'Mentions légales']];
+    const doc = D[tab];
+    return {
+      tabs: TABS.map((t) => ({ label: t[1], pressed: t[0] === tab ? 'true' : 'false', pick: () => this.setState({ tab: t[0] }),
+        style: 'flex-shrink: 0; height: 44px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 700; ' + (t[0] === tab ? 'background: ' + G + '; color: ' + INK + '; border: 1px solid ' + G + ';' : 'background: transparent; color: #C9D2CD; border: 1px solid #2A332E;') })),
+      title: doc.title, intro: doc.intro, hasIntro: !!doc.intro, isJeu: tab === 'jeu',
+      sections: doc.sections, updated: 'Dernière mise à jour : [DATE]'
+    };
+  }
+}
+</script>
+</body>
+</html>

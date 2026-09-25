@@ -1,71 +1,73 @@
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { RefreshCw } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/brand/Logo'
-import { ONGLETS, ongletActif } from '@/components/layout/Navigation'
-import { useDonnees } from '@/data/DonneesContext'
-
-function heure(d: Date) {
-  return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-}
+import { IconeCalendrier, IconeCompte } from '@/components/layout/IconesNavigation'
+import { ONGLETS_HAUT, ongletActif } from '@/components/layout/Navigation'
+import { useAuth } from '@/auth/AuthContext'
+import { dateEnTete, dateEnTeteCourte } from '@/lib/format'
+import { initiales } from '@/lib/prenom'
+import { useHeureParis } from '@/lib/useHeureParis'
 
 /**
- * La barre reste collée en haut et laisse voir le fond au travers. C'est ce
- * qui justifie le `backdrop-filter` ici plus qu'ailleurs : sans lui, le texte
- * de la page passerait sous une bande transparente et deviendrait illisible
- * pendant le défilement.
+ * L'en-tête des maquettes : logo et navigation à gauche, date du jour et
+ * pastille de compte à droite. Opaque et collé en haut : sans verre, il n'y a
+ * plus rien à voir au travers.
+ *
+ * Le bouton « rafraîchir » a disparu avec la refonte : les données se
+ * rechargent seules (minuterie et retour d'onglet, voir DonneesContext).
+ *
+ * Sur téléphone, la navigation passe dans la barre du bas ; il ne reste ici
+ * que le logo et la date courte, comme dans `design/screens/Mobile.dc.html`.
  */
 export function BarreHaute() {
-  const { majLe, chargement, rafraichir } = useDonnees()
   const { pathname } = useLocation()
+  const { jour } = useHeureParis()
+  const { prenom, email } = useAuth()
+  const lettres = initiales(prenom, email)
+  const compteActif = ongletActif('/compte', pathname)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-canvas/60 backdrop-blur-2xl">
-      <div className="mx-auto max-w-content px-4 sm:px-6 h-14 sm:h-16 flex items-center gap-6">
+    <header className="sticky top-0 z-40 border-b border-sep bg-canvas">
+      <div className="mx-auto max-w-content px-5 md:px-10 h-16 md:h-[4.75rem] flex items-center gap-12">
         <Link to="/" className="tap shrink-0 rounded-xl" aria-label="Crosswell Pronostics, accueil">
           <Logo />
         </Link>
 
         {/* L'état actif passe par `ongletActif` : une page course allume
-            « Réunions », même si sa route n'en descend pas. */}
-        <nav className="hidden md:flex items-center gap-1 ml-2" aria-label="Navigation principale">
-          {ONGLETS.map((o) => {
+            « Courses », même si sa route n'en descend pas. */}
+        <nav className="hidden md:flex items-center gap-2" aria-label="Navigation principale">
+          {ONGLETS_HAUT.map((o) => {
             const actif = ongletActif(o.to, pathname)
             return (
-              <NavLink
+              <Link
                 key={o.to}
                 to={o.to}
                 aria-current={actif ? 'page' : undefined}
-                className={`px-3.5 h-9 inline-flex items-center rounded-full text-sm font-medium transition-all ${
-                  actif ? 'glass-nest text-ink' : 'text-muted hover:text-ink hover:bg-white/[0.05]'
+                className={`h-10 px-[1.125rem] inline-flex items-center rounded-full text-sm transition-colors ${
+                  actif ? 'bg-raised text-ink font-bold' : 'text-muted font-semibold hover:text-accent'
                 }`}
               >
                 {o.libelle}
-              </NavLink>
+              </Link>
             )
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          {/* Le point vivant est visible PARTOUT : c'est le seul signal
-              permanent que les données respirent. Sur téléphone — l'appareil
-              principal — seul le libellé disparaît, jamais le pouls. */}
-          {majLe && (
-            <span
-              className="inline-flex items-center gap-2 text-[0.6875rem] text-faint"
-              title={`Données à jour à ${heure(majLe)}`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-win animate-pulse-dot" aria-hidden />
-              <span className="num hidden sm:inline">à jour à {heure(majLe)}</span>
-            </span>
-          )}
-          <button
-            onClick={rafraichir}
-            className="btn-ghost !px-3 !h-11 sm:!h-9 sm:!px-2.5"
-            aria-label="Rafraîchir les données"
-            disabled={chargement}
+        <div className="ml-auto flex items-center gap-2.5 text-faint text-sm font-semibold">
+          <IconeCalendrier size={18} className="hidden md:block" />
+          <span className="num hidden md:inline">{dateEnTete(jour)}</span>
+          <span className="num md:hidden text-[0.8125rem]">{dateEnTeteCourte(jour)}</span>
+          <Link
+            to="/compte"
+            aria-label="Mon compte"
+            aria-current={compteActif ? 'page' : undefined}
+            className={`hidden md:grid ml-3.5 w-10 h-10 place-items-center rounded-full border text-sm font-bold transition-colors ${
+              compteActif
+                ? 'bg-accent text-accent-ink border-accent'
+                : 'bg-raised text-ink border-line-strong hover:border-line-hover'
+            }`}
           >
-            <RefreshCw size={16} className={chargement ? 'animate-spin' : undefined} />
-          </button>
+            {lettres ?? <IconeCompte size={18} />}
+          </Link>
         </div>
       </div>
     </header>

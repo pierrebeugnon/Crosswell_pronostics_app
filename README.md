@@ -1,8 +1,16 @@
 # Crosswell — Pronostics
 
-Plateforme **destinée aux clients**. Elle expose, derrière un compte, les probabilités de
-victoire et de place calculées chaque soir par le moteur Crosswell pour les courses du
-lendemain, et publie sans filtre ce que ces probabilités valent.
+Plateforme **destinée aux clients**. Elle expose, derrière un compte, les pronostics
+d'aujourd'hui et de demain : les probabilités de victoire et de place calculées par le moteur
+Crosswell, et publie sans filtre ce que ces probabilités valent.
+
+> **Rythme de publication (décision du 17 septembre 2026).** Le pipeline est en cours de
+> reprogrammation pour calculer **dans la nuit** les pronostics du lendemain : le client a
+> toujours ceux d'aujourd'hui et ceux de demain. L'interface annonce déjà ce rythme, sans heure
+> précise, par une seule constante : `RYTHME_PUBLICATION` dans `src/config/app.ts` (à cette date,
+> la production calcule encore le jour même vers 7 h). Les arrivées sont relevées au fil des
+> courses, complétées au relevé du soir (`HEURE_RELEVE_SOIR`), et aucune probabilité n'est
+> recalculée. Le mode démonstration a toujours ses réunions de demain.
 
 Elle est le pendant public de [`crosswell-internal-tools`](https://github.com/pierrebeugnon/crosswell-internal-tools),
 qui reste l'outil de R&D : même base Supabase, mais une vue distincte, un seul modèle exposé,
@@ -26,7 +34,8 @@ Pour développer sans base ni compte :
 VITE_DEMO=1 npm run dev
 ```
 
-Le mode démonstration génère un jeu **fictif et déterministe** de 45 jours et affiche un
+Le mode démonstration (`npm run dev:demo`) génère un jeu **fictif et déterministe** de 45 jours,
+jusqu'à demain inclus, et affiche un
 bandeau rouge permanent. Il ne fait aucun appel réseau et court-circuite l'authentification.
 
 ## Mise en service
@@ -54,30 +63,75 @@ Le second est la garde : même si l'interface se trompait, la base ne laisserait
 modèle expérimental. Changer de modèle servi suppose donc de modifier les deux et de rejouer
 le fichier SQL.
 
+## Tests et parité
+
+```bash
+npm test          # tous les tests (Vitest)
+npm run parite    # seulement la parité avec l'outil interne
+```
+
+- **Tests unitaires** (`src/lib/*.test.ts`) : les périodes et les jours de Paris, la
+  construction des courses (non-partants, rang effectif, cheval sans `pred_rank`, dead heat,
+  marché), les indicateurs
+  (calibration, confiance, repère du hasard, face au marché, Wilson). Cas écrits à la main.
+- **Parité** (`tests/parite/`) : l'app et le vrai code de l'outil interne tournent sur un
+  même jeu généré de plus de 3 000 courses ; tout ce qui doit être identique l'est course par
+  course, et les sept écarts voulus sont mesurés à l'unité :
+  1. calibration sans non-partants ;
+  2. « dans les trois » au lieu des places payées ;
+  3. hasard calculé (valeur figée en fraction, écart mesuré avec le 11 % et la vue Modèles) ;
+  4. dead heat : le favori du marché ex æquo premier compte une victoire ;
+  5. un cheval sans `pred_rank` n'a pas de rang ;
+  6. favori du marché sur la seule clôture (la vue ne sert pas l'avant-course) ;
+  7. segment de peloton sur les partants au départ, pas sur `field_size`.
+
+  Sans l'outil interne (CI), l'app est comparée à l'instantané `tests/parite/reference.json`.
+  Régénération : `MAJ_REFERENCE=1 npm run parite`, puis `npm run parite` ; détails dans
+  `tests/parite/README.md`.
+- **Contre la base** : `db/verifications/reference_mesure.sql` recalcule en SQL, selon les
+  définitions de l'app, les chiffres de « Nos résultats » (tout l'historique et 30 jours), à
+  comparer à l'écran. Lecture seule.
+
+## Site vitrine
+
+Le dossier `site/` contient le **site de présentation** du service, projet Vite frère de
+l'application : mêmes jetons, mêmes primitives de verre, aucune base ni compte. Il se
+développe (`cd site && npm install && npm run dev`, port 5195) et se déploie séparément —
+projet Vercel distinct, « Root Directory » réglé sur `site`. Son brief de charte et de
+positionnement vit dans `site/CLAUDE.md` ; ses réglages (adresse de l'application, contact,
+seuils recopiés d'ici) dans `site/src/config/site.ts`.
+
 ## Architecture
 
 ```
 src/
-  config/app.ts          modèle servi, seuils, mentions légales — le seul fichier de réglage
-  types.ts               Course, Partant, Reunion, Bilan, ProfilPiste
+  config/app.ts          modèle servi, seuils, libellés, mentions légales — le seul fichier de réglage
+  types.ts               Course, Partant, Reunion, Bilan
   lib/
     supabase.ts          client, nom de la vue
     format.ts            dates, pourcentages, cotes — tout le formatage français
     aggregate.ts         lignes brutes → courses → réunions, probabilités de marché
-    stats.ts             Wilson, bilan, calibration, segments
-    ambiance.ts          teinte de halos dérivée du nom d'un hippodrome
+    stats.ts             Wilson, bilan, calibration, face au marché, repère du hasard
+    journee.ts           heure de Paris et état d'une course
+    periodes.ts          périodes de mesure (« 30 jours » = aujourd'hui compris)
+    programme.ts         page Courses : course par défaut, confiance, verdict, arrivées
+    accueil.ts           accueil : prochaine course, délai, écarts au marché
+    resultats.ts         « Nos résultats » : filtres, indicateurs, série mensuelle, découpages
     demo.ts              jeu fictif déterministe
   services/predictions.ts requêtes paginées + abonnement temps réel
-  services/hippodromes.ts profils de piste agrégés
   data/DonneesContext.tsx fenêtre glissante de 30 jours, partagée par les pages
-  auth/                  session Supabase, route protégée
-  components/            ui/ · layout/ · course/ · hippodrome/ · stats/ · brand/
-  pages/                 Connexion, Aujourdhui, Reunions, Reunion, Course,
-                         Partant, Hippodromes, Hippodrome, Resultats, Methode,
-                         Compte, NonTrouve
+  auth/                  session Supabase (et session fictive de la démo), route protégée
+  components/            ui/ · layout/ · courses/ · accueil/ · resultats/ · brand/
+  pages/                 Connexion, Aujourdhui, Courses, Reunions, Reunion (redirection),
+                         Resultats, Methode, Compte, NonTrouve
+design/                  maquettes de la refonte du 18/09/2026 et plan d'intégration
 db/001_acces_client.sql  vue des pronostics, droits, index
-db/002_profil_hippodromes.sql  profil de piste agrégé, droits, index
 ```
+
+La fiche d'un partant n'est plus une page : c'est un tiroir posé sur la page Courses
+(`/courses/:date/:hippodrome/:numero/partants/:cheval`). Les pages hippodromes ont été
+retirées le 18/09/2026 ; la vue `db/002_profil_hippodromes.sql` existe toujours en base,
+l'application ne la lit plus.
 
 ### Deux points de conception qui ne sautent pas aux yeux
 
@@ -89,34 +143,30 @@ courses sans qu'aucune erreur ne le signale.
 **Le rafraîchissement repose sur le sondage, pas sur Realtime.** Le rôle `authenticated` n'a
 aucun droit sur la table sous-jacente, et Realtime diffuse au niveau de la table : l'abonnement
 reste muet. Le contexte se resynchronise donc toutes les 90 secondes et au retour dans
-l'onglet — suffisant pour des données qui changent deux fois par jour.
+l'onglet — suffisant pour des données qui changent quelques fois par jour : la publication de
+nuit, les arrivées relevées au fil de l'après-midi, le relevé du soir.
 
 ## Design
 
-Sombre uniquement, verre dépoli sur halos verts et bleu nuit. Il n'y a pas de thème clair, et c'est un
-choix assumé : tout l'effet repose sur des dégradés flous vus au travers de surfaces
-translucides, qui deviennent des taches sur fond clair.
+Refonte du 18/09/2026 d'après les maquettes de `design/` (plan et écarts :
+`design/INTEGRATION.md`). **Noir plat, bordures opaques**, sans verre ni halos : c'est la
+bordure, pas la transparence, qui sépare les plans. Sombre uniquement.
 
-Accent **vert énergique `#3DDC84`**, **Montserrat** en titrage, Inter en texte courant. Les
+Accent **vert `#2EE58F`** (survol `#5BF0A8`), **Montserrat partout**, de 400 à 800. Les
 jetons vivent dans `src/index.css` (variables CSS) et `tailwind.config.ts` (aucune couleur
-littérale). Les classes `.glass`, `.card`, `.card-nest`, `.card-accent` composent toutes les
-surfaces ; `.card` ne doit jamais être imbriquée dans `.card` — un flou dans un flou vire au
-gris laiteux.
+littérale) : fonds `canvas < sunken < surface < raised`, filets `sep · line · line-strong ·
+line-hover`, texte `ink > soft > muted > faint > dim`. Les classes historiques `.glass`,
+`.card`, `.card-nest`, `.btn-*`, `.chip-*` existent toujours, mais sont devenues des aplats
+bordés aux valeurs de la maquette.
 
-Deux conséquences du choix du vert, à ne pas défaire par inadvertance :
-
-- « Gagné » partage la teinte de l'accent. Chercher un **second** vert pour le résultat
-  donnerait deux nuances trop voisines pour se distinguer, qu'on prendrait pour un bug. Ce qui
-  sépare les deux emplois est le **poids** — dégradé et lueur pour la marque, aplat teinté pour
-  le résultat. « Placé » reste bleu et « battu » rouge : les trois issues restent lisibles.
-- Renommer un jeton de couleur dans `tailwind.config.ts` **impose de redémarrer Vite**. La
-  config Tailwind n'est pas rechargée à chaud : le serveur continue de compiler contre
-  l'ancienne palette et sert un `500` sur `/src/index.css` jusqu'au redémarrage, alors même que
-  `npm run build` passe.
+- « Gagné » partage la teinte de l'accent : c'est le **poids** (aplat plein ou teinte) qui
+  sépare la marque du résultat.
+- Renommer un jeton de couleur dans `tailwind.config.ts` **impose de redémarrer Vite** : la
+  config Tailwind n'est pas rechargée à chaud.
 
 ## Mobile d'abord
 
-Ce produit se consulte debout, d'une main, la veille au soir et le matin d'une réunion. Le
+Ce produit se consulte debout, d'une main, le matin et au fil d'une journée de courses. Le
 téléphone est donc l'écran de référence, pas une dégradation du bureau. Quatre règles en
 découlent, et chacune corrige une faute constatée sur cette base de code :
 
@@ -133,46 +183,21 @@ découlent, et chacune corrige une faute constatée sur cette base de code :
 - **16 px dans les champs de saisie.** Safari iOS zoome la page sous ce seuil. La règle est en
   bas de `index.css`, hors `@layer` et en `!important` — les deux sont nécessaires, le
   commentaire sur place explique pourquoi.
-- **Les actions se répètent là où le pouce arrive.** La navigation entre courses d'une réunion
-  existe dans l'en-tête sur grand écran et se répète en bas de page sur téléphone : arrivé au
-  bout du tableau des partants, on ne remonte pas huit écrans pour passer à la course suivante.
+- **La navigation reste là où le pouce arrive.** Sur téléphone, la bascule de jour et le ruban
+  des courses restent collés sous l'en-tête de la page Courses : arrivé au bout de la liste des
+  partants, on ne remonte pas huit écrans pour passer à la course suivante.
   Même logique pour le sommaire de `/methode`, page longue de dix écrans, dont les ancres
   passent en bandeau défilant sous le titre.
 
-## Les pages hippodromes
-
-`/hippodromes` et `/hippodromes/:nom` publient le **profil de piste** : vitesse moyenne, train
-des derniers 600 m, régularité, distances courues. La source est `tracking_courses`, agrégée
-côté base par `db/002_profil_hippodromes.sql` — aucune donnée individuelle de cheval ne franchit
-la frontière, et le seuil de vingt courses vit **dans la vue**, pas dans l'interface, pour qu'aucun
-écran futur ne puisse publier une moyenne calculée sur trois après-midi.
-
-La mise en page est immersive : sections pleine largeur, grand titre centré, séparateurs courbes,
-révélation au défilement. Chaque piste reçoit une **ambiance dérivée de son nom** — teintes de
-halos stables et uniques, sans table de couleurs à maintenir. Le vert de marque, lui, ne bouge
-jamais : faire varier l'accent avec la piste donnerait vingt-six petites marques au lieu d'une.
-
-Trois garde-fous à ne pas défaire :
-
-- **Sous vingt courses jugées, aucun taux n'est affiché.** La page dit le nombre de courses et
-  pourquoi elle se tait. Sur six courses, l'intervalle de Wilson couvre quarante points.
-- **Une piste sans chrono reste une piste.** Auteuil compte près de mille courses relevées et
-  zéro chronométrée ; `vitesseMoy` et `train600` sont nullables et le restent.
-- **La révélation au défilement a un filet de deux secondes.** Un document caché ne fait pas
-  tourner la boucle d'`IntersectionObserver` : sans ce `setTimeout`, une page ouverte dans un
-  onglet d'arrière-plan resterait à opacité zéro. Du contenu facturé ne dépend pas d'une animation.
-
 ## Ce que la plateforme ne fait pas
 
-Sans partenariat France Galop, elle ne publie **ni la forme détaillée des chevaux, ni les
-engagements en temps réel**. Les partants sont ceux déclarés la veille au soir : un non-partant
-de dernière minute n'y est pas reflété, et les cotes affichées sont des cotes de clôture
-relevées après la course. Ces limites sont écrites dans l'interface, sur `/methode` et au bas
-des pages concernées — elles ne doivent pas en disparaître.
-
-S'y ajoutent, sur les pages hippodromes : **ni tracé** (corde, ligne droite, dénivelé) **ni terrain**
-(souple, bon, collant, PSF). `engagements.hippodromes` porte bien une colonne `corde`, mais la
-table est vide — douze lignes, tout à `NULL` — et aucune table ne porte l'état du terrain.
+Elle publie la fiche des chevaux pronostiqués — profil, origines, entourage, musique et
+performances (données France Galop, vues de `db/004_fiche_cheval.sql`, exposées par décision
+du 18/09/2026) —, mais **ni les engagements en temps réel, ni la monte du jour**. Les probabilités décrivent les partants connus au moment du
+calcul et ne sont pas recalculées après un retrait : un non-partant est signalé dans la journée
+(`NOTE_NON_PARTANTS`), mais les pourcentages des autres chevaux restent ceux publiés. Les cotes
+affichées sont des cotes de clôture relevées après la course. Ces limites sont écrites dans
+l'interface, sur `/methode` et au bas des pages concernées — elles ne doivent pas en disparaître.
 
 ## Positionnement — et il est strict
 
@@ -180,14 +205,17 @@ Crosswell publie des **analyses statistiques** sur les courses hippiques. Ce n'e
 opérateur de jeux ni un service de conseil en mise — un secteur réglementé dans lequel nous
 n'entrons pas. Il en découle des règles de contenu qui ne sont pas du style, mais du droit :
 
-- **Le vocabulaire du jeu d'argent est banni de l'interface** : pari, mise, miser, jouer,
-  gain, rendement, ROI, bankroll. Le produit mesure la justesse de ses probabilités ; il ne
-  valorise rien en euros et ne recommande aucune action.
+- **Le vocabulaire du jeu d'argent est banni de l'interface** : pari, parier, mise, miser,
+  jouer, gain, rendement, ROI, bankroll, value, tuyau, coup sûr. Le produit mesure la justesse
+  de ses probabilités ; il ne valorise rien en euros et ne recommande aucune action. Le
+  vocabulaire **hippique**, lui, est le bon : pronostic, favori, rang, gagnant, placé, arrivée,
+  partants, dossard, non-partant.
 - **Aucune valorisation monétaire nulle part.** Les rapports PMU (`rapport_gagnant`,
   `rapport_place`) restent dans la couche de données mais ne sont plus affichés ; la section
   « rendement d'une mise plate » de `/resultats` a été supprimée, pas reformulée. Les cotes,
   elles, restent : ce sont des données de marché publiques, utilisées comme étalon de
-  comparaison (« face au marché », calibration), jamais comme un prix à jouer.
+  comparaison (écart par partant et « face au marché » sur les pages de course, cumul dans
+  « Nos résultats »), jamais comme un prix.
 - **Une seule mention légale, discrète**, sur chaque page : analyses statistiques publiées à
   titre d'information, service réservé aux majeurs. Elle est centralisée dans `AVERTISSEMENT`
   (`src/config/app.ts`), dont le commentaire porte la règle complète.

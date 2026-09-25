@@ -1,11 +1,12 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode,
 } from 'react'
-import { FENETRE_JOURS } from '@/config/app'
 import { chargerPlage, suivreEnDirect } from '@/services/predictions'
 import { construireCourses, construireReunions } from '@/lib/aggregate'
 import { jourISO } from '@/lib/format'
+import { bornesPeriode, PERIODE_FENETRE } from '@/lib/periodes'
 import type { Course, LignePrediction, Reunion } from '@/types'
+import { useAcces } from '@/auth/AccesContext'
 
 interface Donnees {
   courses: Course[]
@@ -33,14 +34,21 @@ const Contexte = createContext<Donnees | null>(null)
 const INTERVALLE_MS = 90_000
 
 /**
- * Charge une FENÊTRE glissante — les trente derniers jours plus demain — et la
- * partage entre toutes les pages de suivi.
+ * Charge une FENÊTRE glissante — les trente derniers jours, aujourd'hui compris,
+ * plus demain — et la partage entre toutes les pages de suivi.
  *
- * Pourquoi une fenêtre et pas tout l'historique : les pages « réunions » et
- * « course » n'ont jamais besoin de mars dernier, et charger l'intégralité à
- * chaque ouverture rendrait l'application lente à mesure que la saison avance.
- * La page « Nos résultats », elle, charge l'historique complet — mais une seule
- * fois, et à la demande.
+ * Demain reste dans la fenêtre bien qu'il ne soit PLUS publié à l'avance : le
+ * pipeline calcule le matin même (`RYTHME_PUBLICATION` dans config/app,
+ * décision du 20/09/2026). La fenêtre ne coûte rien de plus et n'aura rien à
+ * changer si le calcul de la veille revient un jour.
+ *
+ * Pourquoi une fenêtre et pas tout l'historique : le suivi en direct (accueil,
+ * réunions, course du jour, arrivées) ne porte que sur les jours récents, et
+ * relire l'intégralité à chaque rafraîchissement rendrait l'application lente à
+ * mesure que la saison avance. Les jours plus anciens passent par d'autres
+ * lectures, à la demande : les pages Réunion, Course et Partant chargent leur
+ * objet hors fenêtre ; « Nos résultats » charge l'historique complet, une seule
+ * fois.
  */
 export function DonneesProvider({ children }: { children: ReactNode }) {
   const [lignes, setLignes] = useState<LignePrediction[]>([])
@@ -51,11 +59,21 @@ export function DonneesProvider({ children }: { children: ReactNode }) {
   const enCours = useRef(false)
 
   const charger = useCallback(async (silencieux = false) => {
-    if (enCours.current) return
+    if (enCours.current) {
+      // Un appui sur « Actualiser » pendant une relecture silencieuse ne relance
+      // pas de requête — celle en cours rapportera des données tout aussi
+      // fraîches — mais il doit se voir et s'annoncer : sans cela le bouton
+      // semble cassé, et sur téléphone c'est le seul moyen de relire. Le
+      // `finally` de la requête en cours remettra `chargement` à faux.
+      if (!silencieux) setChargement(true)
+      return
+    }
     enCours.current = true
     if (!silencieux) setChargement(true)
     try {
-      const data = await chargerPlage(jourISO(-FENETRE_JOURS), jourISO(1))
+      // La fenêtre est exactement la période « 30 jours » de `lib/periodes.ts`,
+      // plus demain : l'accueil et « Nos résultats » comptent le même mois.
+      const data = await chargerPlage(bornesPeriode(PERIODE_FENETRE).depuis!, jourISO(1))
       setLignes(data)
       setErreur(null)
       setMajLe(new Date())
@@ -85,6 +103,19 @@ export function DonneesProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', auRetour)
     }
   }, [charger])
+
+  /*
+   * L'ACCÈS A CHANGÉ (Pass payé, Pass expiré) : la BASE filtre les pronostics
+   * (`db/007`), les lignes déjà chargées le sont avec les anciens droits.
+   * On relit en silence.
+   */
+  const { complet } = useAcces()
+  const completAvant = useRef(complet)
+  useEffect(() => {
+    if (completAvant.current === complet) return
+    completAvant.current = complet
+    void charger(true)
+  }, [complet, charger])
 
   const courses = useMemo(() => construireCourses(lignes), [lignes])
   const reunions = useMemo(() => construireReunions(courses), [courses])

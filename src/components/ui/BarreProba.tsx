@@ -26,15 +26,13 @@ export function BarreProba({
     !pret || valeur == null || maximum <= 0 ? 0 : Math.max(2, (valeur / maximum) * 100)
 
   return (
-    <div className={`h-1.5 rounded-full bg-white/[0.08] overflow-hidden ${className}`} aria-hidden>
+    <div className={`h-2 rounded-full bg-track overflow-hidden ${className}`} aria-hidden>
+      {/* Maquette : aplat vert pour les trois premiers, vert éteint au-delà. */}
       <div
         className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(.22,1,.36,1)]"
         style={{
           width: `${largeur}%`,
-          background: accent
-            ? 'linear-gradient(90deg, rgb(var(--c-accent-lo)), rgb(var(--c-accent-hi)))'
-            : 'rgb(255 255 255 / 0.28)',
-          boxShadow: accent ? '0 0 14px -2px rgb(var(--c-accent) / 0.7)' : undefined,
+          background: accent ? 'rgb(var(--c-accent))' : 'rgb(var(--c-accent-dim))',
         }}
       />
     </div>

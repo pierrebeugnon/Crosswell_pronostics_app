@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Mes suivis</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button{font-family:inherit;cursor:pointer;color:#EEF2EF}
+button:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1400px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column;">
+<header style="height: 76px; flex-shrink: 0; box-sizing: border-box; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<div style="display: flex; align-items: center; gap: 48px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg>
+<span style="font-size: 21px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span>
+</div>
+<nav aria-label="Navigation principale" style="display: flex; align-items: center; gap: 8px;">
+<a href="Home.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Accueil</a>
+<a href="Main.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Courses</a>
+<a href="Follows.dc.html" aria-current="page" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 700; background: #151A17; color: #EEF2EF;">Mes suivis</a>
+<a href="Results.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Nos résultats</a>
+</nav>
+</div>
+<a href="Account.dc.html" aria-label="Mon compte" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 999px; background: #151A17; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #EEF2EF;">CM</a>
+</header>
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 40px 40px 56px; display: flex; flex-direction: column; gap: 28px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;">Mes suivis</h1>
+<span style="font-size: 15px; font-weight: 500; color: #8C9A92;">Les chevaux, jockeys et entraîneurs que vous suivez. Vous êtes alerté dès qu’ils sont engagés.</span>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 24px; align-items: start;">
+<section style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+<div role="group" aria-label="Catégories" style="align-self: flex-start; display: flex; gap: 4px; padding: 4px; background: #111513; border: 1px solid #1F2622; border-radius: 999px;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.label}}<span class="num" style="{{t.countStyle}}">{{t.count}}</span></button></sc-for>
+</div>
+<sc-for list="{{items}}" as="i" hint-placeholder-count="3">
+<article style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 18px; padding: 22px; border-radius: 18px; background: #0F1311; border: 1px solid #1F2622;">
+<span style="display: flex;">
+<sc-if value="{{i.horse}}" hint-placeholder-val="{{ true }}"><span class="num" style="width: 56px; height: 56px; border-radius: 14px; background: #2EE58F; color: #07120C; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800;">{{i.init}}</span></sc-if>
+<sc-if value="{{i.person}}" hint-placeholder-val="{{ false }}"><span style="width: 56px; height: 56px; box-sizing: border-box; border-radius: 999px; background: #171D1A; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800;">{{i.init}}</span></sc-if>
+</span>
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+<sc-if value="{{i.horse}}" hint-placeholder-val="{{ true }}"><h3 style="margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.01em;">{{i.name}}</h3></sc-if><sc-if value="{{i.person}}" hint-placeholder-val="{{ false }}"><a href="{{i.link}}" style="align-self: flex-start;"><h3 style="margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.01em;">{{i.name}} <span style="font-size: 13px; font-weight: 700; color: #2EE58F;">Voir la fiche</span></h3></a></sc-if>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{i.meta}}</span>
+</div>
+<button onClick="{{i.unfollow}}" aria-label="{{i.unfollowAria}}" style="flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; color: #B7C2BC; font-size: 12px; font-weight: 700;">Ne plus suivre</button>
+</div>
+<sc-if value="{{i.engaged}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: #0A0C0B; border: 1px solid #1A201D;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2EE58F;">Prochain engagement</span>
+<span class="num" style="font-size: 14px; font-weight: 700;">{{i.next}}</span>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{i.nextRace}}</span>
+<sc-if value="{{i.hasPred}}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; font-weight: 600; color: #C9D2CD;">{{i.pred}}</span></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{i.notEngaged}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 13px; font-weight: 500; line-height: 1.5; color: #8C9A92;">Aucun engagement pour le moment. Vous serez alerté dès qu’il sera déclaré partant.</span>
+</sc-if>
+<sc-if value="{{i.hasTrend}}" hint-placeholder-val="{{ false }}">
+<span class="num" style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2EE58F;"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" style="fill: none; stroke: #2EE58F; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;"></path></svg>{{i.trend}}</span>
+</sc-if>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{i.last}}</span>
+<button onClick="{{i.toggleAlert}}" aria-pressed="{{i.alertPressed}}" aria-label="{{i.alertAria}}" style="{{i.alertStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" style="{{i.bellStyle}}"></path></svg>{{i.alertLabel}}</button>
+</div>
+</div>
+</article>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 20px; border-radius: 18px; border: 1px dashed #2A332E; text-align: center;">
+<span style="font-size: 15px; font-weight: 700;">Vous ne suivez personne dans cette catégorie</span>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">Ouvrez la fiche d’un cheval et touchez « Suivre ».</span>
+<button onClick="{{restore}}" style="height: 44px; padding: 0 18px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; font-size: 13px; font-weight: 700;">Annuler les retraits</button>
+</div>
+</sc-if>
+
+</section>
+<aside style="display: flex; flex-direction: column; gap: 6px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 8px;">
+<h2 style="margin: 0; font-size: 18px; font-weight: 700;">Alertes récentes</h2>
+<a href="Account.dc.html" style="font-size: 13px; font-weight: 700; color: #2EE58F;">Réglages</a>
+</div>
+<sc-for list="{{alerts}}" as="a" hint-placeholder-count="5">
+<div style="display: flex; gap: 12px; padding: 14px 0; border-top: 1px solid #1A201D;">
+<span style="{{a.dotStyle}}"></span>
+<span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8C9A92;">{{a.kind}} · {{a.when}}</span>
+<span style="font-size: 14px; font-weight: 600; line-height: 1.45;">{{a.text}}</span>
+</span>
+</div>
+</sc-for>
+
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  follows() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const ITEMS = [
+      { id: 'iron', kind: 'chevaux', init: '4', name: 'Iron Valley', meta: '6 ans · Hongre · Haies', next: 'Dim. 20 sept. · 14:45 · Auteuil R1 C4', nextRace: 'Prix de Rennes', pred: 'Prédit 2e · 22 % de victoire', last: 'Dernière course : 1er à Enghien, le 29 août', trend: '' },
+      { id: 'sirocco', kind: 'chevaux', init: '7', name: 'Sirocco Blue', meta: '4 ans · Mâle · Plat', next: 'Demain · 14:10 · Longchamp R1 C2', nextRace: 'Prix des Tuileries', pred: 'Prédit 4e · 11 % de victoire', last: 'Dernière course : 3e à Deauville, le 23 août', trend: 'Cote en baisse : 12 → 7,5 depuis ce matin' },
+      { id: 'belle', kind: 'chevaux', init: '2', name: 'Belle de Cordes', meta: '5 ans · Femelle · Haies', next: '', nextRace: '', pred: '', last: 'Dernière course : 5e à Auteuil, le 6 sept.', trend: '' },
+      { id: 'orage', kind: 'chevaux', init: '11', name: 'Orage Doré', meta: '7 ans · Hongre · Plat', next: 'Mar. 22 sept. · 13:55 · Saint-Cloud R2 C1', nextRace: 'Prix de Bayeux', pred: 'Pronostic publié la veille à 20 h', last: 'Dernière course : 4e à Chantilly, le 12 sept.', trend: '' },
+      { id: 'duval', kind: 'jockeys', init: 'CD', name: 'C. Duval', meta: 'Jockey · 17 % de victoires en 2026', next: 'Aujourd’hui · 3 montes à Compiègne', nextRace: 'R1 C1, C2 et C3', pred: '1 cheval prédit gagnant', last: 'Dernière victoire : Auteuil, le 15 sept.', trend: '' },
+      { id: 'lefevre', kind: 'jockeys', init: 'ML', name: 'M. Lefèvre', meta: 'Jockey · 14 % de victoires en 2026', next: 'Demain · 2 montes à Longchamp', nextRace: 'R1 C1 et C2', pred: '', last: 'Dernière victoire : Deauville, le 30 août', trend: '' },
+      { id: 'dubois', kind: 'entraineurs', init: 'FD', name: 'F. Dubois', meta: 'Entraîneur · 21 % de victoires en 2026', next: 'Demain · 1 partant à Auteuil', nextRace: 'R2 C2 · Prix du Point du Jour', pred: 'Prédit 3e · 14 % de victoire', last: 'Dernière victoire : Auteuil, le 6 sept.', trend: '' },
+      { id: 'leclerc', kind: 'entraineurs', init: 'HL', name: 'H. Leclerc', meta: 'Entraîneur · 12 % de victoires en 2026', next: '', nextRace: '', pred: '', last: 'Dernier partant : Chantilly, le 10 sept.', trend: '' }
+    ];
+    const removed = st.removed || [];
+    const muted = st.muted || ['belle'];
+    const tab = st.tab || 'chevaux';
+    const TABS = [['chevaux', 'Chevaux'], ['jockeys', 'Jockeys'], ['entraineurs', 'Entraîneurs']];
+    const live = ITEMS.filter((i) => removed.indexOf(i.id) < 0);
+    const tabs = TABS.map((t) => {
+      const on = t[0] === tab;
+      const n = live.filter((i) => i.kind === t[0]).length;
+      return {
+        label: t[1], count: n, pressed: on ? 'true' : 'false', pick: () => this.setState({ tab: t[0] }),
+        style: 'height: 40px; padding: 0 16px; border-radius: 999px; border: none; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; ' + (on ? 'background: ' + G + '; color: ' + INK + ';' : 'background: transparent; color: #B7C2BC;'),
+        countStyle: 'font-size: 12px; font-weight: 800; border-radius: 999px; padding: 1px 7px; ' + (on ? 'background: rgba(7,18,12,0.15);' : 'background: #1A201D; color: #8C9A92;')
+      };
+    });
+    const items = live.filter((i) => i.kind === tab).map((i) => {
+      const alertOn = muted.indexOf(i.id) < 0;
+      return Object.assign({}, i, {
+        horse: i.kind === 'chevaux', person: i.kind !== 'chevaux', link: i.kind === 'jockeys' ? 'Jockey.dc.html' : 'Trainer.dc.html',
+        engaged: !!i.next, notEngaged: !i.next, hasPred: !!i.pred, hasTrend: !!i.trend,
+        alertOn: alertOn, alertPressed: alertOn ? 'true' : 'false',
+        alertLabel: alertOn ? 'Alertes activées' : 'Alertes coupées',
+        alertAria: (alertOn ? 'Couper les alertes pour ' : 'Activer les alertes pour ') + i.name,
+        alertStyle: 'height: 40px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; ' + (alertOn ? 'background: rgba(46,229,143,0.12); color: ' + G + '; border: 1px solid rgba(46,229,143,0.5);' : 'background: transparent; color: #8C9A92; border: 1px solid #2A332E;'),
+        bellStyle: 'fill: none; stroke: ' + (alertOn ? G : '#8C9A92') + '; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;',
+        toggleAlert: () => { const cur = (this.state && this.state.muted) || muted; this.setState({ muted: cur.indexOf(i.id) >= 0 ? cur.filter((x) => x !== i.id) : cur.concat([i.id]) }); },
+        unfollow: () => this.setState({ removed: removed.concat([i.id]) }),
+        unfollowAria: 'Ne plus suivre ' + i.name
+      });
+    });
+    const alerts = [
+      { kind: 'Baisse de cote', text: 'La cote de Sirocco Blue est passée de 12 à 7,5 depuis ce matin.', when: 'Il y a 25 min', hot: true },
+      { kind: 'Engagement', text: 'Sirocco Blue est engagé demain à Longchamp (R1 C2, 14:10).', when: 'Il y a 2 h', hot: true },
+      { kind: 'Arrivée', text: 'C. Duval a remporté sa 25e victoire de l’année.', when: 'Hier soir', hot: false },
+      { kind: 'Engagement', text: 'C. Duval monte 3 chevaux aujourd’hui à Compiègne.', when: 'Ce matin', hot: false },
+      { kind: 'Engagement', text: 'Iron Valley est engagé dimanche à Auteuil (R1 C4, 14:45).', when: 'Hier', hot: false },
+      { kind: 'Arrivée', text: 'Iron Valley a terminé 1er à Enghien. Il était prédit 2e.', when: '29 août', hot: false }
+    ].map((a) => Object.assign(a, { dotStyle: 'width: 8px; height: 8px; flex-shrink: 0; margin-top: 6px; border-radius: 999px; background: ' + (a.hot ? G : '#3A4640') + ';' }));
+    return {
+      tabs: tabs, items: items, hasItems: items.length > 0, empty: items.length === 0,
+      total: live.length, alerts: alerts,
+      restore: () => this.setState({ removed: [] })
+    };
+  }
+  renderVals() {
+    return this.follows();
+  }
+}
+</script>
+</body>
+</html>

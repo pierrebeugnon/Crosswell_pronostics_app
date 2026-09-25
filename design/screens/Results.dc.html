@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Nos résultats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,select{font-family:inherit;cursor:pointer}
+select:focus,button:focus-visible{outline:2px solid #2EE58F;outline-offset:1px}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2600px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column;">
+
+<header style="height: 76px; flex-shrink: 0; box-sizing: border-box; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<div style="display: flex; align-items: center; gap: 48px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg>
+<span style="font-size: 21px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span>
+</div>
+<nav aria-label="Navigation principale" style="display: flex; align-items: center; gap: 8px;">
+<a href="Home.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Accueil</a>
+<a href="Main.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Courses</a>
+<a href="Follows.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Mes suivis</a>
+<a href="Results.dc.html" aria-current="page" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 700; background: #151A17; color: #EEF2EF;">Nos résultats</a>
+</nav>
+</div>
+<a href="Account.dc.html" aria-label="Mon compte" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 999px; background: #151A17; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #EEF2EF;">CM</a>
+</header>
+
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 40px 40px 56px; display: flex; flex-direction: column; gap: 24px;">
+
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 4px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;">Nos résultats</h1>
+<span style="font-size: 15px; font-weight: 500; color: #8C9A92;">Toutes les courses pronostiquées par le modèle, vérifiées après l’arrivée officielle.</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8C9A92;">Indicateur</span>
+<div style="display: flex; gap: 4px; padding: 4px; background: #111513; border: 1px solid #1F2622; border-radius: 999px;">
+<sc-for list="{{metrics}}" as="m" hint-placeholder-count="3"><button onClick="{{m.pick}}" aria-pressed="{{m.pressed}}" style="{{m.style}}">{{m.l}}</button></sc-for>
+</div>
+</div>
+</div>
+
+<div style="display: flex; align-items: flex-end; gap: 12px; padding: 18px 20px; border-radius: 18px; background: #0F1311; border: 1px solid #1F2622;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="6">
+<div style="flex-grow: 1; flex-basis: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+<label for="{{f.id}}" style="font-size: 12px; font-weight: 600; color: #B7C2BC;">{{f.label}}</label>
+<select id="{{f.id}}" value="{{f.value}}" onChange="{{f.change}}" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; background: #0A0C0B; border: 1px solid #2A332E; color: #EEF2EF; font-size: 14px; font-weight: 600;">
+<sc-for list="{{f.options}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.l}}</option></sc-for>
+</select>
+</div>
+</sc-for>
+<button class="ghost" onClick="{{reset}}" style="flex-shrink: 0; height: 44px; padding: 0 18px; border-radius: 999px; background: transparent; border: 1px solid #2A332E; color: #EEF2EF; font-size: 14px; font-weight: 700;">Réinitialiser</button>
+</div>
+
+<sc-if value="{{noData}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 48px; border-radius: 18px; background: #0F1311; border: 1px solid #1F2622; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;">
+<span style="font-size: 18px; font-weight: 700;">Aucune course ne correspond à ces filtres</span>
+<button onClick="{{reset}}" style="height: 44px; padding: 0 20px; border-radius: 999px; border: none; background: #2EE58F; color: #07120C; font-size: 14px; font-weight: 700;">Réinitialiser les filtres</button>
+</div>
+</sc-if>
+
+<sc-if value="{{hasData}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+<div style="{{k.style}}">
+<span style="font-size: 13px; font-weight: 600; color: #B7C2BC;">{{k.label}}</span>
+<span class="num" style="font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;">{{k.value}}</span>
+<span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{k.sub}}</span>
+</div>
+</sc-for>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<h2 style="margin: 0; font-size: 20px; font-weight: 700;">Taux de réussite {{metricLabel}} par mois</h2>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{metricLong}} · {{period}}</span>
+</div>
+<div class="num" style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #B7C2BC;">
+<span style="width: 22px; border-top: 1px dashed #8C9A92;"></span>
+<span>Moyenne de la période {{avgLabel}}</span>
+</div>
+</div>
+<div style="display: flex; gap: 12px; height: 300px;">
+<div class="num" style="display: flex; flex-direction: column; justify-content: space-between; width: 40px; padding-bottom: 38px; font-size: 11px; font-weight: 600; color: #8C9A92; text-align: right;">
+<sc-for list="{{ticks}}" as="t" hint-placeholder-count="5"><span style="line-height: 0;">{{t.label}}</span></sc-for>
+</div>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;">
+<div style="position: relative; flex-grow: 1; border-bottom: 1px solid #2A332E; display: flex; align-items: flex-end; gap: 6px;">
+<span style="{{avgLineStyle}}"></span>
+<sc-for list="{{months}}" as="mo" hint-placeholder-count="12">
+<button onMouseEnter="{{mo.enter}}" onMouseLeave="{{mo.leave}}" onFocus="{{mo.enter}}" onBlur="{{mo.leave}}" aria-label="{{mo.aria}}" style="position: relative; flex-grow: 1; flex-basis: 0; min-width: 0; height: 100%; padding: 0; background: transparent; border: none; display: flex; align-items: flex-end; justify-content: center;">
+<span style="{{mo.barStyle}}"></span>
+<sc-if value="{{mo.active}}" hint-placeholder-val="{{ false }}">
+<span class="num" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: #1A201D; border: 1px solid #2E3833; text-align: left; pointer-events: none;">
+<span style="font-size: 12px; font-weight: 600; color: #B7C2BC;">{{mo.tip}}</span>
+<span style="font-size: 16px; font-weight: 800; color: #EEF2EF;">{{mo.tipVal}}</span>
+<span style="font-size: 11px; font-weight: 500; color: #8C9A92;">{{mo.tipN}}</span>
+</span>
+</sc-if>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 6px; height: 38px; padding-top: 8px; box-sizing: border-box;">
+<sc-for list="{{months}}" as="mo" hint-placeholder-count="12">
+<span style="flex-grow: 1; flex-basis: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 11px; font-weight: 600; color: #8C9A92;">
+<span>{{mo.label}}</span><span style="font-size: 10px; color: #6F7C75;">{{mo.year}}</span>
+</span>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Par type de course</h2>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Pointillés : moyenne de la sélection ({{avgLabel}})</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{byType.items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span style="font-size: 14px; font-weight: 600;">{{it.label}}</span>
+<span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{it.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{it.n}}</span></span>
+</div>
+<span style="position: relative; display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{it.fillStyle}}"></span><span style="{{byType.avgStyle}}"></span></span>
+</div>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Par distance</h2>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Pointillés : moyenne de la sélection ({{avgLabel}})</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{byDist.items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span style="font-size: 14px; font-weight: 600;">{{it.label}}</span>
+<span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{it.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{it.n}}</span></span>
+</div>
+<span style="position: relative; display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{it.fillStyle}}"></span><span style="{{byDist.avgStyle}}"></span></span>
+</div>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Par niveau de confiance</h2>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Pointillés : moyenne de la sélection ({{avgLabel}})</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{byConf.items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span style="font-size: 14px; font-weight: 600;">{{it.label}}</span>
+<span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{it.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{it.n}}</span></span>
+</div>
+<span style="position: relative; display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{it.fillStyle}}"></span><span style="{{byConf.avgStyle}}"></span></span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Par jour de la semaine</h2>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Pointillés : moyenne de la sélection ({{avgLabel}})</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{byDay.items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span style="font-size: 14px; font-weight: 600;">{{it.label}}</span>
+<span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{it.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{it.n}}</span></span>
+</div>
+<span style="position: relative; display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{it.fillStyle}}"></span><span style="{{byDay.avgStyle}}"></span></span>
+</div>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700;">Par hippodrome · les 6 plus courus</h2>
+<span class="num" style="font-size: 12px; font-weight: 500; color: #8C9A92;">Pointillés : moyenne de la sélection ({{avgLabel}})</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{byHippo.items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span style="font-size: 14px; font-weight: 600;">{{it.label}}</span>
+<span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{it.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{it.n}}</span></span>
+</div>
+<span style="position: relative; display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{it.fillStyle}}"></span><span style="{{byHippo.avgStyle}}"></span></span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 28px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;">
+<h2 style="margin: 0; font-size: 20px; font-weight: 700;">Dernières courses</h2>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">En vert : chevaux prédits présents dans l’arrivée</span>
+</div>
+<div>
+<div style="display: grid; grid-template-columns: 130px 160px minmax(0, 1fr) 150px 150px 110px; align-items: center; gap: 16px; padding: 0 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8C9A92;">
+<span>Date</span><span>Hippodrome</span><span>Course</span><span>Pronostic</span><span>Arrivée</span><span style="text-align: right;">Résultat</span>
+</div>
+<sc-for list="{{recent}}" as="r" hint-placeholder-count="10">
+<div class="num" style="display: grid; grid-template-columns: 130px 160px minmax(0, 1fr) 150px 150px 110px; align-items: center; gap: 16px; padding: 0 4px; height: 56px; border-top: 1px solid #1A201D; font-size: 14px;">
+<span style="font-weight: 600;">{{r.date}}</span>
+<span style="font-weight: 600;">{{r.hippo}}</span>
+<span style="font-weight: 500; color: #B7C2BC;">{{r.meta}}</span>
+<span style="display: flex; gap: 6px;"><sc-for list="{{r.pred}}" as="x" hint-placeholder-count="3"><span style="{{x.style}}">{{x.num}}</span></sc-for></span>
+<span style="display: flex; gap: 6px;"><sc-for list="{{r.act}}" as="x" hint-placeholder-count="3"><span style="{{x.style}}">{{x.num}}</span></sc-for></span>
+<span style="{{r.statusStyle}}">{{r.status}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  rng(seed) {
+    let s = seed % 2147483647; if (s <= 0) s += 2147483646;
+    return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+  }
+  resData() {
+    if (this._res) return this._res;
+    const rand = this.rng(424242);
+    const TYPES = [
+      { k: 'Plat', w: 0.62, f: 1.0, hip: ['Chantilly', 'Deauville', 'Longchamp', 'Saint-Cloud', 'Lyon-Parilly', 'Compiègne'], d: [1000, 3000] },
+      { k: 'Haies', w: 0.22, f: 0.9, hip: ['Auteuil', 'Compiègne', 'Enghien', 'Pau'], d: [3000, 4000] },
+      { k: 'Steeple-chase', w: 0.16, f: 0.85, hip: ['Auteuil', 'Pau', 'Compiègne', 'Enghien'], d: [3500, 5500] }
+    ];
+    const CONF = [{ k: 'Élevée', p: 0.41, w: 0.28 }, { k: 'Moyenne', p: 0.29, w: 0.44 }, { k: 'Faible', p: 0.18, w: 0.28 }];
+    const wpick = (arr) => { let r = rand(), a = 0; for (let i = 0; i < arr.length; i++) { a += arr[i].w; if (r <= a) return arr[i]; } return arr[arr.length - 1]; };
+    const rows = [];
+    const start = Date.UTC(2025, 0, 2), end = Date.UTC(2026, 8, 17);
+    for (let t = start; t <= end; t += 86400000) {
+      const nr = 1 + Math.floor(rand() * 3);
+      for (let i = 0; i < nr; i++) {
+        const ty = wpick(TYPES), cf = wpick(CONF);
+        const hippo = ty.hip[Math.floor(rand() * ty.hip.length)];
+        const dist = Math.round((ty.d[0] + rand() * (ty.d[1] - ty.d[0])) / 50) * 50;
+        const pWin = cf.p * ty.f;
+        const r = rand();
+        const res = r < pWin ? 'win' : r < Math.min(0.93, pWin + 0.34) ? 'place' : 'miss';
+        const top3 = res !== 'miss' && rand() < (res === 'win' ? 0.34 : 0.22);
+        const odds = Math.max(1.3, (0.85 / pWin) * (0.7 + rand() * 0.9));
+        const n = 8 + Math.floor(rand() * 9);
+        const nums = []; while (nums.length < n) { const x = 1 + Math.floor(rand() * n); if (nums.indexOf(x) < 0) nums.push(x); }
+        const pred = nums.slice(0, 3);
+        let act;
+        if (top3) act = res === 'win' ? [pred[0], pred[2], pred[1]] : [pred[1], pred[0], pred[2]];
+        else if (res === 'win') act = [pred[0], nums[3], pred[1]];
+        else if (res === 'place') act = [nums[3], nums[4], pred[0]];
+        else act = [nums[3], pred[1], nums[4]];
+        const dt = new Date(t);
+        rows.push({ t: t, y: dt.getUTCFullYear(), m: dt.getUTCMonth(), dow: (dt.getUTCDay() + 6) % 7, d: dt.getUTCDate(), type: ty.k, hippo: hippo, dist: dist, conf: cf.k, win: res === 'win', place: res !== 'miss', top3: top3, odds: odds, pred: pred, act: act });
+      }
+    }
+    this._res = rows;
+    return rows;
+  }
+  results() {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+    const MONTHS_L = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const DAYS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
+    const DAYS_L = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const TYPES = ['Plat', 'Haies', 'Steeple-chase'];
+    const BUCKETS = ['< 1 600 m', '1 600 – 2 400 m', '2 400 – 3 500 m', '> 3 500 m'];
+    const bucket = (d) => d < 1600 ? 0 : d < 2400 ? 1 : d < 3500 ? 2 : 3;
+    const HIPPOS = ['Chantilly', 'Deauville', 'Longchamp', 'Saint-Cloud', 'Lyon-Parilly', 'Compiègne', 'Auteuil', 'Enghien', 'Pau'];
+    const F = { y: st.fy || 'all', m: st.fm || 'all', d: st.fd || 'all', t: st.ft || 'all', b: st.fb || 'all', h: st.fh || 'all' };
+    const metric = st.metric || 'win';
+    const all = this.resData();
+    const rows = all.filter((r) =>
+      (F.y === 'all' || String(r.y) === F.y) && (F.m === 'all' || String(r.m) === F.m) &&
+      (F.d === 'all' || String(r.dow) === F.d) && (F.t === 'all' || r.type === F.t) &&
+      (F.b === 'all' || String(bucket(r.dist)) === F.b) && (F.h === 'all' || r.hippo === F.h));
+    const rate = (arr, k) => arr.length ? arr.filter((r) => r[k]).length / arr.length : 0;
+    const pct = (v) => (Math.round(v * 1000) / 10).toFixed(1).replace('.', ',') + ' %';
+    const pct0 = (v) => Math.round(v * 100) + ' %';
+    const fmtN = (v) => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const avg = rate(rows, metric);
+    const setF = (k) => (e) => { const o = {}; o[k] = e.target.value; o.hover = null; this.setState(o); };
+    const opt = (v, l, cur) => ({ v: v, l: l, sel: cur === v });
+    const filters = [
+      { id: 'f-annee', label: 'Année', value: F.y, change: setF('fy'), options: [opt('all', 'Toutes', F.y), opt('2026', '2026', F.y), opt('2025', '2025', F.y)] },
+      { id: 'f-mois', label: 'Mois', value: F.m, change: setF('fm'), options: [opt('all', 'Tous', F.m)].concat(MONTHS_L.map((l, i) => opt(String(i), l, F.m))) },
+      { id: 'f-jour', label: 'Jour', value: F.d, change: setF('fd'), options: [opt('all', 'Tous', F.d)].concat(DAYS_L.map((l, i) => opt(String(i), l, F.d))) },
+      { id: 'f-type', label: 'Type de course', value: F.t, change: setF('ft'), options: [opt('all', 'Tous', F.t)].concat(TYPES.map((l) => opt(l, l, F.t))) },
+      { id: 'f-dist', label: 'Distance', value: F.b, change: setF('fb'), options: [opt('all', 'Toutes', F.b)].concat(BUCKETS.map((l, i) => opt(String(i), l, F.b))) },
+      { id: 'f-hippo', label: 'Hippodrome', value: F.h, change: setF('fh'), options: [opt('all', 'Tous', F.h)].concat(HIPPOS.map((l) => opt(l, l, F.h))) }
+    ];
+    const activeCount = ['fy', 'fm', 'fd', 'ft', 'fb', 'fh'].filter((k) => st[k] && st[k] !== 'all').length;
+    const metricDefs = [
+      { k: 'win', l: 'Gagnant', long: 'Le 1er prédit gagne la course' },
+      { k: 'place', l: 'Placé', long: 'Le 1er prédit finit dans les 3 premiers' },
+      { k: 'top3', l: 'Top 3', long: 'Les 3 premiers prédits forment le trio d’arrivée, dans le désordre' }
+    ];
+    const mDef = metricDefs.filter((m) => m.k === metric)[0];
+    const metrics = metricDefs.map((m) => ({
+      l: m.l, pressed: m.k === metric ? 'true' : 'false',
+      pick: () => this.setState({ metric: m.k, hover: null }),
+      style: 'height: 36px; padding: 0 16px; border-radius: 999px; border: none; font-size: 13px; font-weight: 700; ' + (m.k === metric ? 'background: ' + G + '; color: ' + INK + ';' : 'background: transparent; color: #B7C2BC;')
+    }));
+    const wins = rows.filter((r) => r.win);
+    const roi = rows.length ? (wins.reduce((a, r) => a + r.odds, 0) - rows.length) / rows.length : 0;
+    const kpis = [
+      { label: 'Courses analysées', value: fmtN(rows.length), sub: 'avec un pronostic publié', hl: false },
+      { label: 'Gagnant', value: pct(rate(rows, 'win')), sub: 'le 1er prédit gagne', hl: metric === 'win' },
+      { label: 'Placé', value: pct(rate(rows, 'place')), sub: 'le 1er prédit dans le top 3', hl: metric === 'place' },
+      { label: 'Top 3 désordre', value: pct(rate(rows, 'top3')), sub: 'trio d’arrivée trouvé', hl: metric === 'top3' },
+      { label: 'ROI simple gagnant', value: (roi >= 0 ? '+' : '−') + pct(Math.abs(roi)), sub: '1 € par course sur le 1er prédit', hl: false }
+    ].map((k) => Object.assign(k, {
+      style: 'display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 18px; min-width: 0; box-sizing: border-box; background: #0F1311; ' + (k.hl ? 'border: 1px solid ' + G + ';' : 'border: 1px solid #1F2622;')
+    }));
+
+    // monthly series
+    const groups = {};
+    rows.forEach((r) => { const key = r.y * 12 + r.m; (groups[key] = groups[key] || []).push(r); });
+    const keys = Object.keys(groups).map(Number).sort((a, b) => a - b);
+    const rates = keys.map((k) => rate(groups[k], metric));
+    const maxR = Math.max(0.1, ...rates);
+    const step = maxR > 0.6 ? 0.25 : maxR > 0.3 ? 0.1 : 0.05;
+    const top = Math.ceil(maxR / step) * step;
+    const ticks = [];
+    for (let v = top; v >= -0.0001; v -= step) ticks.push({ label: pct0(Math.max(0, v)) });
+    const hover = st.hover;
+    const months = keys.map((k, i) => {
+      const y = Math.floor(k / 12), m = k % 12, v = rates[i], n = groups[k].length;
+      const on = hover === k;
+      return {
+        label: MONTHS[m], year: (m === 0 || i === 0) ? String(y) : '', active: on,
+        tip: MONTHS_L[m] + ' ' + y, tipVal: pct(v), tipN: n + ' courses',
+        aria: MONTHS_L[m] + ' ' + y + ' : ' + pct(v) + ', ' + n + ' courses',
+        enter: () => this.setState({ hover: k }), leave: () => this.setState({ hover: null }),
+        barStyle: 'display: block; width: 100%; max-width: 28px; border-radius: 4px 4px 0 0; height: ' + Math.max(1, v / top * 100) + '%; background: ' + (hover == null || on ? G : '#1F5A40') + ';'
+      };
+    });
+    const avgLineStyle = 'position: absolute; left: 0; right: 0; bottom: ' + (avg / top * 100) + '%; border-top: 1px dashed #8C9A92;';
+
+    // breakdowns
+    const breakdown = (labels, keyFn) => {
+      const items = labels.map((l, i) => {
+        const arr = rows.filter((r) => keyFn(r) === i);
+        return { label: l, n: arr.length, v: rate(arr, metric) };
+      }).filter((x) => x.n > 0);
+      const mx = Math.max(0.05, ...items.map((x) => x.v)) * 1.1;
+      return {
+        items: items.map((x) => ({
+          label: x.label, value: pct0(x.v), n: fmtN(x.n) + ' courses',
+          fillStyle: 'display: block; height: 100%; border-radius: 0 4px 4px 0; width: ' + Math.max(1, x.v / mx * 100) + '%; background: ' + G + ';'
+        })),
+        avgStyle: 'position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 1px dashed #B7C2BC; left: ' + Math.min(100, avg / mx * 100) + '%;'
+      };
+    };
+    const byType = breakdown(TYPES, (r) => TYPES.indexOf(r.type));
+    const byDist = breakdown(BUCKETS, (r) => bucket(r.dist));
+    const byConf = breakdown(['Élevée', 'Moyenne', 'Faible'], (r) => ['Élevée', 'Moyenne', 'Faible'].indexOf(r.conf));
+    const byDay = breakdown(DAYS_L, (r) => r.dow);
+    const hipCounts = HIPPOS.map((h) => ({ h: h, n: rows.filter((r) => r.hippo === h).length })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 6).map((x) => x.h);
+    const byHippo = breakdown(hipCounts, (r) => hipCounts.indexOf(r.hippo));
+
+    const tag = (big) => 'width: ' + (big ? 30 : 26) + 'px; height: ' + (big ? 30 : 26) + 'px; box-sizing: border-box; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; ';
+    const recent = rows.slice(-10).reverse().map((r) => {
+      const status = r.top3 ? 'Top 3' : r.win ? 'Gagnant' : r.place ? 'Placé' : 'Manqué';
+      const ok = r.place;
+      return {
+        date: r.d + ' ' + MONTHS[r.m] + ' ' + r.y, hippo: r.hippo, meta: r.type + ' · ' + fmtN(r.dist) + ' m',
+        pred: r.pred.map((x, j) => ({ num: x, style: tag(true) + (r.act.indexOf(x) >= 0 ? 'background: ' + G + '; color: ' + INK + ';' : 'background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;') })),
+        act: r.act.map((x) => ({ num: x, style: tag(true) + 'background: transparent; color: #C9D2CD; border: 1px solid #2A332E;' })),
+        status: status,
+        statusStyle: 'justify-self: end; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 999px; padding: 4px 10px; ' + (ok ? 'background: rgba(46,229,143,0.12); color: ' + G + '; border: 1px solid rgba(46,229,143,0.4);' : 'background: #151A17; color: #8C9A92; border: 1px solid #242C28;')
+      };
+    });
+
+    const periodParts = [];
+    if (F.m !== 'all') periodParts.push(MONTHS_L[+F.m]);
+    periodParts.push(F.y === 'all' ? 'janv. 2025 – sept. 2026' : F.y);
+    return {
+      filters: filters, metrics: metrics, metricLong: mDef.long, metricLabel: mDef.l.toLowerCase(),
+      activeCount: activeCount, hasActive: activeCount > 0,
+      reset: () => this.setState({ fy: 'all', fm: 'all', fd: 'all', ft: 'all', fb: 'all', fh: 'all', hover: null }),
+      hasData: rows.length > 0, noData: rows.length === 0,
+      kpis: kpis, period: periodParts.join(' · '), avgLabel: pct(avg),
+      months: months, ticks: ticks, avgLineStyle: avgLineStyle,
+      byType: byType, byDist: byDist, byConf: byConf, byDay: byDay, byHippo: byHippo,
+      recent: recent
+    };
+  }
+  renderVals() {
+    return this.results();
+  }
+}
+</script>
+</body>
+</html>

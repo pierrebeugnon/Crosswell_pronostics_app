@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Arrivée — Fiche jockey</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0A0C0B;color:#EEF2EF;font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:#EEF2EF;text-decoration:none}a:hover{color:#2EE58F}
+button,input,select{font-family:inherit}
+button{cursor:pointer;color:#EEF2EF}
+button:focus-visible,a:focus-visible{outline:2px solid #2EE58F;outline-offset:2px}
+input:focus,select:focus{outline:2px solid #2EE58F;outline-offset:1px}
+input[type=range]{accent-color:#2EE58F}
+input[type=checkbox]{accent-color:#2EE58F}
+.cta:hover{background:#5BF0A8 !important}
+.ghost:hover{border-color:#3A4640 !important}
+.num{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:#232A26 transparent}
+.hscroll{scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 2050px; box-sizing: border-box; background: #0A0C0B; color: #EEF2EF; font-family: 'Montserrat', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+<header style="height: 76px; flex-shrink: 0; box-sizing: border-box; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1C2320;">
+<div style="display: flex; align-items: center; gap: 48px;">
+<div style="display: flex; align-items: center; gap: 12px;"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill: #2EE58F;"></rect><path d="M9 23V17M16 23V9M23 23v-4" style="fill: none; stroke: #07120C; stroke-width: 3.4; stroke-linecap: round;"></path></svg><span style="font-size: 21px; font-weight: 800; letter-spacing: -0.02em;">Arrivée</span></div>
+<nav aria-label="Navigation principale" style="display: flex; align-items: center; gap: 8px;">
+<a href="Home.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Accueil</a>
+<a href="Main.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Courses</a>
+<a href="Follows.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Mes suivis</a>
+<a href="Results.dc.html" style="height: 40px; padding: 0 18px; border-radius: 999px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #B7C2BC;">Nos résultats</a>
+</nav>
+</div>
+<a href="Account.dc.html" aria-label="Mon compte" style="width: 40px; height: 40px; box-sizing: border-box; border-radius: 999px; background: #151A17; border: 1px solid #2A332E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #EEF2EF;">CM</a>
+</header>
+<main class="scroll" style="flex-grow: 1; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 28px 40px 56px; display: flex; flex-direction: column; gap: 24px;">
+<a href="Main.dc.html" style="align-self: flex-start; min-height: 32px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #B7C2BC;"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" style="fill: none; stroke: #B7C2BC; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;"></path></svg>Retour aux courses</a>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+<div style="display: flex; align-items: center; gap: 22px;">
+<span style="flex-shrink: 0; width: 88px; height: 88px; border-radius: 999px; background: #151A17; border: 2px solid #2EE58F; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800;">{{initials}}</span>
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><span style="font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #07120C; background: #2EE58F; border-radius: 999px; padding: 3px 9px;">{{role}}</span><span style="font-size: 12px; font-weight: 700; color: #C9D2CD; border: 1px solid #2A332E; border-radius: 999px; padding: 2px 9px;">{{spec}}</span></div>
+<h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;">{{name}}</h1>
+<span style="font-size: 13px; font-weight: 500; color: #8C9A92;">{{meta}}</span>
+</div>
+</div>
+<button onClick="{{toggleFollow}}" aria-pressed="{{followPressed}}" style="{{followStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" style="{{starStyle}}"></path></svg>{{followLabel}}</button>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 20px; align-items: start;">
+<div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 18px; border-radius: 16px; background: #0F1311; border: 1px solid #1F2622; min-width: 0;">
+<span style="font-size: 12px; font-weight: 600; color: #B7C2BC;">{{k.label}}</span>
+<span class="num" style="font-size: 28px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap;">{{k.value}}</span>
+<span style="font-size: 11px; font-weight: 500; color: #8C9A92;">{{k.sub}}</span>
+</div>
+</sc-for>
+</div><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Victoires par mois · 2026</h2><span class="num" role="status" style="font-size: 13px; font-weight: 600; color: #B7C2BC;">{{hmLabel}}</span>
+<div style="display: flex; flex-direction: column;">
+<div style="height: 200px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 1px solid #2A332E;">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="9"><button onMouseEnter="{{m.enter}}" onMouseLeave="{{m.leave}}" onFocus="{{m.enter}}" onBlur="{{m.leave}}" onClick="{{m.enter}}" aria-label="{{m.aria}}" style="flex-grow: 1; flex-basis: 0; min-width: 0; height: 100%; padding: 0; background: transparent; border: none; display: flex; align-items: flex-end; justify-content: center;"><span style="{{m.barStyle}}"></span></button></sc-for>
+</div>
+<div style="display: flex; gap: 10px; padding-top: 8px;"><sc-for list="{{months}}" as="m" hint-placeholder-count="9"><span style="flex-grow: 1; flex-basis: 0; min-width: 0; text-align: center; font-size: 11px; font-weight: 600; color: #8C9A92;">{{m.label}}</span></sc-for></div>
+</div></section><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;"><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Réussite par discipline</h2><div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{disc}}" as="b" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;"><span style="font-size: 14px; font-weight: 600;">{{b.label}}</span><span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{b.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{b.n}}</span></span></div>
+<span style="display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{b.fill}}"></span></span>
+</div>
+</sc-for>
+</div></section><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Réussite par hippodrome</h2><div style="display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{hips}}" as="b" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;"><span style="font-size: 14px; font-weight: 600;">{{b.label}}</span><span class="num" style="white-space: nowrap;"><span style="font-size: 14px; font-weight: 800;">{{b.value}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;"> · {{b.n}}</span></span></div>
+<span style="display: block; height: 10px; border-radius: 0 4px 4px 0; background: #161C19;"><span style="{{b.fill}}"></span></span>
+</div>
+</sc-for>
+</div></section></div>
+<section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Palmarès</h2><div style="display: flex; flex-direction: column;">
+<sc-for list="{{palm}}" as="p" hint-placeholder-count="6">
+<div class="num" style="display: grid; grid-template-columns: 56px minmax(0, 1fr) 150px 170px 70px; align-items: center; gap: 12px; min-height: 52px; border-top: 1px solid #1A201D;">
+<span style="font-size: 14px; font-weight: 800;">{{p.year}}</span>
+<span style="min-width: 0; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{p.race}}</span></span>
+<span style="font-size: 13px; font-weight: 500; color: #B7C2BC;">{{p.hippo}}</span><span style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{p.horse}}</span>
+<span style="justify-self: end; {{p.gradeStyle}}">{{p.grade}}</span>
+</div>
+</sc-for>
+</div>
+<span style="font-size: 11px; font-weight: 500; color: #8C9A92;">Victoires dans les courses de Groupe et Listed.</span></section><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Derniers résultats</h2><div style="display: flex; flex-direction: column;">
+<sc-for list="{{recent}}" as="r" hint-placeholder-count="8">
+<div class="num" style="display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid #1A201D;">
+<span style="font-size: 13px; font-weight: 600;">{{r.date}}</span>
+<span style="min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{r.horse}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{r.hippo}}</span></span>
+<span style="{{r.placeStyle}}">{{r.place}}</span>
+</div>
+</sc-for>
+</div></section>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px;"><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Classement 2026</h2><div style="display: flex; align-items: baseline; gap: 10px;"><span class="num" style="font-size: 40px; font-weight: 800; letter-spacing: -0.03em; color: #2EE58F;">{{myRank}}</span><span style="font-size: 13px; font-weight: 500; color: #B7C2BC;">{{rankLine}}</span></div>
+<div role="group" aria-label="Critère du classement" style="display: flex; gap: 4px; padding: 4px; background: #0A0C0B; border: 1px solid #1F2622; border-radius: 999px;"><sc-for list="{{rkTabs}}" as="t" hint-placeholder-count="2"><button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.label}}</button></sc-for></div>
+<ol aria-label="{{rkTitle}}" style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px;">
+<sc-for list="{{ranking}}" as="r" hint-placeholder-count="8"><li style="{{r.rowStyle}}"><span class="num" style="font-size: 13px; font-weight: 800; color: #8C9A92;">{{r.rank}}</span><span style="{{r.nameStyle}}">{{r.name}}</span><span class="num" style="font-size: 13px; font-weight: 700;">{{r.value}}</span></li></sc-for>
+</ol>
+<span style="font-size: 11px; font-weight: 500; color: #8C9A92;">Classement calculé sur les courses de galop couvertes par Arrivée.</span></section><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Prochaines montes</h2><sc-if value="{{hasEng}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column;">
+<sc-for list="{{eng}}" as="e" hint-placeholder-count="2">
+<a href="{{e.href}}" style="display: flex; flex-direction: column; gap: 6px; padding: 14px 0; border-top: 1px solid #1A201D;">
+<span class="num" style="font-size: 12px; font-weight: 700; color: #2EE58F;">{{e.when}}</span>
+<span style="font-size: 13px; font-weight: 500; color: #B7C2BC;">{{e.race}}</span>
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 10px;"><span style="display: flex; align-items: center; gap: 10px; min-width: 0;"><span class="num" style="flex-shrink: 0; width: 30px; height: 30px; box-sizing: border-box; border-radius: 8px; background: #151A17; border: 1px solid #242C28; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">{{e.num}}</span><span style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{e.horse}}</span></span><span class="num" style="{{e.predStyle}}">{{e.pred}}</span></span>
+</a>
+</sc-for>
+</div></sc-if>
+<sc-if value="{{noEng}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; font-weight: 500; line-height: 1.6; color: #8C9A92;">Aucun engagement aujourd’hui ni demain. Suivez ce profil pour être alerté dès le prochain.</span></sc-if></section><section style="display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 20px; background: #0F1311; border: 1px solid #1F2622;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">{{partnersTitle}}</h2><div style="display: flex; flex-direction: column;">
+<sc-for list="{{partners}}" as="p" hint-placeholder-count="4">
+<div class="num" style="display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; border-top: 1px solid #1A201D;">
+<span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; font-weight: 700;">{{p.name}}</span><span style="font-size: 12px; font-weight: 500; color: #8C9A92;">{{p.runs}} · {{p.wins}}</span></span>
+<span style="font-size: 16px; font-weight: 800; color: #2EE58F;">{{p.win}}</span>
+</div>
+</sc-for>
+</div></section></div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"personne":{"editor":"enum","options":["M. Lefèvre", "C. Duval", "A. Morel", "T. Garnier", "J. Roussel", "L. Fontaine", "P. Marchand", "E. Girard", "S. Perrin", "N. Blanchard", "R. Lemoine", "V. Caron"],"default":"A. Morel","section":"Démo"},"$preview":{"width":1440,"height":2050}}'>
+class Component extends DCLogic {
+  seed() {
+    return {
+      names: ['Éclat du Matin','Iron Valley','Belle de Cordes','Sirocco Blue','Hardi Lamartine','Nuit Étoilée','Quick Reflex','Diva des Prés','Ubac du Vent','Grand Tempo','Orage Doré','Lady Mistral','Faro des Landes','Vif Argent','Kalypso Run','Jade du Rheu','Majestic Pearl','Roc de Sienne','Tornado Park','Îlot Sauvage','Brise Marine','Cœur Vaillant','Hermès du Val','Pampa King','Soleil d’Hiver','Aube Rebelle','Velours Noir','Opale Rose','Zéphyr Star','Gold Rush','Cap Horizon','Alma Bella','Fleur de Sel','Trésor Caché','Nordic Flame','Écho Sauvage','Ruby Dancer','Marquis Blanc','Sable Fin','Lune d’Or'],
+      jockeys: ['M. Lefèvre','C. Duval','A. Morel','T. Garnier','J. Roussel','L. Fontaine','P. Marchand','E. Girard','S. Perrin','N. Blanchard','R. Lemoine','V. Caron'],
+      days: {
+        today: { date: 'Vendredi 18 septembre', short: 'Ven. 18 sept.' },
+        tomorrow: { date: 'Samedi 19 septembre', short: 'Sam. 19 sept.' }
+      },
+      meetings: {
+        today: [
+          { reunion: 'R1', hippo: 'Compiègne', discipline: 'Plat · Obstacle', races: [
+            { c: 'C1', time: '13:50', name: 'Prix de Lannion', type: 'Plat', dist: 1600, n: 14 },
+            { c: 'C2', time: '14:25', name: 'Prix de Vitré', type: 'Haies', dist: 3500, n: 12 },
+            { c: 'C3', time: '15:15', name: 'Prix de Morlaix', type: 'Plat', dist: 2400, n: 13 }
+          ] },
+          { reunion: 'R2', hippo: 'Chantilly', discipline: 'Plat', races: [
+            { c: 'C1', time: '16:05', name: 'Prix de la Forêt de Coye', type: 'Plat', dist: 1600, n: 10 },
+            { c: 'C2', time: '16:40', name: 'Prix des Aigles', type: 'Plat', dist: 2000, n: 11 }
+          ] }
+        ],
+        tomorrow: [
+          { reunion: 'R1', hippo: 'Longchamp', discipline: 'Plat', races: [
+            { c: 'C1', time: '13:35', name: 'Prix du Moulin Neuf', type: 'Plat', dist: 1400, n: 9 },
+            { c: 'C2', time: '14:10', name: 'Prix des Tuileries', type: 'Plat', dist: 2400, n: 12 }
+          ] },
+          { reunion: 'R2', hippo: 'Auteuil', discipline: 'Obstacle', races: [
+            { c: 'C1', time: '15:00', name: 'Prix Saint-Sauveur', type: 'Haies', dist: 3600, n: 11 },
+            { c: 'C2', time: '15:35', name: 'Prix du Point du Jour', type: 'Steeple-chase', dist: 4300, n: 13 }
+          ] }
+        ]
+      }
+    };
+  }
+  rng(seed) {
+    let s = seed % 2147483647; if (s <= 0) s += 2147483646;
+    return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+  }
+  fmtOdds(o) {
+    if (o < 10) return o.toFixed(1).replace('.', ',');
+    if (o < 50) return String(Math.round(o));
+    return String(Math.round(o / 5) * 5);
+  }
+  fmtDist(d) { return String(d).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' m'; }
+  buildRace(r, m, dayKey, seed, S) {
+    const rand = this.rng(seed * 7919 + 101);
+    rand(); rand(); rand();
+    const pool = S.names.slice();
+    const hs = [];
+    for (let i = 1; i <= r.n; i++) {
+      const name = pool.splice(Math.floor(rand() * pool.length), 1)[0];
+      const s = 0.15 + Math.pow(rand(), 2.2) * 3;
+      hs.push({ num: i, name: name, jockey: S.jockeys[Math.floor(rand() * S.jockeys.length)], m: s * (0.65 + 0.7 * rand()), p: s * (0.7 + 0.6 * rand()) });
+    }
+    let mS = 0, pS = 0;
+    hs.forEach((h) => { mS += h.m; pS += h.p; });
+    hs.forEach((h) => {
+      const mp = h.m / mS, pp = h.p / pS;
+      h.oddsNum = Math.max(1.4, 0.85 / mp);
+      h.odds = this.fmtOdds(h.oddsNum);
+      h.winP = pp;
+      h.win = Math.max(1, Math.round(pp * 100));
+      h.place = Math.min(95, Math.max(3, Math.round(100 * (1 - Math.pow(1 - pp, 3.2)))));
+      h.value = pp > 0.05 && pp > 1.25 / h.oddsNum;
+    });
+    hs.sort((a, b) => b.winP - a.winP);
+    hs.forEach((h, i) => { h.rank = i + 1; });
+    const top = hs[0].win;
+    const conf = top >= 28 ? { label: 'Élevée', level: 3 } : top >= 18 ? { label: 'Moyenne', level: 2 } : { label: 'Faible', level: 1 };
+    return {
+      id: dayKey + '-' + m.reunion + r.c, code: m.reunion + ' ' + r.c, hippo: m.hippo, time: r.time, name: r.name,
+      chips: [{ label: r.type }, { label: this.fmtDist(r.dist) }, { label: r.n + ' partants' }],
+      meta: r.type + ' · ' + this.fmtDist(r.dist) + ' · ' + r.n + ' partants',
+      horses: hs, conf: conf, maxWin: top
+    };
+  }
+  data() {
+    if (this._data) return this._data;
+    const S = this.seed();
+    const out = { days: S.days };
+    let seed = 1;
+    Object.keys(S.meetings).forEach((d) => {
+      const all = [];
+      const meetings = S.meetings[d].map((m) => ({
+        reunion: m.reunion, hippo: m.hippo, discipline: m.discipline,
+        races: m.races.map((r) => { const race = this.buildRace(r, m, d, seed++, S); all.push(race); return race; })
+      }));
+      out[d] = { meetings: meetings, all: all };
+    });
+    this.applyStatus(out);
+    this._data = out;
+    return out;
+  }
+  sheet(race, h) {
+    const G = '#2EE58F', INK = '#07120C', RED = '#FF8A80';
+    let idc = 7;
+    race.id.split('').forEach((c) => { idc = (idc * 31 + c.charCodeAt(0)) % 1000003; });
+    const rand = this.rng(idc * 17 + h.num * 7919 + 3);
+    rand(); rand();
+    const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+    const type = race.chips[0].label;
+    const L = type === 'Plat' ? 'p' : type === 'Haies' ? 'h' : 's';
+    const age = 2 + Math.floor(rand() * 6);
+    const sexe = pick(['Mâle', 'Femelle', 'Hongre']);
+    const robe = pick(['Bai', 'Alezan', 'Bai brun', 'Gris', 'Noir']);
+    const q = Math.min(2.2, h.winP * race.horses.length);
+    const hippos = (L === 'p' ? ['Chantilly', 'Deauville', 'Longchamp', 'Saint-Cloud', 'Compiègne', 'Lyon-Parilly'] : ['Auteuil', 'Enghien', 'Compiègne', 'Pau', 'Fontainebleau']);
+    const dates = ['29 août', '14 août', '27 juil.', '9 juil.', '21 juin', '2 juin'];
+    const baseDist = parseInt(race.chips[1].label.replace(/[^0-9]/g, ''), 10) || 2000;
+    const res = dates.map((d) => {
+      const r0 = rand();
+      const pos = r0 < 0 ? 99 : 1 + Math.floor(Math.pow(rand(), 0.5 + q * 0.9) * 12);
+      const label = pos === 99 ? 'D' + L : (pos > 9 ? '0' : String(pos)) + L;
+      const place = pos === 99 ? 'Dist.' : pos > 9 ? 'NP' : (pos === 1 ? '1er' : pos + 'e');
+      return { date: d, pos: pos, label: label, place: place, hippo: pick(hippos), dist: this.fmtDist(baseDist + (Math.floor(rand() * 7) - 3) * 100), odds: this.fmtOdds(2 + rand() * 25) };
+    });
+    const tag = (pos, big) => (big ? 'min-width: 46px; height: 42px; font-size: 15px; ' : 'min-width: 44px; height: 30px; font-size: 12px; ') + 'box-sizing: border-box; padding: 0 8px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; ' + (pos <= 3 ? 'background: ' + G + '; color: ' + INK + ';' : pos > 9 ? 'background: #151A17; color: #6F7C75; border: 1px solid #242C28;' : 'background: #171D1A; color: #EEF2EF; border: 1px solid #2A332E;');
+    const runs = 8 + Math.floor(rand() * 30);
+    const wins = Math.max(0, Math.round(runs * (0.03 + 0.1 * q * rand() + 0.03 * q)));
+    const places = Math.min(runs - wins, Math.round(runs * (0.15 + 0.2 * q * rand())));
+    const gains = Math.round((wins * (9000 + rand() * 14000) + places * (2500 + rand() * 3000)) / 100) * 100;
+    const fmtMoney = (v) => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €';
+    const factorNames = ['Forme récente', 'Aptitude à la distance', 'Jockey', 'Hippodrome', 'Poids porté'];
+    const factors = factorNames.map((name) => {
+      const v = Math.max(-1, Math.min(1, (q - 1) * 0.6 + (rand() - 0.5) * 1.1));
+      const label = v > 0.45 ? 'Très favorable' : v > 0.12 ? 'Favorable' : v > -0.12 ? 'Neutre' : 'Défavorable';
+      const pos = v >= 0;
+      return {
+        name: name, label: label,
+        fillStyle: 'position: absolute; top: 0; bottom: 0; ' + (pos ? 'left: 50%; width: ' + Math.max(2, Math.round(v * 50)) + '%; background: ' + G + '; border-radius: 0 999px 999px 0;' : 'left: ' + Math.round(50 + v * 50) + '%; width: ' + Math.round(-v * 50) + '%; background: ' + RED + '; border-radius: 999px 0 0 999px;'),
+        labelStyle: 'text-align: right; font-size: 12px; font-weight: 700; ' + (v > 0.12 ? 'color: ' + G + ';' : v > -0.12 ? 'color: #8C9A92;' : 'color: ' + RED + ';')
+      };
+    });
+    return {
+      num: h.num, name: h.name,
+      idLine: age + ' ans · ' + sexe + ' · ' + robe,
+      people: [
+        { label: 'Jockey', value: h.jockey },
+        { label: 'Entraîneur', value: pick(['F. Dubois', 'H. Leclerc', 'G. Mercier', 'O. Bertrand', 'D. Robin', 'Y. Lambert', 'P. Chevalier', 'M. Rousseau', 'J. Bonnet', 'C. Lefort', 'R. Vidal', 'A. Perrot', 'N. Dupuis', 'B. Marchal', 'T. Renaud', 'L. Aubry', 'S. Ferrand', 'V. Hamon']) },
+        { label: 'Père', value: pick(['Prince d’Ardennes', 'Magic Horizon', 'Valeur Sûre', 'Saint Émeraude', 'Nordic Crown', 'Grand Vizir']) },
+        { label: 'Mère', value: pick(['Reine de Mai', 'Belle Aurore', 'Miss Cadence', 'Douce Folie', 'Étoile Filante', 'Lady Sienne']) },
+        { label: 'Propriétaire', value: 'Écurie ' + pick(['des Tilleuls', 'du Val', 'Saint-Roch', 'de la Mare', 'Horizon']) },
+        { label: 'Éleveur', value: 'Haras ' + pick(['du Bocage', 'de la Vallée', 'des Pins', 'de Saint-Loup']) }
+      ],
+      raceLine: race.code + ' · ' + race.name + ' · ' + race.time,
+      rankLabel: h.rank === 1 ? '1er' : h.rank + 'e',
+      win: h.win, place: h.place, odds: h.odds, value: h.value,
+      implied: Math.max(1, Math.round(100 / h.oddsNum)),
+      musique: res.map((r) => r.label).join(' '),
+      form: res.map((r) => ({ label: r.label, style: tag(r.pos, true) })),
+      factors: factors,
+      stats: [
+        { label: 'Courses', value: String(runs) },
+        { label: 'Victoires', value: String(wins) },
+        { label: 'Places', value: String(places) },
+        { label: 'Gains', value: fmtMoney(gains) }
+      ],
+      perfs: res.slice(0, 5).map((r) => ({ date: r.date, hippo: r.hippo, dist: r.dist, place: r.place, odds: r.odds, placeStyle: tag(r.pos, false) }))
+    };
+  }
+  applyStatus(out) {
+    const POOL = this.seed().jockeys.concat(['B. Leroy', 'K. Faure', 'G. Arnaud', 'H. Collin']);
+    ['today', 'tomorrow'].forEach((d) => out[d].all.forEach((r) => { const used = {}; r.horses.forEach((h) => { if (used[h.jockey]) h.jockey = POOL.filter((j) => !used[j])[0]; used[h.jockey] = true; }); }));
+    const find = (d, id) => out[d].all.find((r) => r.id === id);
+    const np = find('today', 'today-R1C3');
+    if (np && !np.npDone) {
+      const h = np.horses[6];
+      h.np = true; h.value = false;
+      const rest = np.horses.filter((x) => !x.np);
+      let s = 0; rest.forEach((x) => { s += x.winP; });
+      rest.forEach((x) => { x.winP = x.winP / s; x.win = Math.max(1, Math.round(x.winP * 100)); x.place = Math.min(95, Math.max(3, Math.round(100 * (1 - Math.pow(1 - x.winP, 3.2))))); x.value = x.winP > 0.05 && x.winP > 1.25 / x.oddsNum; });
+      rest.sort((a, b) => b.winP - a.winP); rest.forEach((x, i) => { x.rank = i + 1; });
+      h.rank = null;
+      np.horses = rest.concat([h]);
+      np.maxWin = rest[0].win;
+      const top = rest[0].win;
+      np.conf = top >= 28 ? { label: 'Élevée', level: 3 } : top >= 18 ? { label: 'Moyenne', level: 2 } : { label: 'Faible', level: 1 };
+      np.meta = np.meta.replace(/\d+ partants/, rest.length + ' partants');
+      np.chips = np.chips.map((c) => ({ label: c.label.replace(/\d+ partants/, rest.length + ' partants') }));
+      np.notice = { kind: 'np', title: 'Pronostic mis à jour à 14:02', text: 'Le n°' + h.num + ' ' + h.name + ' a été déclaré non-partant. Les chances des autres chevaux ont été recalculées.' };
+      np.npDone = true;
+    }
+    const rp = find('today', 'today-R2C2');
+    if (rp && !rp.origTime) {
+      rp.origTime = rp.time; rp.time = '17:10'; rp.reported = true;
+      rp.notice = { kind: 'report', title: 'Course reportée à 17:10', text: 'Départ initialement prévu à 16:40, décalé de 30 min à la suite d’un incident sur la piste. Le pronostic reste valable.' };
+    }
+    ['tomorrow-R2C1', 'tomorrow-R2C2'].forEach((id) => { const r = find('tomorrow', id); if (r) { r.pending = true; r.publishAt = '20:00'; } });
+  }
+  prof(mobile) {
+    const st = this.state || {};
+    const G = '#2EE58F', INK = '#07120C';
+    const D = this.data();
+    const S = this.seed();
+    const TR = ['F. Dubois', 'H. Leclerc', 'G. Mercier', 'O. Bertrand', 'D. Robin', 'Y. Lambert', 'P. Chevalier', 'M. Rousseau', 'J. Bonnet', 'C. Lefort', 'R. Vidal', 'A. Perrot', 'N. Dupuis', 'B. Marchal', 'T. Renaud', 'L. Aubry', 'S. Ferrand', 'V. Hamon'];
+    const fav = D.today.all[2].horses[0];
+    const name = this.props.personne ?? ('j' === 'j' ? fav.jockey : this.sheet(D.today.all[2], fav).people[1].value);
+    const isJ = 'j' === 'j';
+    const hash = (s) => { let h = 7; s.split('').forEach((c) => { h = (h * 31 + c.charCodeAt(0)) % 1000003; }); return h; };
+    const fmtN = (v) => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const pct = (v) => Math.round(v * 100) + ' %';
+    const statsOf = (n) => {
+      const r = this.rng(hash(n) * 787 + 11); r(); r();
+      const runs = isJ ? 180 + Math.floor(r() * 420) : 60 + Math.floor(r() * 260);
+      const wins = Math.round(runs * (0.07 + r() * 0.13));
+      const places = Math.round(runs * (0.2 + r() * 0.14));
+      const gains = Math.round((wins * (18000 + r() * 30000) + places * 6000) / 1000) * 1000;
+      return { runs: runs, wins: wins, places: places, gains: gains, wr: wins / runs, pr: (wins + places) / runs, spec: r() < 0.6 ? 'Plat' : 'Obstacle', since: 2004 + Math.floor(r() * 16), base: ['Chantilly', 'Lamorlaye', 'Deauville', 'Pau', 'Maisons-Laffitte', 'Chamant'][Math.floor(r() * 6)] };
+    };
+    const pool = isJ ? S.jockeys : TR;
+    const me = statsOf(name);
+    let cp = 0, co = 0;
+    [D.today, D.tomorrow].forEach((set) => set.all.forEach((race) => race.horses.forEach((h) => { if (h.np) return; const who = isJ ? h.jockey : this.sheet(race, h).people[1].value; if (who === name) { if (race.chips[0].label === 'Plat') cp++; else co++; } })));
+    if (cp + co) me.spec = cp >= co ? 'Plat' : 'Obstacle';
+    const rand = this.rng(hash(name) * 131 + 5); rand();
+    const pick = (a) => a[Math.floor(rand() * a.length)];
+    const rk = st.rk || 'wins';
+    const table = pool.map((n) => Object.assign({ n: n }, statsOf(n))).sort((a, b) => b[rk] - a[rk]);
+    const myRank = table.findIndex((x) => x.n === name) + 1;
+    const ranking = table.slice(0, 8).map((x, i) => ({
+      rank: i + 1, name: x.n, value: rk === 'wins' ? x.wins + ' vict.' : fmtN(x.gains) + ' €', me: x.n === name,
+      rowStyle: 'display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: 10px; ' + (x.n === name ? 'background: rgba(46,229,143,0.12); color: ' + G + ';' : ''),
+      nameStyle: 'font-size: 14px; font-weight: ' + (x.n === name ? '800' : '600') + ';'
+    }));
+    const rkTabs = [['wins', 'Victoires'], ['gains', 'Gains']].map((t) => ({ label: t[1], pressed: t[0] === rk ? 'true' : 'false', pick: () => this.setState({ rk: t[0] }),
+      style: 'flex-grow: 1; height: 36px; border-radius: 999px; border: none; font-size: 13px; font-weight: 700; ' + (t[0] === rk ? 'background: ' + G + '; color: ' + INK + ';' : 'background: transparent; color: #B7C2BC;') }));
+    // monthly wins 2026 (janv.–sept.)
+    const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.'];
+    const wts = MONTHS.map((m, i) => 0.4 + rand() + (i > 2 && i < 8 ? 0.5 : 0));
+    const ws = wts.reduce((a, b) => a + b, 0);
+    let left = me.wins;
+    const mw = wts.map((w, i) => { const v = i === wts.length - 1 ? left : Math.round(me.wins * w / ws); left -= v; return Math.max(0, v); });
+    const mx = Math.max.apply(null, mw.concat([1]));
+    const hm = st.hm;
+    const months = MONTHS.map((m, i) => ({ label: m, value: mw[i], on: hm === i, aria: m + ' 2026 : ' + mw[i] + ' victoires',
+      enter: () => this.setState({ hm: i }), leave: () => this.setState({ hm: null }),
+      barStyle: 'display: block; width: 100%; max-width: ' + (mobile ? 22 : 40) + 'px; border-radius: 4px 4px 0 0; height: ' + Math.max(2, mw[i] / mx * 100) + '%; background: ' + (hm == null || hm === i ? G : '#1F5A40') + ';' }));
+    const hmLabel = hm == null ? 'Survolez une barre pour le détail' : MONTHS[hm] + ' 2026 · ' + mw[hm] + ' victoire' + (mw[hm] > 1 ? 's' : '');
+    // disciplines
+    const discW = me.spec === 'Plat' ? [0.82, 0.12, 0.06] : [0.08, 0.52, 0.4];
+    const disc = ['Plat', 'Haies', 'Steeple-chase'].map((d, i) => { const runs = Math.round(me.runs * discW[i]); const wr = Math.max(0, me.wr * (0.7 + rand() * 0.6)); return { label: d, runs: runs, v: runs ? wr : 0 }; }).filter((x) => x.runs > 0);
+    const hipList = me.spec === 'Plat' ? ['Chantilly', 'Longchamp', 'Deauville', 'Saint-Cloud', 'Compiègne', 'Lyon-Parilly'] : ['Auteuil', 'Compiègne', 'Enghien', 'Pau', 'Fontainebleau'];
+    const hips = hipList.slice(0, 5).map((h) => ({ label: h, runs: 10 + Math.floor(rand() * 60), v: me.wr * (0.6 + rand() * 0.8) }));
+    const mxv = (arr) => Math.max.apply(null, arr.map((x) => x.v).concat([0.05])) * 1.1;
+    const bars = (arr) => { const m = mxv(arr); return arr.map((x) => ({ label: x.label, value: pct(x.v), n: x.runs + (isJ ? ' montes' : ' partants'), fill: 'display: block; height: 100%; border-radius: 0 4px 4px 0; background: ' + G + '; width: ' + Math.max(2, x.v / m * 100) + '%;' })); };
+    // palmarès (fictional)
+    const RACES = ['Prix des Tilleuls', 'Prix de la Forêt d’Halatte', 'Prix du Val Fleuri', 'Grand Prix des Écuries', 'Prix de la Butte aux Cailles', 'Prix du Haras de Verneuil', 'Prix des Grandes Écuries', 'Critérium des Pouliches'];
+    const GRADES = ['Gr. 1', 'Gr. 2', 'Gr. 3', 'Listed'];
+    const rpool = RACES.slice();
+    const palm = [2026, 2025, 2025, 2024, 2023, 2022].map((y) => ({ year: String(y), race: rpool.splice(Math.floor(rand() * rpool.length), 1)[0], grade: pick(GRADES), hippo: pick(hipList), horse: pick(S.names) }));
+    palm.forEach((p) => { p.gradeStyle = 'font-size: 11px; font-weight: 800; border-radius: 999px; padding: 3px 8px; ' + (p.grade === 'Gr. 1' ? 'background: ' + G + '; color: ' + INK + ';' : 'background: #171D1A; color: #C9D2CD; border: 1px solid #2A332E;'); });
+    // associations
+    const partners = (isJ ? TR : S.jockeys).slice().sort(() => rand() - 0.5).slice(0, 4).map((n) => { const runs = 8 + Math.floor(rand() * 60); const w = Math.round(runs * (0.08 + rand() * 0.2)); return { name: n, runs: runs + (isJ ? ' montes' : ' partants'), win: pct(w / runs), wins: w + ' vict.' }; });
+    // engagements from the real programme
+    const eng = [];
+    [['today', 'Aujourd’hui'], ['tomorrow', 'Demain']].forEach((d) => {
+      D[d[0]].all.forEach((race) => {
+        race.horses.forEach((h) => {
+          if (h.np) return;
+          const who = isJ ? h.jockey : this.sheet(race, h).people[1].value;
+          if (who !== name) return;
+          eng.push({ when: d[1] + ' · ' + race.time, race: race.code + ' · ' + race.hippo + ' · ' + race.name, num: h.num, horse: h.name,
+            pred: race.pending ? 'Pronostic à ' + race.publishAt : (h.rank + (h.rank === 1 ? 'er' : 'e') + ' prédit · ' + h.win + ' %'),
+            predStyle: 'font-size: 13px; font-weight: 700; color: ' + (!race.pending && h.rank <= 3 ? G : '#B7C2BC') + ';', href: mobile ? 'Mobile.dc.html' : 'Main.dc.html' });
+        });
+      });
+    });
+    // recent results
+    const DATES = ['17 sept.', '16 sept.', '14 sept.', '13 sept.', '11 sept.', '10 sept.', '7 sept.', '6 sept.'];
+    const recent = DATES.map((dt) => { const pos = 1 + Math.floor(Math.pow(rand(), 1.4 - me.wr * 2) * 12); return { date: dt, hippo: pick(hipList), horse: pick(S.names), pos: pos, place: pos > 9 ? 'NP' : pos === 1 ? '1er' : pos + 'e' }; });
+    recent.forEach((r) => { r.placeStyle = 'min-width: 40px; height: 28px; box-sizing: border-box; padding: 0 8px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; ' + (r.pos <= 3 ? 'background: ' + G + '; color: ' + INK + ';' : 'background: #171D1A; color: #C9D2CD; border: 1px solid #2A332E;'); });
+    const followed = st.fol !== undefined ? st.fol : ['C. Duval', 'F. Dubois'].indexOf(name) >= 0;
+    const initials = name.replace('.', '').split(' ').map((x) => x[0]).join('');
+    return {
+      name: name, initials: initials, role: isJ ? 'Jockey' : 'Entraîneur', spec: me.spec === 'Plat' ? 'Plat' : 'Obstacle',
+      meta: isJ ? 'Licence depuis ' + me.since + ' · monte surtout à ' + hipList[0] : 'Écurie basée à ' + me.base + ' · licence depuis ' + me.since,
+      followed: followed, followPressed: followed ? 'true' : 'false', followLabel: followed ? 'Suivi' : 'Suivre',
+      followStyle: 'height: 44px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; ' + (followed ? 'background: rgba(46,229,143,0.12); color: ' + G + '; border: 1px solid rgba(46,229,143,0.5);' : 'background: ' + G + '; color: ' + INK + '; border: 1px solid ' + G + ';'),
+      starStyle: 'fill: ' + (followed ? G : 'none') + '; stroke: ' + (followed ? G : INK) + '; stroke-width: 1.8; stroke-linejoin: round;',
+      toggleFollow: () => this.setState({ fol: !followed }),
+      rankLine: myRank + (myRank === 1 ? 'er' : 'e') + ' sur ' + pool.length + (isJ ? ' jockeys suivis' : ' entraîneurs suivis') + ' · classement 2026',
+      myRank: myRank + (myRank === 1 ? 'er' : 'e'),
+      kpis: [
+        { label: isJ ? 'Montes' : 'Partants', value: fmtN(me.runs) },
+        { label: 'Victoires', value: String(me.wins) },
+        { label: 'Réussite', value: pct(me.wr), sub: 'de victoires' },
+        { label: 'Placé', value: pct(me.pr), sub: 'dans les 3 premiers' },
+        { label: 'Gains', value: me.gains >= 1000000 ? (Math.round(me.gains / 100000) / 10).toFixed(1).replace('.', ',') + ' M€' : fmtN(Math.round(me.gains / 1000)) + ' k€', sub: 'allocations 2026' }
+      ],
+      ranking: ranking, rkTabs: rkTabs, rkTitle: rk === 'wins' ? 'Au nombre de victoires' : 'Aux gains',
+      months: months, hmLabel: hmLabel,
+      disc: bars(disc), hips: bars(hips), palm: palm, partners: partners, partnersTitle: isJ ? 'Meilleures associations avec les entraîneurs' : 'Jockeys les plus utilisés',
+      eng: eng, hasEng: eng.length > 0, noEng: eng.length === 0,
+      recent: recent, unit: isJ ? 'montes' : 'partants'
+    };
+  }
+  renderVals() {
+    return this.prof(false);
+  }
+}
+</script>
+</body>
+</html>

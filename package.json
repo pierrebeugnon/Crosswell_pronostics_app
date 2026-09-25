@@ -6,9 +6,12 @@
   "description": "Crosswell — plateforme de pronostics hippiques destinée aux clients. Lit les prédictions du moteur Crosswell (Supabase, lecture seule).",
   "scripts": {
     "dev": "vite",
+    "dev:demo": "vite --mode demo --port 5191",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "parite": "vitest run tests/parite"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -26,6 +29,7 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.3",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^4.1.11"
   }
 }

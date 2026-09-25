@@ -5,6 +5,16 @@ import { BarreHaute } from '@/components/layout/BarreHaute'
 import { PiedDePage } from '@/components/layout/PiedDePage'
 import { ToastArrivees } from '@/components/layout/ToastArrivees'
 
+/**
+ * La clé de remontage du <main>. D'une course à l'autre, et à l'ouverture de
+ * la fiche d'un partant (un tiroir posé sur la course), la page Courses garde
+ * son programme en place : la remonter à chaque clic ferait clignoter la
+ * colonne de gauche et perdre sa position de défilement.
+ */
+function cleDePage(pathname: string): string {
+  return pathname.startsWith('/courses') ? '/courses' : pathname
+}
+
 export function AppShell() {
   const { pathname } = useLocation()
 
@@ -13,20 +23,20 @@ export function AppShell() {
       <BandeauDemo />
       <BarreHaute />
       {/*
-        pb-32 sur mobile : la pastille de navigation flotte par-dessus le
-        contenu et masquerait la dernière carte d'une liste.
+        pb-28 sur mobile : la barre d'onglets est fixée en bas et masquerait
+        la dernière carte d'une liste. Marges de la maquette : 20 px sur
+        téléphone, 40 px sur grand écran.
 
-        `key={pathname}` : chaque navigation remonte le <main>, et le fondu
-        maison remplace la coupe sèche entre pages. `fondu-route` et non
-        `animate-fade-up` : voir son commentaire dans index.css — une animation
-        de transform à fill permanent sur cet ancêtre corrompait les
-        backdrop-filter de toutes les cartes. Le coût (perte d'état interne des
-        pages au changement d'URL) est nul ici : chaque page recharge de toute
-        façon son contenu depuis l'URL.
+        `key` : chaque navigation remonte le <main> (sauf d'une course à
+        l'autre, voir `cleDePage`), et le fondu maison remplace la coupe sèche
+        entre pages. `fondu-route` et non `animate-fade-up` : voir son
+        commentaire dans index.css. Le coût (perte d'état interne des pages au
+        changement d'URL) est nul ici : chaque page recharge de toute façon son
+        contenu depuis l'URL.
       */}
       <main
-        key={pathname}
-        className="fondu-route flex-1 mx-auto w-full max-w-content px-4 sm:px-6 py-6 sm:py-10 pb-32 md:pb-10"
+        key={cleDePage(pathname)}
+        className="fondu-route flex-1 mx-auto w-full max-w-content px-5 md:px-10 pt-6 md:pt-8 pb-28 md:pb-10"
       >
         <Outlet />
       </main>
