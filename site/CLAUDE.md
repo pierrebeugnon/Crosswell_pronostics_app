@@ -180,6 +180,38 @@ Typographie française : apostrophe typographique `’`, espace insécable avant
 et dans « 28 % », « 24 h » (`&nbsp;` en JSX, ` ` en échappement dans une chaîne JS —
 **jamais ` ` dans le texte JSX, où il s'afficherait tel quel**).
 
+## Le build produit des fichiers réels — ne pas remettre la réécriture attrape-tout
+
+`vercel.json` contenait `rewrites: [{ source: "/(.*)", destination: "/index.html" }]`. C'est le
+réflexe habituel pour un SPA, et c'est **faux ici** : le site répondait **200 sur n'importe
+quelle URL**, y compris `/robots.txt` et `/sitemap.xml` qui renvoyaient du HTML. Google y voit
+des « soft 404 » en masse et des doublons. La réécriture a été retirée le 20 septembre 2026.
+
+Ce qui la remplace : `scripts/apres-build.mjs`, lancé par `npm run build` après `vite build`.
+Il écrit, à partir du `dist/index.html` construit :
+
+- **un fichier HTML réel par route** (`dist/methode/index.html`, …), chacun avec son `<title>`,
+  sa description, son `<link rel="canonical">` absolu et son `og:url` — Vercel les sert
+  directement, sans réécriture ;
+- **`dist/404.html`** en `noindex`, que Vercel sert avec un vrai code 404 pour tout le reste ;
+- **`dist/robots.txt` et `dist/sitemap.xml`**, dérivés de la même table `PAGES` pour qu'ils ne
+  puissent pas diverger du routeur.
+
+Règles qui en découlent :
+
+- **Toute nouvelle route de `src/App.tsx` doit être ajoutée à `PAGES`** dans
+  `scripts/apres-build.mjs`, sinon elle n'a ni fichier HTML, ni canonical, ni entrée au
+  sitemap — et Vercel la servira en 404.
+- Le `<title>` et la description y sont **recopiés** de ce que `useTitre` pose côté client :
+  les deux doivent dire la même chose. Le script a des garde-fous qui font échouer le build si
+  `index.html` change de forme.
+- **`ORIGINE`** (en tête du script, surchargeable par `VITE_URL_SITE`) est la seule valeur à
+  changer le jour où le domaine définitif est tranché.
+- `vercel.json` pose un `X-Robots-Tag: noindex, nofollow` sur **tout hôte `*.vercel.app`** :
+  le site inachevé ne doit pas entrer dans l'index sous une adresse qu'il faudra quitter, et
+  les déploiements de prévisualisation non plus. La règle cesse d'elle-même de s'appliquer dès
+  qu'un vrai domaine est branché — rien à défaire.
+
 ## Vérification visuelle — un piège connu
 
 Les captures du pane navigateur **sortent noires, figées ou réduites à une bande** dès qu'on
