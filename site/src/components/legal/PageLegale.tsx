@@ -7,9 +7,14 @@ import { LEGAL } from '@/components/layout/Navigation'
  * colonne de 860 px, les documents en onglets (des liens : chaque document
  * garde son adresse), le titre, la date, puis des sections séparées d'un filet.
  *
- * Deux onglets de la maquette ne sont pas repris (design/INTEGRATION.md, lot 7) :
- * « Jeu responsable », hors de notre positionnement, et « CGU », qui ne seront
- * publiées qu'une fois rédigées et validées — pas avec des « [À COMPLÉTER] ».
+ * Un onglet de la maquette n'est pas repris (design/INTEGRATION.md, lot 7) :
+ * « Jeu responsable », hors de notre positionnement.
+ *
+ * Les CGV, elles, sont publiées depuis le 25/09/2026 en VERSION DE TRAVAIL,
+ * trous visibles : la case obligatoire de l'inscription y renvoyait et tombait
+ * sur un 404. Une page qui dit franchement qu'elle n'est pas en vigueur vaut
+ * mieux qu'une case à cocher qui mène au vide. Les mentions manquantes restent
+ * signalées, jamais inventées — la règle ne change pas.
  */
 export const MISE_A_JOUR = '18 septembre 2026'
 

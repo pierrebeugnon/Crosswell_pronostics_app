@@ -76,6 +76,23 @@ const PAGES = [
       'Les données que nous conservons, celles que nous ne collectons pas, et comment exercer vos droits.',
     priorite: '0.3',
   },
+  {
+    chemin: '/cgv',
+    titre: `Conditions générales de vente — ${SUFFIXE}`,
+    description:
+      'Formules, paiement, reconduction, résiliation en ligne et droit de rétractation. Version de travail, en attente de relecture juridique.',
+    priorite: '0.3',
+  },
+  // `/cgu` sert la même page : c'est l'adresse vers laquelle l'application
+  // renvoie depuis la case obligatoire de l'inscription. Hors du sitemap, pour
+  // ne pas déclarer deux adresses pour un seul document.
+  {
+    chemin: '/cgu',
+    titre: `Conditions générales de vente — ${SUFFIXE}`,
+    description:
+      'Formules, paiement, reconduction, résiliation en ligne et droit de rétractation. Version de travail, en attente de relecture juridique.',
+    horsSitemap: true,
+  },
 ]
 
 /** Échappe ce qui part dans un attribut HTML ou dans du XML. */
@@ -122,10 +139,12 @@ function pageHtml(gabarit, { chemin, titre, description }, { indexable = true } 
 }
 
 function sitemap() {
-  const entrees = PAGES.map(({ chemin, priorite }) => {
-    const url = chemin === '/' ? `${ORIGINE}/` : `${ORIGINE}${chemin}`
-    return `  <url>\n    <loc>${echappe(url)}</loc>\n    <priority>${priorite}</priority>\n  </url>`
-  }).join('\n')
+  const entrees = PAGES.filter((p) => !p.horsSitemap)
+    .map(({ chemin, priorite }) => {
+      const url = chemin === '/' ? `${ORIGINE}/` : `${ORIGINE}${chemin}`
+      return `  <url>\n    <loc>${echappe(url)}</loc>\n    <priority>${priorite}</priority>\n  </url>`
+    })
+    .join('\n')
 
   // Pas de `lastmod` : une date de build, qui change à chaque déploiement sans
   // que le contenu bouge, est un signal faux. Mieux vaut ne rien déclarer.

@@ -4,6 +4,7 @@ import Accueil from '@/pages/Accueil'
 import Methode from '@/pages/Methode'
 import MentionsLegales from '@/pages/MentionsLegales'
 import Confidentialite from '@/pages/Confidentialite'
+import ConditionsVente from '@/pages/ConditionsVente'
 import NonTrouve from '@/pages/NonTrouve'
 
 const routeur = createBrowserRouter(
@@ -16,6 +17,11 @@ const routeur = createBrowserRouter(
         { path: 'methode', element: <Methode /> },
         { path: 'mentions-legales', element: <MentionsLegales /> },
         { path: 'confidentialite', element: <Confidentialite /> },
+        // L'app renvoie vers `/cgu` depuis la case de l'inscription ; le
+        // document s'appelle CGV. Les deux adresses servent la même page
+        // plutôt que d'en laisser une tomber en 404.
+        { path: 'cgv', element: <ConditionsVente /> },
+        { path: 'cgu', element: <ConditionsVente /> },
         { path: '*', element: <NonTrouve /> },
       ],
     },
