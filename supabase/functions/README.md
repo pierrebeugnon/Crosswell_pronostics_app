@@ -165,10 +165,12 @@ abonnement (vérifié par le fondateur).
    tarifs, mentions légales et résiliation en ligne doivent être visibles à l'adresse déclarée.
 2. **Activer le compte réel** (identité du représentant, bénéficiaires effectifs, pièce
    d'identité, compte bancaire de versement).
-3. **Décrire l'activité** avec le texte ci-dessous, mot pour mot. Secteur : contenu numérique
-   par abonnement — **jamais** « jeux d'argent et paris ». Libellé sur le relevé bancaire :
-   `CROSSWELL` (un libellé illisible produit des contestations, et une contestation coupe
-   l'accès sans période de grâce).
+3. **Décrire l'activité** avec le texte ci-dessous, mot pour mot. **Catégorie retenue le
+   01/10/2026 : logiciel en tant que service (SaaS)** — cohérente avec le code APE 62.01Z, et
+   c'est bien un accès applicatif récurrent qui est vendu. Jamais « conseil » (nos propres CGV
+   l'excluent, et c'est la lecture qui mène à la requalification en pronostics payants), jamais
+   « jeux d'argent et paris ». Libellé sur le relevé bancaire : `CROSSWELL` (un libellé illisible
+   produit des contestations, et une contestation coupe l'accès sans période de grâce).
 4. **Obtenir de Stripe une confirmation ÉCRITE** de l'acceptation et du code d'activité (MCC),
    AVANT le premier euro. Le risque n'est pas le refus : c'est l'acceptation suivie d'une
    requalification, compte gelé et fonds retenus, avec des abonnés payants en face.
@@ -203,20 +205,48 @@ abonnement (vérifié par le fondateur).
 
 ### Le texte à coller dans Stripe
 
-> Crosswell édite et publie, par abonnement, des analyses statistiques sur les courses hippiques
-> françaises. Pour chaque partant, un modèle probabiliste estime ses chances de victoire et de
-> place ; ces estimations sont publiées le matin même, pour les courses du jour, et leur taux de
-> réussite réel est publié après les courses.
+Écrit pour la catégorie **logiciel en tant que service** (retenue le 01/10/2026) : c'est l'accès à
+l'application qui est vendu, et le texte le dit dans ces termes. Les mots du jeu d'argent n'y
+figurent qu'en négation — la seule forme qu'autorise le positionnement (`src/config/app.ts`,
+AVERTISSEMENT).
+
+> Crosswell édite une application web d'analyse statistique des courses hippiques françaises,
+> vendue par abonnement (logiciel en tant que service). Pour chaque partant d'une course, un
+> modèle probabiliste calcule ses chances de victoire et de place, exprimées en pourcentage. Les
+> résultats sont publiés le matin même, pour les courses du jour, et le taux de réussite
+> réellement constaté est publié après les courses. L'abonnement donne accès à l'application :
+> formule gratuite, accès 24 heures à 4,99 €, abonnement mensuel à 12,99 €, abonnement annuel à
+> 99 €, prix TTC, résiliables en ligne depuis l'espace client. Crosswell n'est pas opérateur de
+> jeux d'argent et de hasard, ne détient aucun agrément de l'Autorité nationale des jeux,
+> n'accepte aucune mise, ne détient aucun fonds de joueur et ne verse aucun gain.
+
+Version longue, pour le message au support qui demande la confirmation écrite. Elle ajoute
+l'identité de la société, le détail du produit, le fait qu'aucune donnée de carte ne transite par
+nos serveurs, et ce que Crosswell n'est pas :
+
+> CROSSWELL (SAS, SIREN 105 309 322, 47 rue Vivienne, 75002 Paris) édite une application web
+> d'analyse statistique des courses hippiques françaises, vendue aux particuliers par abonnement
+> — un logiciel en tant que service, au sens de la catégorie déclarée.
 >
-> Le service est vendu au consommateur sous forme d'abonnement à un contenu éditorial numérique :
-> une formule gratuite, un accès 24 heures à 4,99 €, un abonnement mensuel à 12,99 € et un
-> abonnement annuel à 99 €, prix TTC. La résiliation se fait en ligne, depuis le compte client.
+> **Ce que fait l'application.** Un modèle probabiliste, entraîné sur l'historique des courses,
+> calcule pour chaque partant ses chances de victoire et de place, exprimées en pourcentage. Ces
+> calculs sont publiés le matin même, pour les courses du jour. L'application affiche aussi le
+> taux de réussite réellement constaté du modèle, publié après les courses et sans sélection : le
+> produit se mesure, et publie ses mesures.
 >
-> Crosswell n'est pas un opérateur de jeux d'argent et ne détient aucun agrément de l'Autorité
-> nationale des jeux (ANJ). Nous n'acceptons aucune mise, ne détenons aucun fonds de joueur, ne
-> versons aucun gain et ne sommes intéressés d'aucune façon à l'issue des courses. Nous ne
-> fournissons ni conseil en investissement, ni conseil personnalisé, et ne promettons aucune
-> performance. La rémunération provient uniquement de l'abonnement au contenu éditorial.
+> **Ce que le client achète.** Un accès à l'application, facturé de façon récurrente : une
+> formule gratuite, un accès de 24 heures à 4,99 € en paiement unique, un abonnement mensuel à
+> 12,99 € et un abonnement annuel à 99 €, prix TTC. La résiliation se fait en ligne depuis
+> l'espace client, sans démarche écrite. Les paiements passent exclusivement par les pages
+> hébergées de Stripe : aucune donnée de carte ne transite par nos serveurs ni n'y est conservée.
+>
+> **Ce que Crosswell n'est pas.** Nous ne sommes pas opérateur de jeux d'argent et de hasard et
+> ne détenons aucun agrément de l'Autorité nationale des jeux. Nous n'acceptons aucune mise, ne
+> détenons aucun fonds de joueur, ne versons aucun gain, et ne sommes intéressés d'aucune façon à
+> l'issue des courses. Nous ne fournissons ni conseil en investissement, ni recommandation
+> personnalisée, et ne promettons aucune performance : une probabilité décrit une fréquence
+> attendue sur un grand nombre de courses, pas l'issue d'une course déterminée. Notre seule
+> source de revenus est l'abonnement à l'application.
 
 ### Ce qui reste bloquant, hors Stripe
 
