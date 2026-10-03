@@ -32,11 +32,11 @@ import { useTitre } from '@/lib/useTitre'
 
 const SECTIONS = [
   { id: 'modele', court: 'Le modèle' },
-  { id: 'lire', court: 'Lire un pronostic' },
+  { id: 'lire', court: 'Lire les chiffres' },
   { id: 'cote', court: 'Cote et probabilité' },
   { id: 'ecart', court: 'L’écart au marché' },
   { id: 'confiance', court: 'La confiance' },
-  { id: 'limites', court: 'Nos limites' },
+  { id: 'limites', court: 'Avant la course' },
   { id: 'questions', court: 'Questions' },
 ] as const
 
@@ -172,7 +172,7 @@ function Calculateur() {
         <span className="text-sm font-semibold leading-normal">{verdict}</span>
       </div>
       <p className="text-xs font-medium leading-relaxed text-faint">
-        Pour simplifier, la cote est lue ici sans retirer la marge de l’opérateur. L’application, elle, la retire.
+        Ici, la cote est lue sans retirer la marge de l’opérateur, pour garder le calcul lisible.
       </p>
     </div>
   )
@@ -187,31 +187,34 @@ const NIVEAUX = [
   {
     niveau: 2,
     libelle: 'Moyenne',
-    texte: `Le favori a entre ${Math.round(SEUILS_CONFIANCE.moyenne * 100)} et ${Math.round(SEUILS_CONFIANCE.elevee * 100) - 1} % de chances. Quelques chevaux se tiennent.`,
+    texte: `Le favori a entre ${Math.round(SEUILS_CONFIANCE.moyenne * 100)} et ${Math.round(SEUILS_CONFIANCE.elevee * 100) - 1} % de chances. La course se resserre sur quelques chevaux.`,
   },
   {
     niveau: 1,
     libelle: 'Faible',
-    texte: `Le favori a moins de ${pourcent(SEUILS_CONFIANCE.moyenne)} de chances. Course très ouverte.`,
+    texte: `Le favori a moins de ${pourcent(SEUILS_CONFIANCE.moyenne)} de chances. Course très ouverte, et nous le signalons.`,
   },
 ]
 
 const LIMITES = [
-  'Une course comporte toujours une part d’imprévu : départ manqué, incident de course, disqualification, changement de terrain.',
-  'Certaines informations arrivent tard ou pas du tout : état de forme du jour, consignes d’écurie. Le modèle ne les voit pas.',
-  'Nos probabilités portent sur les partants connus au moment du calcul, et ne sont pas recalculées après un retrait : vérifiez toujours la liste officielle.',
-  'Une probabilité se juge sur la durée, pas sur une course : c’est le cumul des arrivées, sur des centaines de courses, qui dit si le niveau annoncé était le bon.',
-  'Aucun résultat n’est garanti. Les performances passées ne préjugent pas des résultats futurs.',
+  'Une course comporte toujours une part d’imprévu : départ manqué, incident de course, disqualification, changement de terrain. C’est pour cela que nous publions des probabilités, et non des certitudes.',
+  'Certaines informations arrivent tard ou pas du tout : état de forme du jour, consignes d’écurie. Le modèle s’en tient aux données vérifiables, ce qui rend ses pourcentages comparables d’une course à l’autre.',
+  'Nos probabilités portent sur les partants connus au moment du calcul : le chiffre que vous lisez est exactement celui que nous avons publié. Pour les partants du jour, la liste officielle fait foi.',
+  // « course après course » retiré le 03/10/2026 : « Nos résultats » AGRÈGE les
+  // taux et les découpe par période, type, distance et hippodrome — elle ne publie
+  // pas de relevé course par course. La formule annonçait une fonctionnalité
+  // qui n'existe pas.
+  'Une probabilité se juge sur la durée : c’est le cumul de centaines de courses qui dit si le niveau annoncé était le bon. Nous publions ce cumul dans Nos résultats, chaque taux avec son effectif.',
 ]
 
 const QUESTIONS: Question[] = [
   {
-    q: 'Pourquoi le 1er prédit ne gagne-t-il pas à chaque fois ?',
-    r: 'Parce qu’une course reste incertaine. Même un favori très net, à 40 %, gagne moins d’une course sur deux. Le modèle se juge « en moyenne », sur des centaines de courses : c’est ce que montre la page Nos résultats, avec ses intervalles de confiance.',
+    q: 'Pourquoi notre favori ne gagne-t-il pas à chaque fois ?',
+    r: 'Parce qu’une probabilité décrit une fréquence, pas une issue. Un favori très net, à 40 %, gagne environ deux courses sur cinq. Le modèle se juge « en moyenne », sur des centaines de courses : c’est ce que montre la page Nos résultats.',
   },
   {
     q: 'Les pourcentages évoluent-ils avant la course ?',
-    r: `Non. ${RYTHME_PUBLICATION_COURT} Une fois publiés, les pourcentages ne sont plus recalculés, même après un retrait. ${NOTE_NON_PARTANTS}`,
+    r: `Non, et c’est voulu. ${RYTHME_PUBLICATION_COURT} Une fois publiés, les pourcentages ne sont plus recalculés, même après un retrait. ${NOTE_NON_PARTANTS}`,
   },
   {
     q: 'Pourquoi la somme des probabilités des cotes dépasse-t-elle 100 % ?',
@@ -219,7 +222,7 @@ const QUESTIONS: Question[] = [
   },
   {
     q: 'Crosswell recommande-t-il un cheval ?',
-    r: 'Non. Nous publions des probabilités et nous les expliquons. Ce que chacun en fait lui appartient entièrement.',
+    r: 'Non, et c’est délibéré. Nous ne sommes ni opérateur de jeux ni service de conseil. Nous publions des probabilités, et nous les expliquons. Ce que chacun en fait lui appartient entièrement.',
   },
 ]
 
@@ -230,11 +233,11 @@ export default function Methode() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-4 px-5 lg:px-20 pt-9 lg:pt-[4.5rem] animate-fade-up">
-        <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Méthodologie</span>
+        <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Notre méthode</span>
         <h1 className="text-[1.875rem] lg:text-[2.75rem] font-extrabold tracking-[-0.035em] leading-[1.05]">Comment ça marche</h1>
         <p className="max-w-[47.5rem] text-[0.9375rem] lg:text-[0.9375rem] font-medium leading-[1.7] text-soft">
-          Tout ce qu’il faut pour lire un pronostic Crosswell, sans être data scientist&nbsp;: d’où viennent les
-          pourcentages, ce que dit une cote, ce que veut dire l’écart au marché, et les limites de l’exercice.
+          D’où viennent nos pourcentages, ce que dit une cote, comment se lit l’écart au marché&nbsp;: voici notre
+          méthode en entier, sans jargon. Tout y est mesuré, rien n’y est deviné.
         </p>
       </div>
 
@@ -255,15 +258,15 @@ export default function Methode() {
         </nav>
 
         <div className="flex flex-col gap-12 lg:gap-[4.5rem] min-w-0">
-          <Section id="modele" titre="Ce que fait le modèle">
+          <Section id="modele" titre="Sept facteurs mesurés, les cotes ignorées">
             <Paragraphe>
-              Pour chaque course, le modèle passe en revue tous les partants et combine de nombreux indicateurs. Il a
-              appris, sur plusieurs saisons de courses françaises, quels indicateurs comptent et à quel point.
-              Résultat&nbsp;: une probabilité de victoire pour chaque cheval. Les probabilités de tous les partants
-              s’additionnent à 100&nbsp;%.
+              Le modèle mesure les mêmes facteurs sur chaque partant, puis les pèse les uns contre les autres. Il a
+              appris, sur plusieurs saisons de courses françaises, lesquels comptent et à quel point. Il en tire, pour
+              chaque cheval, une probabilité de victoire et une probabilité de place&nbsp;; les probabilités de victoire
+              de tous les partants s’additionnent à 100&nbsp;%.
             </Paragraphe>
             <div className="grid lg:grid-cols-[minmax(0,1.3fr)_3.75rem_minmax(0,1fr)_3.75rem_minmax(0,1fr)] items-center">
-              <Boite libelle="Ce qu’il regarde">
+              <Boite libelle="Ce qu’il mesure">
                 <ul className="flex flex-wrap gap-2">
                   {ENTREES.map((e) => (
                     <li key={e} className="text-[0.8125rem] font-semibold px-3 py-1.5 rounded-full bg-raised border border-line-strong">
@@ -280,21 +283,21 @@ export default function Methode() {
                 </span>
               </Boite>
               <Fleche />
-              <Boite libelle="Ce qu’il vous donne">
+              <Boite libelle="Ce que vous recevez">
                 <span className="flex flex-col gap-1">
-                  <span className="text-[1rem] font-bold">Un % de victoire par cheval</span>
-                  <span className="text-[0.8125rem] font-medium text-faint">Et, à partir de là, l’arrivée la plus probable.</span>
+                  <span className="text-[1rem] font-bold">Un % de victoire et un % de place</span>
+                  <span className="text-[0.8125rem] font-medium text-faint">Pour chaque partant, plus l’arrivée que le modèle juge la plus probable.</span>
                 </span>
               </Boite>
             </div>
             <Paragraphe>
               <strong className="text-ink">Ce qu’il ignore</strong>&nbsp;: la presse, les informations d’écurie, et les
-              cotes. Les cotes n’entrent pas dans le calcul, et c’est délibéré&nbsp;: elles servent ensuite de repère pour
-              juger nos pourcentages.
+              cotes. Aucune cote n’entre dans le calcul, et c’est là notre indépendance&nbsp;: nos pourcentages sont
+              établis sans regarder le marché, qui ne sert ensuite que de point de comparaison.
             </Paragraphe>
           </Section>
 
-          <Section id="lire" titre="Ce que veulent dire les chiffres">
+          <Section id="lire" titre="Un pronostic se lit en trois repères">
             <div className="grid gap-6 lg:grid-cols-2 items-start">
               <div className="flex flex-col gap-4 p-[1.375rem] rounded-3xl bg-surface border border-line">
                 <div className="flex items-center justify-between gap-3">
@@ -333,17 +336,17 @@ export default function Methode() {
                   {
                     n: 1 as const,
                     t: 'Arrivée prédite',
-                    d: 'Les chevaux classés du plus probable au moins probable. C’est un ordre de probabilités, pas une promesse d’arrivée.',
+                    d: 'Le classement des partants, du plus probable au moins probable. Le premier est notre favori.',
                   },
                   {
                     n: 2 as const,
                     t: '% de victoire',
-                    d: `${pourcent(tete.victoire)} : si cette course se courait 100 fois dans les mêmes conditions, ce cheval en gagnerait environ ${Math.round(tete.victoire * 100)}. Pas les ${100 - Math.round(tete.victoire * 100)} autres.`,
+                    d: `${pourcent(tete.victoire)} : si cette course se courait 100 fois dans les mêmes conditions, ce cheval en gagnerait environ ${Math.round(tete.victoire * 100)}. C’est la lecture exacte du chiffre, ni plus ni moins.`,
                   },
                   {
                     n: 3 as const,
                     t: '% placé',
-                    d: 'Les chances de finir dans les 3 premiers. Toujours plus élevé que le % de victoire.',
+                    d: 'Les chances de finir dans les trois premiers, toujours plus élevées que le % de victoire.',
                   },
                 ].map((x) => (
                   <div key={x.n} className="flex gap-3">
@@ -358,12 +361,12 @@ export default function Methode() {
             </div>
           </Section>
 
-          <Section id="cote" titre="Une cote, c’est aussi une probabilité">
+          <Section id="cote" titre="Traduire une cote en probabilité">
             <div className="grid gap-6 lg:grid-cols-2 items-start">
               <div className="flex flex-col gap-5">
                 <Paragraphe>
-                  Une cote est un prix de marché. Elle dit aussi ce que le marché pense des chances du cheval&nbsp;: il
-                  suffit de calculer <strong className="text-ink num">1 ÷ cote</strong>.
+                  Une cote est un prix de marché. Elle dit donc ce que le marché pense des chances du cheval, et une
+                  division suffit pour l’entendre&nbsp;: <strong className="text-ink num">1 ÷ cote</strong>.
                 </Paragraphe>
                 <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[2, 4, 10, 20].map((c) => (
@@ -374,35 +377,33 @@ export default function Methode() {
                   ))}
                 </ul>
                 <Paragraphe>
-                  Petite subtilité&nbsp;: additionnés sur tous les partants d’une course, ces pourcentages dépassent
-                  100&nbsp;%. L’excédent est la marge de l’opérateur, environ 20&nbsp;% relevés en septembre 2026. Les
-                  chances «&nbsp;réelles&nbsp;» d’après la cote sont donc un peu plus faibles que 1 ÷ cote&nbsp;:
-                  l’application retire cette marge avant de comparer.
+                  Un détail dont nous nous chargeons&nbsp;: additionnés sur tous les partants d’une course, ces
+                  pourcentages dépassent 100&nbsp;%. L’excédent est la marge de l’opérateur, environ 20&nbsp;% relevés
+                  en septembre 2026. L’application la retire avant de comparer&nbsp;: vous lisez une comparaison nette.
                 </Paragraphe>
               </div>
               <Calculateur />
             </div>
           </Section>
 
-          <Section id="ecart" titre="Quand le modèle voit plus haut que la cote">
+          <Section id="ecart" titre="Quand notre lecture s’écarte du marché">
             <Paragraphe>
               Un partant est marqué <span className="chip-accent align-middle">{LIBELLE_ECART}</span> quand ses chances
               selon le modèle dépassent d’au moins {Math.round(MARGE_ECART * 100)}&nbsp;% celles qu’implique sa cote (en
-              relatif&nbsp;: 23&nbsp;% contre 20&nbsp;%, par exemple). Autrement dit, le modèle le voit plus haut que le
-              marché.
+              relatif&nbsp;: 23&nbsp;% contre 20&nbsp;%, par exemple). C’est le repère qui montre où notre lecture et
+              celle du marché divergent.
             </Paragraphe>
             <Paragraphe>
-              {LIBELLE_ECART} ne veut pas dire «&nbsp;va gagner&nbsp;»&nbsp;: un partant marqué à 10&nbsp;% gagne, en
-              moyenne, une course sur dix. L’écart décrit une différence entre deux estimations, pas une certitude. Et
-              comme nos cotes sont celles de clôture, relevées après la course, il se lit après coup, sur les réunions
-              cotées seulement.
+              L’écart compare deux estimations, la nôtre et celle du marché&nbsp;: il ne change pas les chances du
+              cheval, il situe notre lecture. Nos cotes étant celles de clôture, relevées après la course, l’écart se
+              lit après coup, sur les réunions cotées.
             </Paragraphe>
           </Section>
 
-          <Section id="confiance" titre="Une course lisible… ou très ouverte">
+          <Section id="confiance" titre="Savoir avant le départ si la course est lisible">
             <Paragraphe>
-              Le niveau de confiance résume à quel point le modèle distingue un favori. Il dépend uniquement des chances
-              du cheval classé 1er.
+              Chaque course porte un niveau de confiance&nbsp;: il dit en un coup d’œil si le modèle détache un favori
+              ou si le peloton se tient. Il se lit sur les chances du cheval classé 1er.
             </Paragraphe>
             <div className="grid gap-3.5 lg:grid-cols-3">
               {NIVEAUX.map((n) => (
@@ -425,7 +426,7 @@ export default function Methode() {
             </div>
           </Section>
 
-          <Section id="limites" titre="Les limites de l’exercice">
+          <Section id="limites" titre="Ce que nous disons avant la course">
             <ul className="flex flex-col">
               {LIMITES.map((l) => (
                 <li key={l} className="flex gap-3 py-3.5 border-t border-sep first:border-t-0 text-[0.9375rem] font-medium leading-relaxed text-soft">
@@ -445,7 +446,7 @@ export default function Methode() {
 
           <section className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 lg:gap-8 px-6 py-7 lg:px-10 lg:py-9 rounded-[1.5rem] bg-accent text-accent-ink">
             <span className="text-[1.25rem] lg:text-[1.5625rem] font-extrabold tracking-[-0.02em] leading-tight">
-              Prêt à lire votre premier pronostic&nbsp;?
+              Vous savez maintenant comment nous lisons une course.
             </span>
             <a
               href={URL_INSCRIPTION}

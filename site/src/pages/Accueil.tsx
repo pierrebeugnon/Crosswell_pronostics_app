@@ -47,38 +47,38 @@ const PICTOS = {
 const ATOUTS: { picto: keyof typeof PICTOS; titre: string; texte: string }[] = [
   {
     picto: 'arrivee',
-    titre: 'L’arrivée la plus probable',
-    texte: 'Pour chaque course du jour, l’ordre d’arrivée que le modèle juge le plus probable.',
+    titre: 'L’arrivée prédite, course par course',
+    texte: 'Pour chaque course de galop du jour, l’ordre d’arrivée que notre modèle juge le plus probable.',
   },
   {
     picto: 'pourcentage',
-    titre: 'Des chances en pourcentage',
-    texte: 'Chaque partant a son pourcentage de victoire et de place. Vous voyez qui est attendu devant, et avec quel écart.',
+    titre: 'Un pourcentage sur chaque partant',
+    texte: 'Victoire et place chiffrées pour chacun, et un niveau de confiance sur la course entière. Vous voyez qui notre modèle attend devant, et de combien.',
   },
   {
     picto: 'marche',
-    titre: 'Cotes et écarts au marché',
-    texte: 'La cote relevée de chaque partant, et ceux que le modèle voit plus haut que ce qu’elle implique.',
+    titre: 'La cote en face de nos chiffres',
+    texte: 'Sur les réunions cotées, la cote de clôture de chaque partant à côté de nos pourcentages, et un marqueur sur ceux que notre modèle voit plus haut que le marché.',
   },
   {
     picto: 'fiches',
-    titre: 'Fiches et comparateur',
-    texte: 'La fiche de chaque cheval, de son jockey et de son entraîneur, et un comparateur pour mettre deux ou trois partants côte à côte.',
+    titre: 'Le dossier de chaque partant',
+    texte: 'La fiche du cheval, celle de son jockey, celle de son entraîneur, et un comparateur pour poser deux ou trois partants côte à côte.',
   },
 ]
 
 const ETAPES: { titre: string; texte: string }[] = [
   {
-    titre: 'Le modèle analyse chaque partant',
-    texte: 'Valeur du cheval, forme récente, distance, catégorie, taille du peloton, jockey, entraîneur. Il ne regarde pas les cotes.',
+    titre: 'Nous analysons chaque partant',
+    texte: 'Valeur du cheval, forme récente, distance, catégorie, taille du peloton, jockey, entraîneur. Ni la presse, ni les informations d’écurie, ni les cotes.',
   },
   {
-    titre: 'Il estime les chances de chacun',
-    texte: 'Le résultat : une probabilité de victoire par cheval. Elles s’additionnent à 100 %.',
+    titre: 'Nous chiffrons les chances de chacun',
+    texte: 'Le résultat : un pourcentage pour chaque partant, en victoire et en place. Les pourcentages de victoire s’additionnent à 100 %.',
   },
   {
-    titre: 'Vous lisez, vous jugez',
-    texte: 'Arrivée prédite, niveau de confiance, écart au marché : tout est expliqué, rien n’est promis.',
+    titre: 'Vous lisez, et vous vérifiez',
+    texte: 'Arrivée prédite, pourcentages, niveau de confiance, écart au marché : chaque chiffre est expliqué, et vérifiable dans nos résultats publiés.',
   },
 ]
 
@@ -86,18 +86,18 @@ const prixDe = (cle: string) => FORMULES.find((f) => f.cle === cle)?.prix ?? ''
 
 const QUESTIONS: Question[] = [
   {
-    // Posée SANS le vocabulaire banni, même pour le nier : « opérateur de jeux »
-    // est la formule que le site emploie déjà.
-    q: 'Est-ce un opérateur de jeux ou un service de conseil ?',
-    r: 'Non. Crosswell publie des analyses statistiques sur les courses hippiques : des probabilités mesurées, accompagnées de leur historique de réussite. Nous ne recevons aucune somme liée à l’issue des courses et ne recommandons aucune action. Ce que chacun fait de ces analyses lui appartient entièrement.',
+    // La première question est ouverte par défaut : elle dit ce que le lecteur reçoit.
+    // Le positionnement, posé SANS le vocabulaire banni, ferme la liste.
+    q: 'Que contient un pronostic ?',
+    r: 'Pour chaque course de galop du jour, en France : l’arrivée que notre modèle juge la plus probable, et pour chaque partant son pourcentage de victoire et son pourcentage de place. S’y ajoutent le niveau de confiance de la course, les fiches du cheval, du jockey et de l’entraîneur, et un comparateur de deux ou trois partants. Sur les réunions cotées, nous publions ensuite la cote de clôture en regard de nos pourcentages.',
   },
   {
-    q: 'Un pourcentage élevé veut-il dire que le cheval va gagner ?',
-    r: 'Non. 34 % signifie que sur 100 courses semblables, ce cheval en gagnerait environ 34, et pas les 66 autres. Un pronostic reste une probabilité, jamais une certitude.',
+    q: 'Comment lire un pourcentage ?',
+    r: 'Comme une fréquence attendue. 34 % signifie que sur 100 courses semblables, ce cheval en gagnerait environ 34. L’essentiel est la distance entre notre favori et les suivants, qui montre à quel point il se détache.',
   },
   {
     q: 'Quand paraissent les pronostics ?',
-    r: `${RYTHME_PUBLICATION} Une fois publiées, les probabilités ne sont plus recalculées. Les arrivées sont relevées le jour même, puis complétées le soir vers ${HEURE_RELEVE}. ${NOTE_NON_PARTANTS}`,
+    r: `${RYTHME_PUBLICATION} Les probabilités publiées sont définitives. Nous ne les recalculons jamais, même après un retrait. Les arrivées sont relevées le jour même, puis complétées le soir vers ${HEURE_RELEVE}. ${NOTE_NON_PARTANTS}`,
   },
   {
     q: 'D’où viennent les données ?',
@@ -105,15 +105,15 @@ const QUESTIONS: Question[] = [
   },
   {
     q: 'Quelle différence entre les Pass ?',
-    r: `Les trois Pass ouvrent exactement les mêmes pronostics. Le Pass 1 jour (${prixDe('jour')}) est un paiement unique qui donne accès à tout pendant 24 h, sans renouvellement. Le Pass mensuel (${prixDe('mois')}) et le Pass annuel (${prixDe('an')}, soit 8,25 € par mois) se renouvellent jusqu’à leur résiliation.`,
+    r: `Les trois Pass ouvrent exactement les mêmes pronostics, sur toutes les courses du jour. Le Pass 1 jour (${prixDe('jour')}) est un paiement unique qui donne accès à tout pendant 24 h, sans renouvellement. Le Pass mensuel (${prixDe('mois')}) et le Pass annuel (${prixDe('an')}, soit 8,25 € par mois) se renouvellent aussi longtemps que vous le souhaitez.`,
   },
   {
     q: 'Puis-je résilier à tout moment ?',
-    r: `Oui. Les Pass mensuel et annuel sont sans engagement : écrivez-nous, depuis Mon compte ou à ${CONTACT}, et nous vous confirmons la date de fin. Vous gardez l’accès jusqu’au bout de la période payée. Le Pass 1 jour, lui, s’arrête tout seul au bout de 24 h.`,
+    r: `Oui, en ligne et en quelques clics. Les Pass mensuel et annuel sont sans engagement : depuis Mon compte, le portail de paiement vous laisse changer de formule ou résilier vous-même. Vous gardez l’accès jusqu’au bout de la période payée. Une question sur votre abonnement, écrivez-nous à ${CONTACT}. Le Pass 1 jour, lui, s’arrête tout seul au bout de 24 h.`,
   },
   {
-    q: 'Qu’est-ce que la formule gratuite ?',
-    r: 'Un pronostic complet offert chaque jour, sans carte bancaire. Les autres courses restent visibles, mais leur pronostic détaillé est réservé aux détenteurs d’un Pass.',
+    q: 'Sommes-nous un opérateur de jeux ou un service de conseil ?',
+    r: 'Non, et c’est ce qui fonde notre indépendance. Crosswell est un éditeur d’analyses statistiques. Nous ne recevons aucune somme liée à l’issue des courses, et nous ne recommandons aucune action. Nous publions des probabilités mesurées et l’historique de leur réussite. Ce que chacun fait de ces analyses lui appartient entièrement.',
   },
 ]
 
@@ -171,14 +171,14 @@ export default function Accueil() {
       <section className="grid gap-8 lg:gap-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-center px-5 lg:px-20 pt-9 lg:pt-[5.5rem] pb-2 lg:pb-10">
         <div className="flex flex-col gap-5 lg:gap-6 animate-fade-up">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
-            Pronostics hippiques · modèle statistique
+            Pronostics hippiques · toutes les courses de galop du jour
           </span>
           <h1 className="text-[2.125rem] lg:text-[3.3125rem] font-extrabold tracking-[-0.035em] leading-[1.02] [text-wrap:balance]">
-            Chaque course, l’arrivée la plus probable.
+            Chaque matin, l’arrivée la plus probable.
           </h1>
           <p className="max-w-[33.75rem] text-[0.9375rem] lg:text-[1.125rem] font-medium leading-relaxed text-muted">
-            Crosswell analyse tous les partants et estime les chances de chacun, en pourcentage. Vous voyez
-            clairement qui le modèle attend devant, et avec quel écart.
+            Notre modèle chiffre les chances de chaque partant&nbsp;: pourcentage de victoire, pourcentage de place,
+            niveau de confiance par course. Il ne lit ni les cotes, ni la presse. Vous lisez des nombres, pas des impressions.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
@@ -195,17 +195,22 @@ export default function Accueil() {
             </Link>
           </div>
           <span className="text-[0.8125rem] font-medium text-faint">
-            1 pronostic offert chaque jour · sans carte bancaire · réservé aux {AVERTISSEMENT.ageMinimum}&nbsp;ans et plus
+            Un pronostic complet offert chaque jour · sans carte bancaire · accès à partir de {AVERTISSEMENT.ageMinimum}&nbsp;ans
           </span>
         </div>
-        <div className="animate-fade-up [animation-delay:80ms]">
+        {/* L'EXEMPLE DE COURSE N'EXISTE QUE SUR GRAND ÉCRAN. Sur téléphone, il
+            poussait les tarifs et les arguments sous un écran entier de chiffres
+            fictifs, avant même d'avoir dit ce que fait le produit — et il
+            n'illustre rien qu'un visiteur ne découvre mieux dans l'application.
+            Arbitrage du fondateur, 03/10/2026. */}
+        <div className="hidden lg:block animate-fade-up [animation-delay:80ms]">
           <ExempleCourse />
         </div>
       </section>
 
       {/* ── Atouts ────────────────────────────────────────────────────────── */}
       <section aria-labelledby="t-atouts" className="flex flex-col gap-7 px-5 lg:px-20 pt-14 lg:pt-24">
-        <TitreSection id="t-atouts">Tout ce qu’il faut pour lire une course</TitreSection>
+        <TitreSection id="t-atouts">Ce que vous lisez sur chaque course</TitreSection>
         <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {ATOUTS.map((a) => (
             <div key={a.titre} className="flex flex-col gap-3 p-6 rounded-3xl bg-surface border border-line">
@@ -224,9 +229,9 @@ export default function Accueil() {
       {/* ── Comment ça marche ─────────────────────────────────────────────── */}
       <section aria-labelledby="t-etapes" className="flex flex-col gap-7 px-5 lg:px-20 pt-14 lg:pt-24">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-6">
-          <TitreSection id="t-etapes">Comment ça marche</TitreSection>
+          <TitreSection id="t-etapes">Comment nous arrivons à ces chiffres</TitreSection>
           <Link to="/methode" className="text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
-            Tout comprendre sur la méthode
+            Entrer dans le détail de la méthode
           </Link>
         </div>
         <ol className="grid gap-3.5 lg:grid-cols-3">
@@ -245,29 +250,29 @@ export default function Accueil() {
       {/* ── Transparence ──────────────────────────────────────────────────── */}
       <section className="mx-5 lg:mx-20 mt-14 lg:mt-24 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 lg:gap-12 px-[1.375rem] py-7 lg:px-14 lg:py-12 rounded-4xl bg-surface border border-line">
         <div className="flex flex-col gap-3 max-w-[43.75rem]">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Transparence</span>
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Résultats publiés</span>
           <h2 className="text-[1.4375rem] lg:text-[1.8125rem] font-extrabold tracking-[-0.02em] leading-[1.15]">
-            Tous nos pronostics sont vérifiés après l’arrivée officielle, et publiés. Tous, sans tri.
+            Jugez-nous sur pièces&nbsp;: tous nos pronostics confrontés à l’arrivée officielle, et publiés. Tous, sans tri.
           </h2>
           <p className="text-[0.9375rem] font-medium leading-relaxed text-muted">
-            Filtrez par période, type de course, distance ou hippodrome, et jugez par vous-même.
+            Filtrez par période, type de course, distance ou hippodrome. Chaque taux s’affiche avec son effectif.
           </p>
         </div>
         <a
           href={URL_RESULTATS}
           className="shrink-0 h-[3.25rem] px-[1.625rem] rounded-full border border-line-strong flex items-center justify-center text-[0.9375rem] font-bold hover:border-line-hover transition-colors"
         >
-          Voir nos résultats
+          Voir tous nos résultats
         </a>
       </section>
 
       {/* ── Tarifs ────────────────────────────────────────────────────────── */}
       <section id="tarifs" aria-labelledby="t-tarifs" className="flex flex-col gap-8 px-5 lg:px-20 pt-14 lg:pt-24">
         <div className="flex flex-col gap-2.5">
-          <TitreSection id="t-tarifs">Tarifs</TitreSection>
+          <TitreSection id="t-tarifs">Des tarifs clairs, sans engagement</TitreSection>
           <p className="text-[0.9375rem] font-medium text-muted">
-            Une course offerte chaque jour. Un Pass pour tout débloquer, le temps d’une journée, d’un mois ou d’une
-            année.
+            Une course offerte chaque jour, sans carte bancaire. Un Pass ouvre toutes les courses du jour, le temps d’une
+            journée, d’un mois ou d’une année.
           </p>
         </div>
         <div className="grid gap-3.5 pt-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -276,7 +281,7 @@ export default function Accueil() {
           ))}
         </div>
         <p className="-mt-2 text-[0.8125rem] font-medium leading-relaxed text-faint">
-          Prix TTC. Paiement sécurisé par Stripe&nbsp;: aucune donnée bancaire ne transite par Crosswell.
+          Prix TTC. Paiement sécurisé par Stripe&nbsp;: aucune donnée bancaire ne transite par Crosswell. Carte, factures, changement de formule et résiliation se gèrent en ligne, depuis Mon compte.
         </p>
       </section>
 
@@ -286,9 +291,9 @@ export default function Accueil() {
           <path d="M12 3l9 16H3zM12 10v4M12 17h.01" fill="none" stroke="rgb(var(--c-ink))" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <p className="text-sm font-medium leading-relaxed text-soft">
-          <strong className="text-ink">Un pronostic reste une probabilité</strong>, c’est-à-dire une estimation. Aucun résultat n’est garanti&nbsp;: un
-          cheval annoncé à 34&nbsp;% gagne, en moyenne, environ une course sur trois. Les performances passées ne
-          préjugent pas des résultats futurs.
+          <strong className="text-ink">Pour lire nos pourcentages comme nous les écrivons</strong>&nbsp;: une probabilité est une estimation,
+          aucun résultat n’est garanti, et les performances passées ne
+          préjugent pas des résultats futurs. C’est pour cela que nous mesurons chaque pronostic, et que nous publions ce qu’il a donné.
         </p>
       </section>
 
