@@ -91,7 +91,7 @@ export function CartePass({
       <h2 className="text-[1.25rem] lg:text-[1.3125rem] font-extrabold tracking-[-0.02em]">{titre}</h2>
       <p className="text-sm font-medium leading-relaxed text-muted">
         {texte ??
-          `Arrivée prédite, pourcentages et écarts au marché pour toutes les courses du jour et du lendemain. Dès ${PASS_MOINS_CHER.prix} avec le ${PASS_MOINS_CHER.nom}, sans abonnement.`}
+          `Arrivée prédite, pourcentages et écarts au marché pour toutes les courses du jour. Dès ${PASS_MOINS_CHER.prix} avec le ${PASS_MOINS_CHER.nom}, sans abonnement.`}
       </p>
       <Link to={LIEN_PASS} className="btn-accent !h-[3.25rem] !text-[0.9375rem] w-full">
         Voir les Pass

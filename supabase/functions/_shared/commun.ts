@@ -101,6 +101,24 @@ export async function verifierTarif(p: Pass): Promise<void> {
     throw new Error(`Tarif ${p} incohérent : ${prix.recurring ? 'récurrent' : 'ponctuel'} chez Stripe.`)
   }
   /*
+   * LA PÉRIODICITÉ AUSSI, et pas seulement « récurrent ou non ».
+   *
+   * Le garde-fou né de l'incident du 20/09 couvrait le montant et le caractère
+   * récurrent — pas l'intervalle. Un tarif annuel créé par erreur en récurrence
+   * MENSUELLE passait donc toutes les vérifications : le client aurait été
+   * prélevé 99 € chaque mois, là où l'article 5 des CGV promet « 99 €, douze
+   * mois ». Un clic de travers dans le tableau de bord suffisait.
+   */
+  const attenduInterval = p === 'mois' ? 'month' : p === 'an' ? 'year' : null
+  if (attenduInterval) {
+    const r = prix.recurring
+    if (r?.interval !== attenduInterval || (r?.interval_count ?? 1) !== 1) {
+      throw new Error(
+        `Tarif ${p} incohérent : Stripe facture tous les ${r?.interval_count ?? '?'} ${r?.interval ?? '?'}, attendu 1 ${attenduInterval}.`,
+      )
+    }
+  }
+  /*
    * DEVENU BLOQUANT EN MODE RÉEL, depuis que la session demande le calcul de la
    * TVA (`automatic_tax`). Tant que Stripe Tax dormait, un tarif mal réglé
    * n'avait aucun effet : rien ne s'ajoutait. Maintenant qu'il calcule, un

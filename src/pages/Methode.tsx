@@ -496,7 +496,7 @@ export default function Methode() {
                 <span className="num">{dateCourte(trenteJours.jusqua)}</span> inclus. Le jour en cours n’apporte que ses
                 courses déjà jugées, et une période de mesure s’arrête à aujourd’hui. Ces bornes sont les mêmes pour tous
                 les taux et tous les comptes de courses jugées, sur tous les écrans, et les jours sont ceux de Paris. Les
-                listes de réunions montrent aussi demain, dont les pronostics sont publiés dès la veille&nbsp;: ses courses
+                listes de réunions montrent aussi le programme de demain, dont les pronostics paraîtront demain matin&nbsp;: ses courses
                 n’entrent dans aucun taux tant qu’elles ne sont pas jugées.
               </Definition>
               <Definition terme="Les seuils de lecture">

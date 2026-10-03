@@ -32,7 +32,7 @@ const SECTIONS = [
 ] as const
 
 const COMPRIS = [
-  'Pronostics de toutes les courses du jour et du lendemain',
+  'Pronostics de toutes les courses du jour',
   'Arrivée prédite et pourcentages de chances',
   'Nos résultats, publiés sans filtre',
 ]
