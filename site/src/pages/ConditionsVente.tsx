@@ -28,8 +28,13 @@ import { useTitre } from '@/lib/useTitre'
  *
  * DEUX CHOSES NE SE RÉDIGENT PAS :
  * - LE MÉDIATEUR de la consommation. L'adhésion est une démarche, pas une
- *   phrase : l'article 13 dit qu'elle est en cours et engage à ne pas vendre
- *   avant sa publication. C'est une obligation légale (L612-1).
+ *   phrase. L'article 13 disait « aucune vente n'est conclue avant cette
+ *   publication » ; le fondateur a demandé le 03/10 de retirer cet engagement,
+ *   pour que le contrat ne se contredise pas le jour où les ventes ouvrent.
+ *   ⚠️ CELA NE LÈVE PAS L'OBLIGATION : l'adhésion à un médiateur reste imposée
+ *   par l'article L612-1 à tout professionnel vendant à des consommateurs, et
+ *   son absence est sanctionnable même si les CGV n'en parlent plus. Le texte
+ *   ne ment simplement plus ; le risque, lui, est assumé et reste à traiter.
  * - LA RELECTURE PAR UN JURISTE, et en particulier le régime de rétractation
  *   du Pass 1 jour (article 8), qui reste le point ouvert le plus sérieux.
  *   Voir les six questions de `docs/cgv-brouillon.md`.
@@ -301,9 +306,10 @@ export default function ConditionsVente() {
           Crosswell, après avoir tenté de le résoudre directement par une réclamation écrite.
         </p>
         <p className="text-[0.8125rem] text-warn">
-          L’adhésion de Crosswell à un médiateur de la consommation est en cours. Ses coordonnées seront publiées ici
-          dès qu’elle sera effective, et communiquées sur simple demande à{' '}
-          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Aucune vente n’est conclue avant cette publication.
+          L’adhésion de Crosswell à un médiateur de la consommation est en cours. Ses coordonnées seront publiées sur
+          cette page dès qu’elle sera effective, et communiquées entre-temps sur simple demande à{' '}
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Dans l’attente, toute réclamation est traitée directement par
+          Crosswell, dans le délai indiqué ci-dessus, et ce recours ne prive le client d’aucun de ses droits.
         </p>
       </SectionLegale>
 
