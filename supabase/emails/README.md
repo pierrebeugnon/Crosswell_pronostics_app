@@ -87,3 +87,26 @@ de contact.
 3. Vérifier le retour : après confirmation, l'app doit s'ouvrir sur le choix de la formule
    (`/inscription?etape=formule`) — pas sur `localhost`, pas sur une page d'erreur.
 4. Recommencer pour « mot de passe oublié » depuis l'écran de connexion.
+
+## L'envoi : Resend, et pas le serveur intégré
+
+**Le serveur d'envoi intégré de Supabase ne tient pas la production** : quelques messages par
+heure, puis `429: email rate limit exceeded` — constaté le 03/10/2026 après trois inscriptions
+d'essai d'affilée. Un client sur dix recevrait son lien de confirmation.
+
+Le projet envoie donc par **Resend**, déjà utilisé par l'ancien site vitrine
+(`C:\Users\Shadow\Desktop\crosswell-main`, routes `/api/contact` et `/api/waitlist`) : le domaine
+`crosswell.io` y est vérifié, SPF et DKIM posés. Réglé le 03/10/2026 dans
+Authentication → Emails → SMTP Settings :
+
+```
+Hôte          smtp.resend.com
+Port          465
+Utilisateur   resend
+Mot de passe  une clé API Resend (re_…), propre à Supabase — jamais celle de l'ancien site
+Expéditeur    noreply@crosswell.io
+Nom           Crosswell Pronostics
+```
+
+`noreply@` et non `contact@` : ces messages ne se répondent pas, et `contact@crosswell.io` reste
+la boîte de support, celle qu'annoncent les CGV et le pied de chaque message.
