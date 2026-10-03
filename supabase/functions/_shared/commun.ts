@@ -126,8 +126,15 @@ export async function verifierTarif(p: Pass): Promise<void> {
  * LE MODE RÉEL SE RECONNAÎT À LA CLÉ. Les garde-fous fiscaux ne doivent pas
  * bloquer un bac à sable mal réglé — on y essaie, justement —, mais ils ne
  * doivent rien laisser passer dès qu'un vrai euro est en jeu.
+ *
+ * DEUX PRÉFIXES, PAS UN. `sk_live_` est la clé secrète standard ; `rk_live_`
+ * est une clé RESTREINTE, limitée aux ressources qu'on lui accorde. Stripe ne
+ * crée plus que des clés restreintes par défaut sur les comptes récents, et
+ * c'est celle que porte le compte Crosswell depuis le 03/10/2026. Ne tester que
+ * `sk_live_` revenait à désarmer les garde-fous sur le compte réel, en silence
+ * — exactement là où ils servent.
  */
-export const MODE_REEL = exiger('STRIPE_SECRET_KEY').startsWith('sk_live_')
+export const MODE_REEL = /^(?:sk|rk)_live_/.test(exiger('STRIPE_SECRET_KEY'))
 
 /** Vérifié une fois par instance, comme les tarifs. */
 let tvaVerifiee = false
