@@ -19,10 +19,17 @@ export default function Confidentialite() {
     >
       <SectionLegale titre="Sur ce site">
         <p>
-          Ce site est une vitrine statique. Il <strong>ne collecte aucune donnée</strong>&nbsp;: pas de formulaire, pas
-          de compte, pas de cookie, pas d’outil de mesure d’audience. Les polices de caractères sont chargées depuis
-          Google Fonts, qui reçoit à cette occasion l’adresse IP de votre navigateur, comme pour toute ressource
-          distante.
+          Ce site est une vitrine statique&nbsp;: pas de formulaire, pas de compte, <strong>pas de cookie</strong>. Les
+          polices de caractères sont chargées depuis Google Fonts, qui reçoit à cette occasion l’adresse IP de votre
+          navigateur, comme pour toute ressource distante.
+        </p>
+        <p>
+          Nous utilisons la <strong>mesure d’audience de Vercel</strong>, notre hébergeur, sur ce site comme dans
+          l’application. Elle compte les pages vues et les visites, et nous rend des <strong>totaux</strong>&nbsp;:
+          combien de personnes sont venues, par quelles pages, depuis quel pays et quel type d’appareil. Elle
+          n’utilise <strong>aucun cookie</strong>, ne pose aucun identifiant durable sur votre appareil, ne vous suit
+          pas d’un site à l’autre, et ne permet pas de vous reconnaître. Rien n’est rattaché à votre compte&nbsp;:
+          l’application ne transmet ni votre identifiant, ni votre adresse, ni votre formule.
         </p>
         <p>
           L’hébergeur, {EDITEUR.hebergeur.nom}, tient des journaux techniques de connexion (adresse IP, page demandée,
