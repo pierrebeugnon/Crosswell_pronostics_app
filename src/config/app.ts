@@ -9,8 +9,15 @@
  * une ligne suffit — aucune page n'a besoin d'être touchée.
  */
 
-/** Version du modèle servie aux clients. Doit exister dans `model_version`. */
-export const MODELE_CLIENT = 'rating+forme.v1'
+/**
+ * Version du modèle servie aux clients. Doit exister dans `model_version`, et
+ * surtout CONCORDER avec `crosswell_modele_client()` en base (`db/012`) : si
+ * les deux divergent, l'intersection des filtres est vide et l'application
+ * s'affiche sans aucune course, sans lever la moindre erreur.
+ *
+ * `M9bis.niveau` depuis le 03/10/2026, en remplacement de `rating+forme.v1`.
+ */
+export const MODELE_CLIENT = 'M9bis.niveau'
 
 /** Nom public du modèle. Le client ne voit jamais `rating+forme.v1`. */
 export const NOM_SCORE = 'Score Crosswell'
@@ -116,6 +123,15 @@ export const FUSEAU = 'Europe/Paris'
  * retouche, jamais à de la rigueur.
  */
 export const DATE_CORRECTION_MESURE = '2026-09-14'
+
+/**
+ * Date du changement de modèle servi (`MODELE_CLIENT`), publiée pour la même
+ * raison que ci-dessus : « Nos résultats » recalcule tout sur le modèle en
+ * cours, donc les taux affichés ont changé ce jour-là, et l'historique repart
+ * du 10/09/2026 au lieu du 11/08. Des chiffres qui bougent sans explication
+ * datée ressemblent à une retouche.
+ */
+export const DATE_CHANGEMENT_MODELE = '2026-10-03'
 
 /**
  * Écart minimal entre notre probabilité et celle du marché pour qu'un partant
