@@ -11,9 +11,9 @@ cd site && npm run typecheck  # tsc --noEmit — DOIT passer avant de rendre la 
 cd site && npm run build
 ```
 
-Pages : `/` (accueil), `/methode` (« Comment ça marche »), `/confidentialite`,
-`/mentions-legales`, et la page introuvable. Alias `@/` → `src/`. Identifiants,
-commentaires et textes **en français**, comme dans l'app.
+Pages : `/` (accueil), `/methode` (« Comment ça marche »), `/blog` et `/blog/<slug>`,
+`/cgv` (alias `/cgu`), `/confidentialite`, `/mentions-legales`, et la page introuvable.
+Alias `@/` → `src/`. Identifiants, commentaires et textes **en français**, comme dans l'app.
 
 ## Le périmètre — particulier, pronostics, rien d'autre
 
@@ -58,6 +58,8 @@ notre logo** (`components/brand/Logo`, copie de celui de l'app).
 | `@/components/ui/Fictif` | « Chevaux et chiffres fictifs, pour illustration. » — **obligatoire** sous tout exemple. |
 | `@/lib/exemple` | `EXEMPLE`, la course fictive partagée par l'accueil et « Comment ça marche ». |
 | `@/lib/format` | `pourcent` (espace insécable avant « % »). |
+| `@/components/blog/Corps` | Les blocs du corps d'un article : `H2`, `H3`, `P`, `Liste`, `Chiffre`, `Encadre`, `Tableau`. |
+| `@/contenu/articles` | Le catalogue du blog : `ARTICLES`, `articlesRecents`, `articleParSlug`, `rubriquesUtilisees`, `articlesLies`. Métadonnées dans `articles.json`. |
 | `@/config/site` | Adresses, `CONTACT` / `ecrire(objet)`, `FORMULES`, `RYTHME_PUBLICATION(_COURT)`, `HEURE_RELEVE`, `NOTE_NON_PARTANTS`, `MARGE_ECART`, `LIBELLE_ECART`, `SEUILS_CONFIANCE`, `SEUIL_ECHANTILLON`, `FENETRE_JOURS`, `AVERTISSEMENT`, `EDITEUR`. |
 
 Les chiffres de réglage (seuils, formulations) se **lisent dans `@/config/site`**, jamais
@@ -77,10 +79,43 @@ il est dans la sauvegarde `Desktop\crosswell-pronostics-sauvegarde-2026-09-18\si
   confiance, limites, questions), bandeau vert final. La page Méthode de l'app
   (`../src/pages/Methode.tsx`) est la même, plus une section « Comment nos résultats sont
   comptés » (`#mesure`) : une correction de l'une se reporte sur l'autre.
+- **Blog** (`pages/Blog.tsx`, `pages/Article.tsx`) : l'index filtré par rubrique, et
+  l'article. Voir « Écrire un article » ci-dessous.
 - **Pages légales** : Confidentialité et Mentions légales, en onglets. **Pas de CGU** tant
   qu'elles ne sont pas rédigées et validées (la maquette n'en donne qu'un squelette à
   « [À COMPLÉTER] ») — or elles deviennent nécessaires avant de vendre des Pass en ligne.
   **Pas de page « Jeu responsable »** : hors de notre positionnement (ci-dessous).
+
+## Écrire un article
+
+Un article, c'est **deux fichiers** — jamais un seul :
+
+1. une entrée dans **`src/contenu/articles.json`** : `slug`, `rubrique`, `titre` (le H1),
+   `chapo`, `date`, `minutes`, `seo.titre` (≤ 60 signes) et `seo.description` (≤ 155),
+   et `sections` (les ancres du sommaire) ;
+2. un composant dans **`src/contenu/articles/<slug>.tsx`**, export par défaut, inscrit
+   dans `CORPS` de `src/contenu/articles.ts` — sans quoi l'article est ignoré.
+
+`articles.json` est la **source unique** : `scripts/apres-build.mjs` le lit, en Node, pour
+écrire la vraie page HTML de l'article (titre, description, canonique, `og:type article`,
+données structurées `Article` + `BreadcrumbList`) et l'ajouter au `sitemap.xml`. Un titre
+recopié ailleurs finirait par diverger, et c'est alors l'autre que verrait le moteur. Pour
+la même raison, `Article.tsx` appelle `useTitre(seo.titre, { suffixe: false })` : le titre
+d'onglet doit être **identique** à celui du HTML servi.
+
+Le corps n'écrit **aucune classe** : il assemble les blocs de `components/blog/Corps.tsx`
+(`H2`, `H3`, `P`, `Liste`, `Chiffre`, `Encadre`, `Tableau`). L'`id` de chaque `H2` doit
+figurer dans `sections`. Les chiffres (prix, seuils, rythme de publication, mentions) se
+**lisent dans `@/config/site`**, jamais saisis en clair : un article reste en ligne des
+mois, et un prix recopié devient un prix faux.
+
+Les rubriques sont `Méthode`, `Analyses`, `Hippodromes`, `Produit`. **Pas de « Jeu
+responsable »**, malgré la maquette : hors positionnement (ci-dessous). Le vocabulaire
+banni vaut aussi pour les `seo.titre`, `seo.description`, les slugs, les `alt` et les
+ancres de liens — ce sont les endroits où il revient par inadvertance, parce qu'on les
+écrit « pour Google » et plus pour un lecteur. **Aucun taux de réussite dans le texte** :
+il serait faux le lendemain ; l'article explique comment on le compte, l'app dit combien
+il vaut.
 
 ## Le positionnement — c'est du droit, pas du style
 

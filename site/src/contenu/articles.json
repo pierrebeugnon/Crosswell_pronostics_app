@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "comprendre-crosswell-pronostics-hippiques-statistiques",
+    "rubrique": "Méthode",
+    "titre": "Crosswell Pronostics : la probabilité de victoire de chaque cheval",
+    "chapo": "Chaque matin, la probabilité de victoire et les chances de place de chaque partant des courses françaises de galop. Sept facteurs mesurés, aucune cote lue, des résultats publiés avec leur effectif — et une course offerte chaque jour, sans carte bancaire.",
+    "date": "2026-10-03",
+    "minutes": 7,
+    "aLaUne": true,
+    "couverture": {
+      "fichier": "/media/course-peloton.jpg",
+      "alt": "Peloton de pur-sang et leurs jockeys lancés au galop sur l’herbe, dans le tournant d’un hippodrome."
+    },
+    "seo": {
+      "titre": "Pronostics hippiques statistiques : chaque partant chiffré",
+      "description": "Crosswell publie la probabilité de victoire et les chances de place de chaque partant des courses françaises de galop. Une course offerte chaque jour."
+    },
+    "sections": [
+      { "id": "ce-que-crosswell-publie", "titre": "Tout le programme du jour, chiffré dès le matin" },
+      { "id": "lire-un-pourcentage", "titre": "Un pourcentage se compare" },
+      { "id": "comment-le-modele-calcule", "titre": "Sept facteurs mesurés, aucune cote lue" },
+      { "id": "editeur-independant", "titre": "Un éditeur indépendant" },
+      { "id": "nos-resultats-publies", "titre": "Nos taux, publiés avec leur effectif" },
+      { "id": "commencer", "titre": "Commencer gratuitement" }
+    ]
+  }
+]

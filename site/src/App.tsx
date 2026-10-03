@@ -5,6 +5,8 @@ import Methode from '@/pages/Methode'
 import MentionsLegales from '@/pages/MentionsLegales'
 import Confidentialite from '@/pages/Confidentialite'
 import ConditionsVente from '@/pages/ConditionsVente'
+import Blog from '@/pages/Blog'
+import Article from '@/pages/Article'
 import NonTrouve from '@/pages/NonTrouve'
 
 const routeur = createBrowserRouter(
@@ -15,6 +17,8 @@ const routeur = createBrowserRouter(
       children: [
         { index: true, element: <Accueil /> },
         { path: 'methode', element: <Methode /> },
+        { path: 'blog', element: <Blog /> },
+        { path: 'blog/:slug', element: <Article /> },
         { path: 'mentions-legales', element: <MentionsLegales /> },
         { path: 'confidentialite', element: <Confidentialite /> },
         // L'app renvoie vers `/cgu` depuis la case de l'inscription ; le
