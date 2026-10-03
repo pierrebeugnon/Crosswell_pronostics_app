@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ListeLegale, PageLegale, SectionLegale } from '@/components/legal/PageLegale'
 import { CONTACT, EDITEUR, FORMULES, RYTHME_PUBLICATION_COURT } from '@/config/site'
@@ -8,23 +7,32 @@ import { useTitre } from '@/lib/useTitre'
  * CONDITIONS GÉNÉRALES DE VENTE — transcription de `docs/cgv-brouillon.md`
  * (rédigé le 20/09/2026), publiée le 25/09/2026 à la demande du fondateur.
  *
- * POURQUOI CETTE PAGE EXISTE ALORS QUE LE TEXTE N'EST PAS VALIDÉ. La case
- * « J'accepte les conditions générales », OBLIGATOIRE à l'inscription, pointait
- * vers `/cgu` — une page qui n'existait pas : un vrai 404. Faire cocher une
- * case qui renvoie au vide est pire que publier un texte qui dit franchement
- * ce qu'il est. D'où l'encart d'en-tête, que personne ne peut manquer, et les
- * `[TROUS]` laissés VISIBLES plutôt que comblés au jugé.
+ * POURQUOI CETTE PAGE A ÉTÉ PUBLIÉE AVANT D'ÊTRE PARFAITE. La case « J'accepte
+ * les conditions générales », OBLIGATOIRE à l'inscription, pointait vers
+ * `/cgu` — une page qui n'existait pas : un vrai 404. Faire cocher une case qui
+ * renvoie au vide est pire que publier un texte qui dit franchement ce qu'il
+ * est. Les mentions manquantes ont d'abord été laissées VISIBLES plutôt que
+ * comblées au jugé ; elles sont comblées depuis le 03/10 (voir ci-dessous).
  *
  * L'IDENTITÉ DE LA SOCIÉTÉ est renseignée depuis le 25/09/2026 (registre
  * national des entreprises, via `EDITEUR` dans config/site.ts) : dénomination,
  * forme, capital, siège, SIREN, SIRET, TVA.
  *
- * CE QUI RESTE À FAIRE AVANT L'OUVERTURE DES VENTES (docs/cgv-brouillon.md) :
- * choisir le médiateur de la consommation et y adhérer, fixer les quatre
- * délais laissés ouverts (articles 5, 6, 7, 13, 14), dater l'entrée en
- * vigueur, trancher les six questions du juriste — dont le régime de
- * rétractation du Pass 1 jour —, et remplacer cette transcription par la
- * version validée.
+ * COMPLÉTÉES ET DATÉES LE 03/10/2026, à la demande du fondateur : les cinq
+ * délais laissés ouverts portent désormais des valeurs usuelles (30 jours pour
+ * un changement de tarif ou des présentes, 7 jours avant suspension sur impayé,
+ * 15 jours de mise en demeure, 15 jours pour répondre à une réclamation), la
+ * suppression de compte est décrite telle que le produit la fait (effet
+ * immédiat, sans remboursement — décision du 25/09), et la clause de prix ne
+ * promet plus « la TVA française » alors que Stripe Tax calcule selon le pays.
+ *
+ * DEUX CHOSES NE SE RÉDIGENT PAS :
+ * - LE MÉDIATEUR de la consommation. L'adhésion est une démarche, pas une
+ *   phrase : l'article 13 dit qu'elle est en cours et engage à ne pas vendre
+ *   avant sa publication. C'est une obligation légale (L612-1).
+ * - LA RELECTURE PAR UN JURISTE, et en particulier le régime de rétractation
+ *   du Pass 1 jour (article 8), qui reste le point ouvert le plus sérieux.
+ *   Voir les six questions de `docs/cgv-brouillon.md`.
  *
  * DEUX ÉCARTS ASSUMÉS AU BROUILLON, pour ne pas publier une promesse fausse :
  * les articles 3 et 9 y annoncent des analyses publiées « la veille de la
@@ -32,15 +40,6 @@ import { useTitre } from '@/lib/useTitre'
  * 20/09 ; la page reprend donc `RYTHME_PUBLICATION_COURT`, comme le reste du
  * site. À reporter dans le brouillon lors de la relecture juridique.
  */
-
-/** Un identifiant que nous n'avons pas encore. Dit, jamais inventé. */
-function Trou({ children }: { children: ReactNode }) {
-  return (
-    <span className="whitespace-nowrap font-bold text-warn border border-warn/40 bg-warn/10 rounded px-1.5 py-0.5 text-[0.8125rem]">
-      {children}
-    </span>
-  )
-}
 
 const PRIX = Object.fromEntries(FORMULES.map((f) => [f.cle, f.prix]))
 
@@ -51,15 +50,11 @@ export default function ConditionsVente() {
     <PageLegale
       titre="Conditions générales de vente"
       intro={
-        <div className="flex flex-col gap-2.5 px-5 py-4 rounded-2xl bg-warn/[0.08] border border-warn/40">
-          <p className="text-[0.9375rem] font-extrabold text-ink">Version de travail, pas encore en vigueur.</p>
-          <p className="text-sm font-medium leading-relaxed text-soft">
-            Le service n’est pas ouvert à la vente&nbsp;: aucun paiement n’est encaissé aujourd’hui. Ce texte est une
-            trame, en attente de relecture par un juriste. Les mentions encore manquantes sont signalées en jaune, et
-            les présentes ne prendront effet qu’à la publication de leur version définitive, avec sa date d’entrée en
-            vigueur.
-          </p>
-        </div>
+        <p className="text-sm font-medium leading-relaxed text-muted">
+          En vigueur depuis le <strong className="text-ink">3 octobre 2026</strong>. Elles s’appliquent à toute
+          souscription postérieure à cette date. L’adhésion à un médiateur de la consommation est en cours&nbsp;:
+          voir l’article&nbsp;13.
+        </p>
       }
     >
       <SectionLegale titre="Article 1 — Identification du vendeur">
@@ -145,12 +140,14 @@ export default function ConditionsVente() {
           ]}
         />
         <p>
-          Les prix sont indiqués <strong>toutes taxes comprises</strong>, en euros, TVA française applicable. Le prix
-          applicable est celui affiché au jour de la commande.
+          Les prix sont indiqués <strong>toutes taxes comprises</strong>, en euros. Le prix applicable est celui
+          affiché au jour de la commande&nbsp;; il ne varie pas selon le lieu de résidence du client. La taxe sur la
+          valeur ajoutée est comprise dans ce montant et son détail figure sur la facture, qui est adressée au client
+          par voie électronique.
         </p>
         <p>
           Crosswell peut modifier ses tarifs à tout moment. Pour les formules à reconduction tacite, tout nouveau tarif
-          est notifié au client au moins <Trou>[délai]</Trou> avant sa prise d’effet&nbsp;; le client peut résilier
+          est notifié au client au moins <strong>trente&nbsp;jours</strong> avant sa prise d’effet&nbsp;; le client peut résilier
           avant cette date s’il ne l’accepte pas.
         </p>
       </SectionLegale>
@@ -167,7 +164,7 @@ export default function ConditionsVente() {
         </p>
         <p>
           En cas de refus de paiement, l’accès n’est pas ouvert. En cas d’échec de paiement lors d’une reconduction,
-          Crosswell peut suspendre l’accès après <Trou>[délai]</Trou> et après en avoir informé le client.
+          Crosswell peut suspendre l’accès après un délai de <strong>sept&nbsp;jours</strong> suivant l’information du client.
         </p>
       </SectionLegale>
 
@@ -189,7 +186,15 @@ export default function ConditionsVente() {
         </p>
         <p>
           Crosswell peut résilier ou suspendre un compte en cas de manquement aux présentes, notamment de partage
-          d’identifiants, après mise en demeure restée sans effet pendant <Trou>[délai]</Trou>.
+          d’identifiants, après mise en demeure restée sans effet pendant <strong>quinze&nbsp;jours</strong>.
+        </p>
+        <p>
+          <strong>Suppression du compte.</strong> Le client peut supprimer son compte à tout moment depuis son espace
+          client. La suppression vaut résiliation <strong>à effet immédiat</strong>&nbsp;: l’abonnement en cours est
+          arrêté et l’accès cesse aussitôt, sans remboursement de la période déjà payée. Pour conserver l’accès
+          jusqu’au terme de la période en cours, il convient de résilier plutôt que de supprimer. Les factures et les
+          preuves de paiement sont conservées, comme l’impose la loi&nbsp;; le détail figure dans la{' '}
+          <Link to="/confidentialite">politique de confidentialité</Link>.
         </p>
       </SectionLegale>
 
@@ -261,18 +266,24 @@ export default function ConditionsVente() {
       <SectionLegale titre="Article 13 — Réclamations et médiation">
         <p>
           Toute réclamation est adressée à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Crosswell s’engage à répondre
-          sous <Trou>[délai]</Trou> jours.
+          sous <strong>quinze&nbsp;jours</strong>.
         </p>
         <p>
-          Conformément à l’article L612-1 du code de la consommation, le client peut recourir gratuitement au médiateur
-          de la consommation&nbsp;: <Trou>[MÉDIATEUR — nom, adresse, site]</Trou>.
+          Conformément aux articles L612-1 et suivants du code de la consommation, le client consommateur peut recourir
+          gratuitement à un médiateur de la consommation en vue de la résolution amiable d’un litige qui l’oppose à
+          Crosswell, après avoir tenté de le résoudre directement par une réclamation écrite.
+        </p>
+        <p className="text-[0.8125rem] text-warn">
+          L’adhésion de Crosswell à un médiateur de la consommation est en cours. Ses coordonnées seront publiées ici
+          dès qu’elle sera effective, et communiquées sur simple demande à{' '}
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Aucune vente n’est conclue avant cette publication.
         </p>
       </SectionLegale>
 
       <SectionLegale titre="Article 14 — Modification des présentes">
         <p>
           Crosswell peut modifier les présentes. Les clients titulaires d’un abonnement en cours en sont informés par
-          voie électronique <Trou>[délai]</Trou> avant l’entrée en vigueur de la nouvelle version, et peuvent résilier
+          voie électronique <strong>trente&nbsp;jours</strong> avant l’entrée en vigueur de la nouvelle version, et peuvent résilier
           sans frais s’ils ne l’acceptent pas.
         </p>
       </SectionLegale>
@@ -284,7 +295,7 @@ export default function ConditionsVente() {
           lieu de son domicile.
         </p>
         <p>
-          Entrée en vigueur&nbsp;: <Trou>[DATE]</Trou>.
+          Entrée en vigueur&nbsp;: <strong>3 octobre 2026</strong>.
         </p>
       </SectionLegale>
     </PageLegale>

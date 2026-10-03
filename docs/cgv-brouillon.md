@@ -26,13 +26,32 @@ national des entreprises (INSEE / INPI) et posée dans `site/src/config/site.ts`
 | `[CAPITAL]` | 1 € (fixe) |
 | `[ADRESSE COMPLÈTE]` | 47 rue Vivienne, 75002 Paris |
 
-Restent ouverts :
+**Mise à jour du 03/10/2026 — les délais et la date sont posés**, à la demande du fondateur
+(« finis les CGV correctement avec ce que l'on sait, je verrai avec le juriste plus tard »).
+Valeurs usuelles, à confirmer en relecture :
 
-| Trou | Où le trouver |
+| Article | Délai retenu |
 | --- | --- |
-| `[MÉDIATEUR]` | Médiateur de la consommation à choisir et à adhérer (obligation légale) |
-| `[DATE]` | Date d'entrée en vigueur |
-| `[délai]` (articles 5, 6, 7, 13, 14) | À fixer avec le juriste |
+| 5 — changement de tarif | 30 jours de préavis |
+| 6 — suspension après échec de paiement | 7 jours après information du client |
+| 7 — mise en demeure avant résiliation pour manquement | 15 jours |
+| 13 — réponse à une réclamation | 15 jours |
+| 14 — modification des présentes | 30 jours de préavis |
+| 15 — entrée en vigueur | 3 octobre 2026 |
+
+Trois ajouts le même jour, pour que le texte décrive le produit tel qu'il est :
+- **article 7** : la suppression de compte vaut résiliation à effet immédiat, sans remboursement
+  (décision du fondateur du 25/09, et c'est ce que fait `supprimer-compte`) ;
+- **article 5** : la clause ne promet plus « la TVA française » — Stripe Tax calcule selon le pays
+  du client, et le prix TTC affiché ne bouge pas ;
+- **article 13** : la médiation est décrite, et l'adhésion annoncée comme en cours.
+
+Restent ouverts, et ils ne se rédigent pas :
+
+| Point | Pourquoi |
+| --- | --- |
+| `[MÉDIATEUR]` | Adhésion à un médiateur de la consommation : une démarche, pas une phrase. Obligation légale (L612-1). L'article 13 engage à ne pas vendre avant sa publication. |
+| Relecture juridique | En particulier le **régime de rétractation du Pass 1 jour** (article 8) : les six questions ci-dessous restent entières. |
 
 **À vérifier dans les statuts** : le code APE est 62.01Z « programmation informatique ».
 L'objet social couvre-t-il la publication d'analyses statistiques vendues par abonnement ?
