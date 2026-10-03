@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/brand/Logo'
+import { MenuMobile } from '@/components/layout/MenuMobile'
 import { ENTREES, type Entree } from '@/components/layout/Navigation'
 import { AVERTISSEMENT, URL_CONNEXION, URL_INSCRIPTION } from '@/config/site'
 
@@ -35,9 +36,11 @@ export function Majeurs({ className = '' }: { className?: string }) {
 /**
  * L'EN-TÊTE — `design/screens/Landing.dc.html` et `LandingMobile`.
  *
- * Grand écran : logo, trois liens, « 18+ », Se connecter, Essayer gratuitement.
- * Téléphone : logo, « 18+ » et Connexion seulement, comme la maquette mobile —
- * les autres pages s'atteignent depuis l'accueil et le pied de page.
+ * Grand écran : logo, les liens, « 18+ », Se connecter, Essayer gratuitement.
+ * Téléphone : logo, « 18+ », Connexion, et le BOUTON DE MENU — sans lui, « Comment
+ * ça marche », le blog, les tarifs et les pages légales n'étaient atteignables
+ * que depuis l'accueil ou le pied de page, donc pas du tout depuis un article.
+ * Le panneau vit dans `MenuMobile`.
  *
  * La connexion et l'inscription vivent dans l'APPLICATION (la session est
  * stockée par origine) : le site n'y renvoie que par des liens.
@@ -76,6 +79,7 @@ export function EnTete() {
         >
           Essayer gratuitement
         </a>
+        <MenuMobile />
       </div>
     </header>
   )

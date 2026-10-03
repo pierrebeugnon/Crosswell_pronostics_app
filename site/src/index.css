@@ -420,3 +420,106 @@
 html {
   scroll-padding-top: 6rem;
 }
+
+/*
+ * LE MENU DE TÉLÉPHONE — son ouverture et sa fermeture.
+ *
+ * Ici plutôt que dans `tailwind.config.ts` : la configuration Tailwind du site
+ * est une COPIE CONFORME de celle de l’application, et ce menu n’existe que sur
+ * la vitrine. Une image d’animation ajoutée là-bas ferait diverger les deux
+ * fichiers pour un composant que l’app n’a pas.
+ *
+ * DEUX IMAGES DISTINCTES, UNE PAR SENS, et ce n’est pas un doublon qu’on
+ * pourrait factoriser : rejouer la même image en `reverse` ne RELANCE PAS une
+ * animation déjà terminée. Le navigateur garde celle qui a fini, ne diffuse
+ * plus `animationend`, et le tiroir restait monté indéfiniment après la
+ * fermeture. Un nom d’image différent force une nouvelle animation, donc un
+ * nouvel `animationend` — celui qui retire le menu de l’arbre.
+ *
+ * La fermeture est plus courte et sa courbe s’accélère : on attend un panneau
+ * qui arrive, on n’attend pas un panneau qui s’en va.
+ *
+ * `prefers-reduced-motion` est déjà traité plus haut, pour tout le document :
+ * les durées y tombent à 0,01 ms. L’événement `animationend` continue d’être
+ * émis, donc la fermeture du tiroir reste pilotée de la même façon — c’est ce
+ * qui permet de n’avoir aucun cas particulier dans le composant.
+ */
+@keyframes menu-voile {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menu-voile-sort {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes menu-tiroir {
+  from {
+    opacity: 0.5;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes menu-tiroir-sort {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.5;
+    transform: translateX(100%);
+  }
+}
+
+/* Les lignes entrent dans la foulée du tiroir, décalées une à une : le regard
+   descend la liste au lieu de la recevoir d’un bloc. Pas d’image de sortie —
+   elles partent avec le tiroir qui les porte. */
+@keyframes menu-ligne {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.menu-voile {
+  animation: menu-voile 0.24s ease-out both;
+}
+.menu-voile[data-etat='fermeture'] {
+  animation: menu-voile-sort 0.19s ease-in both;
+}
+
+.menu-tiroir {
+  animation: menu-tiroir 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.menu-tiroir[data-etat='fermeture'] {
+  animation: menu-tiroir-sort 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.menu-ligne {
+  animation: menu-ligne 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Les barres du bouton deviennent une croix, et le bouton pivote avec elles. */
+.menu-barre {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.18s linear;
+  transform-origin: center;
+}
