@@ -50,7 +50,7 @@ Restent ouverts, et ils ne se rédigent pas :
 
 | Point | Pourquoi |
 | --- | --- |
-| `[MÉDIATEUR]` | Adhésion à un médiateur de la consommation : une démarche, pas une phrase. Obligation légale (L612-1). L'article 13 engage à ne pas vendre avant sa publication. |
+| `[MÉDIATEUR]` | Adhésion à un médiateur de la consommation : une démarche, pas une phrase. **Obligation légale (L612-1), indépendante de ce que disent les CGV.** L'engagement « aucune vente n'est conclue avant cette publication » a été RETIRÉ de l'article 13 le 03/10/2026, à la demande du fondateur, pour que le contrat ne se contredise pas à l'ouverture des ventes. Le texte cesse de mentir ; le risque demeure entier. **À reprendre avec le juriste en priorité.** |
 | Relecture juridique | En particulier le **régime de rétractation du Pass 1 jour** (article 8) : les six questions ci-dessous restent entières. |
 
 **À vérifier dans les statuts** : le code APE est 62.01Z « programmation informatique ».
