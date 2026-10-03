@@ -67,6 +67,13 @@ export default function Confidentialite() {
           du règlement&nbsp;: l’obligation légale.
         </p>
         <p>
+          Nous gardons aussi une <strong>trace technique de la suppression elle-même</strong>&nbsp;: la date, et les
+          identifiants internes de votre compte et de votre abonnement chez Stripe — sans votre adresse, sans votre
+          prénom, sans aucune donnée de paiement. Elle sert à prouver que l’abonnement a bien été arrêté, et à le
+          retrouver si l’opération s’interrompt en chemin. Elle est conservée aussi longtemps que les factures
+          auxquelles elle se rattache.
+        </p>
+        <p>
           Pour toute autre demande, écrivez à{' '}
           <a href={`mailto:${CONTACT}?subject=${encodeURIComponent('Mes données personnelles')}`}>{CONTACT}</a>. Vous
           pouvez aussi adresser une réclamation à la CNIL.

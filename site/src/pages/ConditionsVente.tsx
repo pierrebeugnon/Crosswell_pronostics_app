@@ -72,12 +72,13 @@ export default function ConditionsVente() {
 
       <SectionLegale titre="Article 2 — Objet">
         <p>
-          Les présentes conditions régissent la vente, à distance et au consommateur, des abonnements donnant accès au
-          service Crosswell Pronostics (ci-après «&nbsp;le Service&nbsp;»).
+          Les présentes conditions régissent la vente, à distance et au consommateur, des formules payantes donnant
+          accès au service Crosswell Pronostics (ci-après «&nbsp;le Service&nbsp;»)&nbsp;: le Pass 1 jour, vendu en
+          paiement unique, ainsi que les Pass mensuel et annuel, vendus par abonnement.
         </p>
         <p>
-          Toute souscription vaut acceptation des présentes, dans leur version en vigueur au jour de la commande. Le
-          client en reçoit un exemplaire par voie électronique.
+          Toute souscription vaut acceptation des présentes, dans leur version en vigueur au jour de la commande. Elles
+          sont accessibles à tout moment sur cette page, où le client peut les enregistrer ou les imprimer.
         </p>
       </SectionLegale>
 
@@ -126,7 +127,10 @@ export default function ConditionsVente() {
         <ListeLegale
           points={[
             <>
-              <strong>Gratuit</strong> — {PRIX.gratuit}, sans limite de durée.
+              <strong>Gratuit</strong> — {PRIX.gratuit}, sans limite de durée. Elle donne accès, chaque jour, au
+              pronostic complet d’<strong>une course offerte</strong> — celle qui réunit le plus grand nombre de
+              chevaux déclarés —, au programme des courses du jour et du lendemain sans les probabilités, et à
+              l’ensemble des courses déjà courues ainsi qu’aux taux de réussite publiés.
             </>,
             <>
               <strong>Pass 1 jour</strong> — {PRIX.jour}, 24 heures, paiement unique, sans reconduction.
@@ -159,24 +163,32 @@ export default function ConditionsVente() {
           conservée par Crosswell.</strong>
         </p>
         <p>
-          La commande est définitive à réception de la confirmation de paiement transmise par Stripe. Un reçu est
-          adressé au client par voie électronique.
+          La commande est définitive à réception de la confirmation de paiement transmise par Stripe. La facture
+          correspondante est <strong>mise à disposition du client</strong> dans l’espace de gestion accessible depuis
+          «&nbsp;Mon compte&nbsp;», où il peut la consulter et la télécharger à tout moment.
         </p>
         <p>
           En cas de refus de paiement, l’accès n’est pas ouvert. En cas d’échec de paiement lors d’une reconduction,
-          Crosswell peut suspendre l’accès après un délai de <strong>sept&nbsp;jours</strong> suivant l’information du client.
+          <strong> l’accès est suspendu dès que le défaut de paiement est constaté</strong>, sans période de grâce. Le
+          client en est informé dans son compte, et peut rétablir son accès en mettant son moyen de paiement à jour
+          depuis l’espace de gestion. <strong>L’accès est également suspendu si le client conteste un paiement</strong>
+          auprès de sa banque, jusqu’à l’issue de la contestation.
         </p>
       </SectionLegale>
 
       <SectionLegale titre="Article 7 — Durée, reconduction et résiliation">
         <p>
           <strong>Pass 1 jour</strong> — accès de 24 heures à compter de la confirmation du paiement. Aucune
-          reconduction, aucune action de résiliation nécessaire.
+          reconduction, aucune action de résiliation nécessaire. Si un Pass 1 jour est déjà en cours, un nouvel achat
+          <strong> prolonge l’accès de 24 heures supplémentaires</strong> à compter de son terme. Un Pass 1 jour ne peut
+          être souscrit par-dessus un abonnement en cours, ni par un client bénéficiant déjà d’un accès gratuit accordé
+          par Crosswell&nbsp;: dans ce dernier cas, l’accès déjà ouvert est conservé et le paiement est remboursé sur
+          demande à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
         </p>
         <p>
           <strong>Pass mensuel et Pass annuel</strong> — reconduits tacitement pour une durée identique, sauf
-          résiliation. Conformément à l’article L215-1 du code de la consommation, le client est informé par écrit de la
-          possibilité de ne pas reconduire, au plus tôt trois mois et au plus tard un mois avant le terme de la période.
+          résiliation. La date de la prochaine reconduction et son montant sont indiqués au client dans
+          «&nbsp;Mon compte&nbsp;», et il peut résilier à tout moment, sans préavis ni frais, depuis cet écran.
         </p>
         <p>
           <strong>Résiliation.</strong> Le client peut résilier à tout moment, <strong>en ligne</strong>, depuis son
@@ -204,13 +216,28 @@ export default function ConditionsVente() {
         </p>
         <p>
           Le client consommateur dispose d’un délai de <strong>quatorze jours</strong> à compter de la souscription pour
-          exercer son droit de rétractation, sans motif ni pénalité.
+          exercer son droit de rétractation, sans motif ni pénalité. L’accès au Service étant ouvert immédiatement, à la
+          demande expresse du client, ce principe connaît deux régimes distincts, selon la formule — et c’est
+          exactement ce que le client accepte, case à cocher à l’appui, au moment du paiement&nbsp;:
         </p>
+        <ListeLegale
+          points={[
+            <>
+              <strong>Pass 1 jour.</strong> Le client demande l’accès dès le paiement et{' '}
+              <strong>renonce expressément à son droit de rétractation</strong>, qu’il perd une fois le pass pleinement
+              exécuté, au bout de vingt-quatre heures (article L221-28, 1° du code de la consommation).
+            </>,
+            <>
+              <strong>Pass mensuel et Pass annuel.</strong> Le client demande que son accès commence dès le paiement et{' '}
+              <strong>conserve son droit de rétractation</strong> pendant quatorze jours. S’il l’exerce, il doit payer
+              la part de l’accès déjà fournie, calculée au prorata du temps écoulé (article L221-25)&nbsp;; le solde lui
+              est remboursé.
+            </>,
+          ]}
+        />
         <p>
-          Toutefois, lorsque l’accès au Service est ouvert <strong>immédiatement</strong>, à la demande expresse du
-          client, celui-ci <strong>renonce à son droit de rétractation</strong> pour la part du service déjà exécutée,
-          dans les conditions prévues à l’article L221-28 du code de la consommation. Ce consentement et cette
-          renonciation sont recueillis explicitement au moment du paiement, et conservés à titre de preuve.
+          La formulation exacte acceptée par le client est conservée par Crosswell à titre de preuve, avec la date, le
+          montant et la formule concernée.
         </p>
         <p>
           Pour exercer son droit lorsqu’il subsiste, le client écrit à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>. Le
