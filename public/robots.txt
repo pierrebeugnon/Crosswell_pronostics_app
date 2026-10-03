@@ -1,0 +1,17 @@
+# L'APPLICATION N'A RIEN À FAIRE DANS UN INDEX.
+#
+# Tout y est derrière un compte, et `vercel.json` y garde une réécriture
+# attrape-tout : l'app répond 200 sur n'importe quelle adresse, ce qu'un moteur
+# lit comme des « soft 404 » en masse. C'est le site vitrine qui porte le
+# référencement de Crosswell — un autre domaine, son propre robots.txt.
+#
+# LE BLOCAGE SE FAIT PAR L'EN-TÊTE `X-Robots-Tag: noindex` de `vercel.json`,
+# PAS PAR UN `Disallow` ICI, et l'ordre des deux compte : un robot qui a
+# interdiction d'explorer ne lit jamais le `noindex`, et l'adresse peut alors
+# rester indexée sur la foi d'un lien externe. On laisse donc explorer, pour que
+# le `noindex` soit vu.
+
+User-agent: *
+Allow: /
+
+# Pas de Sitemap : il vit sur le site vitrine.

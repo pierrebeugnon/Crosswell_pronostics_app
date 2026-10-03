@@ -26,6 +26,14 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ICI = dirname(fileURLToPath(import.meta.url))
+
+/**
+ * LES ARTICLES DU BLOG, lus depuis la MÊME source que le site :
+ * `src/contenu/articles.json`. Chaque article obtient ainsi sa vraie page HTML,
+ * avec son titre, sa description, sa canonique et son entrée de sitemap. Un
+ * titre recopié ici finirait par diverger de celui affiché : on ne recopie pas.
+ */
+const ARTICLES = JSON.parse(await readFile(join(ICI, '..', 'src', 'contenu', 'articles.json'), 'utf8'))
 const DIST = join(ICI, '..', 'dist')
 
 /**
@@ -45,14 +53,26 @@ const ORIGINE = (process.env.VITE_URL_SITE ?? 'https://crosswell-pronostics-site
 
 const SUFFIXE = 'Crosswell Pronostics'
 
+/**
+ * LE TITRE DE L'ACCUEIL — 54 signes, et c'est une contrainte, pas un hasard :
+ * au-delà de 60, un moteur le tronque et c'est la fin de la phrase qui tombe.
+ * L'ancien en faisait 64, l'ancienne description 179 (coupée à 155) : sur la
+ * page la plus demandée du site, les deux lignes que voit un visiteur avant de
+ * cliquer étaient amputées.
+ *
+ * `src/lib/useTitre.ts` POSE LE MÊME TITRE côté client. Les deux doivent dire
+ * la même chose : l'un est lu par le robot, l'autre par l'onglet.
+ */
+const TITRE_ACCUEIL = 'Crosswell — Pronostics hippiques de toutes les courses'
+
 const DESCRIPTION_ACCUEIL =
-  'Crosswell Pronostics estime, pour chaque partant des courses hippiques françaises, ses chances de victoire et de place — et publie ce qu’elles valent une fois les courses courues.'
+  'Toutes les courses du jour analysées chaque matin : les chances de chaque partant, en pourcentage. Une course offerte par jour, sans carte bancaire.'
 
 /** Une entrée par route de `src/App.tsx`. `priorite` ne sert qu'au sitemap. */
 const PAGES = [
   {
     chemin: '/',
-    titre: `${SUFFIXE} — Chaque course, l’arrivée la plus probable`,
+    titre: TITRE_ACCUEIL,
     description: DESCRIPTION_ACCUEIL,
     priorite: '1.0',
   },
@@ -60,7 +80,7 @@ const PAGES = [
     chemin: '/methode',
     titre: `Comment ça marche — ${SUFFIXE}`,
     description:
-      'Ce que le modèle regarde, ce qu’il ignore, et comment lire une probabilité : la méthode de calcul des chances de victoire et de place, expliquée sans jargon.',
+      'Sept facteurs mesurés, aucune cote lue : comment Crosswell calcule les chances de victoire et de place de chaque partant, expliqué sans jargon.',
     priorite: '0.8',
   },
   {
@@ -77,6 +97,21 @@ const PAGES = [
     priorite: '0.3',
   },
   {
+    chemin: '/blog',
+    titre: `Blog — ${SUFFIXE}`,
+    description:
+      'Comprendre une course, pas seulement son résultat : notre méthode, nos résultats mois par mois, les hippodromes et ce que nos pourcentages veulent dire.',
+    priorite: '0.7',
+  },
+  // Les articles s'ajoutent ici, lus depuis `src/contenu/articles.json`.
+  ...ARTICLES.map((a) => ({
+    chemin: `/blog/${a.slug}`,
+    titre: a.seo.titre,
+    description: a.seo.description,
+    priorite: '0.6',
+    article: a,
+  })),
+  {
     chemin: '/cgv',
     titre: `Conditions générales de vente — ${SUFFIXE}`,
     description:
@@ -86,12 +121,18 @@ const PAGES = [
   // `/cgu` sert la même page : c'est l'adresse vers laquelle l'application
   // renvoie depuis la case obligatoire de l'inscription. Hors du sitemap, pour
   // ne pas déclarer deux adresses pour un seul document.
+  //
+  // `canonique` N'EST PAS FACULTATIF ICI. Sans lui, chaque page se déclarait
+  // l'originale : deux adresses, le même texte, et deux `canonical` qui se
+  // contredisent. C'est la définition du contenu dupliqué, et c'est Google qui
+  // tranche alors laquelle des deux il garde.
   {
     chemin: '/cgu',
     titre: `Conditions générales de vente — ${SUFFIXE}`,
     description:
       'Formules, paiement, reconduction, résiliation en ligne et droit de rétractation. Version de travail, en attente de relecture juridique.',
     horsSitemap: true,
+    canonique: '/cgv',
   },
 ]
 
@@ -112,8 +153,97 @@ const echappe = (texte) =>
  * tient en trente lignes, et une dépendance de plus pour ça n'est pas justifiée.
  * Si `index.html` change de forme, les `assert` ci-dessous le font remarquer.
  */
-function pageHtml(gabarit, { chemin, titre, description }, { indexable = true } = {}) {
-  const url = chemin === '/' ? `${ORIGINE}/` : `${ORIGINE}${chemin}`
+/**
+ * LES DONNÉES STRUCTURÉES d'un article (schema.org/Article). Elles disent à un
+ * moteur ce qu'il a sous les yeux : un article daté, son auteur, son éditeur.
+ * On ne déclare QUE ce qui est vrai et visible sur la page — pas d'image
+ * inventée, pas de note, pas d'avis : un balisage qui promet ce que la page
+ * n'affiche pas se retourne contre le site.
+ */
+/** L'adresse absolue de la couverture d'un article, ou `null` s'il n'en a pas. */
+const couvertureAbsolue = (article) =>
+  article.couverture ? `${ORIGINE}${article.couverture.fichier}` : null
+
+function donneesArticle(article, url) {
+  const image = couvertureAbsolue(article)
+  const article_ = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.titre,
+    description: article.seo.description,
+    datePublished: article.date,
+    // Pas d'historique de révision : tant qu'un article n'est pas réécrit, sa
+    // date de modification est sa date de publication. Mettre la date du build
+    // ferait croire à une mise à jour à chaque déploiement.
+    dateModified: article.date,
+    inLanguage: 'fr-FR',
+    articleSection: article.rubrique,
+    isAccessibleForFree: true,
+    // `image` n'est déclarée QUE si l'article porte vraiment une couverture :
+    // un balisage qui annonce une image absente de la page se retourne contre
+    // le site. D'où le `...(image ? …)` plutôt qu'une valeur par défaut.
+    ...(image ? { image: [image] } : {}),
+    author: { '@type': 'Organization', name: 'Crosswell' },
+    publisher: { '@type': 'Organization', name: 'Crosswell' },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  }
+
+  // Le fil d'Ariane, celui-là même qu'affiche `pages/Article.tsx` : on ne
+  // déclare pas un chemin que la page ne montre pas.
+  const ariane = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${ORIGINE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${ORIGINE}/blog` },
+      { '@type': 'ListItem', position: 3, name: article.titre, item: url },
+    ],
+  }
+
+  return JSON.stringify([article_, ariane])
+}
+
+/**
+ * L'ENTITÉ « CROSSWELL », posée sur l'accueil et sur lui seul.
+ *
+ * Sans elle, rien ne dit à un moteur que Crosswell est une marque : le mot est
+ * d'abord un toponyme, et c'est contre ça que la page d'accueil doit s'ancrer.
+ *
+ * On ne déclare QUE ce qui est vrai, stable et visible. Pas de `SearchAction`
+ * (le site n'a pas de recherche interne, la déclarer serait faux), pas d'offres
+ * chiffrées : les prix vivent dans `config/site.ts`, que ce script — du Node
+ * simple — ne sait pas lire. Les recopier ici créerait exactement la divergence
+ * que le projet interdit.
+ */
+function donneesAccueil(url) {
+  const organisation = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Crosswell',
+    alternateName: SUFFIXE,
+    url,
+    logo: `${ORIGINE}/favicon.svg`,
+    description: DESCRIPTION_ACCUEIL,
+  }
+
+  const siteWeb = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SUFFIXE,
+    url,
+    inLanguage: 'fr-FR',
+    publisher: { '@type': 'Organization', name: 'Crosswell' },
+  }
+
+  return JSON.stringify([organisation, siteWeb])
+}
+
+function pageHtml(gabarit, { chemin, titre, description, article, canonique }, { indexable = true } = {}) {
+  const adresse = (c) => (c === '/' ? `${ORIGINE}/` : `${ORIGINE}${c}`)
+  const url = adresse(chemin)
+  // La canonique peut DÉSIGNER UNE AUTRE PAGE : c'est ainsi qu'un alias déclare
+  // l'original au lieu de lui faire concurrence.
+  const canonical = adresse(canonique ?? chemin)
   let html = gabarit
 
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${echappe(titre)}</title>`)
@@ -130,9 +260,39 @@ function pageHtml(gabarit, { chemin, titre, description }, { indexable = true } 
     `<meta property="og:description" content="${echappe(description)}" />`,
   )
 
-  const entetes = indexable
-    ? `<link rel="canonical" href="${url}" />\n    <meta property="og:url" content="${url}" />`
+  let entetes = indexable
+    ? `<link rel="canonical" href="${canonical}" />\n    <meta property="og:url" content="${url}" />`
     : `<meta name="robots" content="noindex" />`
+
+  if (chemin === '/' && indexable) {
+    entetes += `\n    <script type="application/ld+json">${donneesAccueil(url)}</script>`
+  }
+
+  if (article) {
+    // `og:type` est REMPLACÉ, pas ajouté : le gabarit porte déjà `website`, et
+    // deux `og:type` contradictoires dans une même page ne valent pas mieux
+    // qu'aucun — le réseau social garde celui qu'il veut.
+    html = html.replace(
+      /<meta\s+property="og:type"[\s\S]*?\/>/,
+      `<meta property="og:type" content="article" />`,
+    )
+    // La couverture sert aussi d'aperçu au partage. `summary_large_image` n'a
+    // de sens qu'avec une image : sans elle, la carte reste en `summary`, posé
+    // par le gabarit.
+    const image = couvertureAbsolue(article)
+    if (image) {
+      entetes += `\n    <meta property="og:image" content="${echappe(image)}" />`
+      entetes += `\n    <meta property="og:image:alt" content="${echappe(article.couverture.alt)}" />`
+      html = html.replace(
+        /<meta\s+name="twitter:card"[\s\S]*?\/>/,
+        `<meta name="twitter:card" content="summary_large_image" />`,
+      )
+    }
+
+    if (indexable) {
+      entetes += `\n    <script type="application/ld+json">${donneesArticle(article, url)}</script>`
+    }
+  }
 
   html = html.replace('</head>', `  ${entetes}\n  </head>`)
   return html
@@ -168,7 +328,7 @@ const gabarit = await readFile(join(DIST, 'index.html'), 'utf8')
 
 // Garde-fous : si le gabarit change de forme, on veut un échec bruyant au build
 // plutôt qu'un site déployé avec des balises restées à leur valeur d'accueil.
-for (const marqueur of ['<title>', 'name="description"', 'property="og:title"', '</head>']) {
+for (const marqueur of ['<title>', 'name="description"', 'property="og:title"', 'property="og:type"', '</head>']) {
   if (!gabarit.includes(marqueur)) {
     throw new Error(
       `apres-build : « ${marqueur} » est introuvable dans dist/index.html. ` +
@@ -194,7 +354,7 @@ await writeFile(
     {
       chemin: '/404',
       titre: `Page introuvable — ${SUFFIXE}`,
-      description: DESCRIPTION_ACCUEIL,
+      description: 'Cette adresse n’existe pas ou plus. Les pronostics du jour, eux, sont toujours là.',
     },
     { indexable: false },
   ),
