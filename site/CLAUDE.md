@@ -248,6 +248,41 @@ Règles qui en découlent :
   les déploiements de prévisualisation non plus. La règle cesse d'elle-même de s'appliquer dès
   qu'un vrai domaine est branché — rien à défaire.
 
+## L'héritage de l'ancien site — pourquoi `vercel.json` porte des redirections
+
+`crosswell.io` a d'abord servi **Crosswell Élevage**, la plateforme de génétique équine
+(version « pro », mise de côté). Google en a indexé les pages, et il les sert encore :
+en cherchant « crosswell », on tombait sur « Crosswell - Intelligent Equine Breeding », et
+le clic menait à une page morte. Deux causes, et aucune ne se corrige dans le code React.
+
+1. **Les adresses indexées sont sur `www.`**, pas sur l'apex : `www.crosswell.io/en` et
+   `www.crosswell.io/fr/contact`. Or `www` était un alias du projet qui **servait le site
+   en 200**, sans redirection — deux hôtes pour un seul site. Seule la balise `canonical`
+   empêchait le doublon d'être indexé. `vercel.json` redirige maintenant tout `www` vers
+   l'apex en 301.
+2. **L'ancien site préfixait ses routes par la langue** (`/fr/…`, `/en/…`). Le nouveau n'a
+   pas ces chemins : ils tombaient en 404. Ils sont redirigés vers l'accueil.
+
+Ces redirections sont dans `vercel.json` plutôt que dans le réglage « Redirect » du tableau
+de bord Vercel : elles suivent le dépôt, se relisent en revue de code, et ne disparaissent
+pas si le projet est recréé.
+
+**La racine a sa propre règle, et ce n'est pas un doublon** : chez Vercel, `/:chemin*` ne
+matche PAS le chemin `/` tout seul. Mesuré : avec la seule règle générique,
+`www.crosswell.io/methode` redirigeait bien, et `www.crosswell.io/` répondait 200. Sans la
+règle explicite sur `/`, la page la plus visitée du site reste donc servie sur deux hôtes.
+
+**Ce que les redirections NE font PAS** : elles ne changent pas ce que Google AFFICHE. Le
+titre et la description d'un résultat viennent de la dernière exploration ; tant que Google
+n'a pas recrawlé, l'ancien libellé reste. Cela se force depuis la Search Console
+(propriété de domaine, sitemap, inspection d'URL, et l'outil Suppressions pour masquer les
+adresses mortes le temps que l'index se mette à jour). C'est un geste de compte, pas de code.
+
+Un redirect massif vers l'accueil est lu par Google comme un « soft 404 » : les anciennes
+adresses seront désindexées, pas transférées. C'est assumé — il n'existe aucun équivalent
+de la page « contact » de l'élevage sur un site de pronostics, et l'enjeu est qu'un visiteur
+arrive quelque part d'utile plutôt que sur une erreur.
+
 ## Vérification visuelle — un piège connu
 
 Les captures du pane navigateur **sortent noires, figées ou réduites à une bande** dès qu'on

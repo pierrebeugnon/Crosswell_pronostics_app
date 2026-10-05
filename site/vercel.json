@@ -1,6 +1,24 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.crosswell.io" }],
+      "destination": "https://crosswell.io/",
+      "permanent": true
+    },
+    {
+      "source": "/:chemin*",
+      "has": [{ "type": "host", "value": "www.crosswell.io" }],
+      "destination": "https://crosswell.io/:chemin*",
+      "permanent": true
+    },
+    { "source": "/fr", "destination": "/", "permanent": true },
+    { "source": "/fr/:chemin*", "destination": "/", "permanent": true },
+    { "source": "/en", "destination": "/", "permanent": true },
+    { "source": "/en/:chemin*", "destination": "/", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/(.*)",
