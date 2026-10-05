@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import metadonnees from '@/contenu/articles.json'
+import ArcDeTriomphe2026Daryz from '@/contenu/articles/arc-de-triomphe-2026-daryz'
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
 
 /**
@@ -51,7 +52,17 @@ export interface Article {
    * un autre — le vocabulaire banni s'y applique. Facultative : sans elle,
    * l'article retombe sur l'aplat de marque.
    */
-  couverture?: { fichier: string; alt: string }
+  couverture?: {
+    fichier: string
+    alt: string
+    /**
+     * Le point de l'image gardé quand le cadre la rogne (`object-position`,
+     * ex. « 50% 80% »). Le bandeau de tête est bien plus large que haut sur
+     * grand écran : sans cadrage, une photo dont le sujet est en bas perd le
+     * sujet. Facultatif — centré par défaut.
+     */
+    cadrage?: string
+  }
   /** Ce que lisent les moteurs : titre ≤ 60 signes, description ≤ 155. */
   seo: { titre: string; description: string }
   sections: Section[]
@@ -65,6 +76,7 @@ export interface Article {
  * toujours par diverger, et c'est alors le moteur de recherche qui voit l'autre.
  */
 const CORPS: Record<string, ComponentType> = {
+  'arc-de-triomphe-2026-daryz-analyse-statistique': ArcDeTriomphe2026Daryz,
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
 }
 

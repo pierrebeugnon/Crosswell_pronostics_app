@@ -31,7 +31,7 @@ export function Couverture({
     )
   }
 
-  const { fichier, alt } = article.couverture
+  const { fichier, alt, cadrage } = article.couverture
 
   return (
     <div className={classe}>
@@ -39,6 +39,7 @@ export function Couverture({
         src={fichier}
         alt={alt}
         className="w-full h-full object-cover"
+        style={cadrage ? { objectPosition: cadrage } : undefined}
         loading={priorite ? 'eager' : 'lazy'}
         fetchPriority={priorite ? 'high' : 'auto'}
         decoding="async"

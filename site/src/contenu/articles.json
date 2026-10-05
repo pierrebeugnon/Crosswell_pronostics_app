@@ -1,12 +1,37 @@
 [
   {
+    "slug": "arc-de-triomphe-2026-daryz-analyse-statistique",
+    "rubrique": "Analyses",
+    "titre": "Arc de Triomphe : Daryz triomphe, et notre modèle l’avait vu venir",
+    "chapo": "Seize partants venus du monde entier, un cheval chez lui à Longchamp, et un classement publié à l’aube sans jamais regarder le marché. L’histoire de Daryz, et de la lecture qui l’avait placé en tête.",
+    "date": "2026-10-05",
+    "minutes": 6,
+    "aLaUne": true,
+    "couverture": {
+      "fichier": "/media/arc-2026-arrivee.webp",
+      "cadrage": "50% 80%",
+      "alt": "Le numéro 1, monté par un jockey en casaque verte, passe le poteau d’arrivée de l’Arc de Triomphe à ParisLongchamp, devant le reste du peloton."
+    },
+    "seo": {
+      "titre": "Arc de Triomphe 2026 : Daryz, notre modèle l’avait vu",
+      "description": "Daryz en tête de notre arrivée prédite, publiée le matin de l’Arc 2026 sans lire une cote : ce que le modèle a mesuré, et ce que la course a confirmé."
+    },
+    "sections": [
+      { "id": "daryz", "titre": "Un cheval chez lui à Longchamp" },
+      { "id": "le-matin", "titre": "Le matin de l’Arc" },
+      { "id": "notre-logique", "titre": "Ce que notre classement regarde" },
+      { "id": "l-arrivee", "titre": "L’arrivée" },
+      { "id": "sans-le-marche", "titre": "Deux lectures indépendantes" },
+      { "id": "chaque-matin", "titre": "Chaque matin, la même exigence" }
+    ]
+  },
+  {
     "slug": "comprendre-crosswell-pronostics-hippiques-statistiques",
     "rubrique": "Méthode",
     "titre": "Crosswell Pronostics : la probabilité de victoire de chaque cheval",
     "chapo": "Chaque matin, la probabilité de victoire et les chances de place de chaque partant des courses françaises de galop. Sept facteurs mesurés, aucune cote lue, des résultats publiés avec leur effectif — et une course offerte chaque jour, sans carte bancaire.",
     "date": "2026-10-03",
     "minutes": 7,
-    "aLaUne": true,
     "couverture": {
       "fichier": "/media/course-peloton.jpg",
       "alt": "Peloton de pur-sang et leurs jockeys lancés au galop sur l’herbe, dans le tournant d’un hippodrome."
