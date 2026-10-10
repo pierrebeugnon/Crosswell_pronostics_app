@@ -1,5 +1,25 @@
 [
   {
+    "slug": "verifier-taux-reussite-pronostic-hippique",
+    "rubrique": "Produit",
+    "titre": "Comment vérifier le taux de réussite d’un pronostic hippique",
+    "chapo": "Un pourcentage sans effectif, sans point de comparaison et sans date ne prouve rien. Les quatre questions à poser à n’importe quel taux de réussite, et les réponses que nous publions en accès libre.",
+    "date": "2026-10-10",
+    "minutes": 6,
+    "seo": {
+      "titre": "Taux de réussite d’un pronostic hippique : le vérifier",
+      "description": "Effectif, point de comparaison, calibration, période : les quatre questions à poser à un taux de réussite, et où lire nos réponses en accès libre."
+    },
+    "sections": [
+      { "id": "effectif", "titre": "Un taux sans effectif ne veut rien dire" },
+      { "id": "au-hasard", "titre": "Comparé à quoi ? Au hasard, d’abord" },
+      { "id": "calibration", "titre": "La calibration" },
+      { "id": "la-fenetre", "titre": "Qui choisit la fenêtre ?" },
+      { "id": "quand-la-methode-change", "titre": "Quand la méthode change" },
+      { "id": "nos-resultats", "titre": "Nos résultats, et comment les lire" }
+    ]
+  },
+  {
     "slug": "arc-de-triomphe-2026-daryz-analyse-statistique",
     "rubrique": "Analyses",
     "titre": "Arc de Triomphe : Daryz triomphe, et notre modèle l’avait vu venir",

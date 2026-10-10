@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import metadonnees from '@/contenu/articles.json'
 import ArcDeTriomphe2026Daryz from '@/contenu/articles/arc-de-triomphe-2026-daryz'
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
+import VerifierTauxReussite from '@/contenu/articles/verifier-taux-reussite'
 
 /**
  * LE CATALOGUE DU BLOG — `design/screens/Blog*.dc.html`.
@@ -78,6 +79,7 @@ export interface Article {
 const CORPS: Record<string, ComponentType> = {
   'arc-de-triomphe-2026-daryz-analyse-statistique': ArcDeTriomphe2026Daryz,
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
+  'verifier-taux-reussite-pronostic-hippique': VerifierTauxReussite,
 }
 
 export const ARTICLES: readonly Article[] = (metadonnees as Omit<Article, 'Contenu'>[])
