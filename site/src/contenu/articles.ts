@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import metadonnees from '@/contenu/articles.json'
 import ArcDeTriomphe2026Daryz from '@/contenu/articles/arc-de-triomphe-2026-daryz'
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
+import ProbabiliteVictoireCheval from '@/contenu/articles/probabilite-victoire-cheval'
 import VerifierTauxReussite from '@/contenu/articles/verifier-taux-reussite'
 
 /**
@@ -79,6 +80,7 @@ export interface Article {
 const CORPS: Record<string, ComponentType> = {
   'arc-de-triomphe-2026-daryz-analyse-statistique': ArcDeTriomphe2026Daryz,
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
+  'probabilite-victoire-cheval-analyser-course-hippique': ProbabiliteVictoireCheval,
   'verifier-taux-reussite-pronostic-hippique': VerifierTauxReussite,
 }
 

@@ -1,5 +1,32 @@
 [
   {
+    "slug": "probabilite-victoire-cheval-analyser-course-hippique",
+    "rubrique": "Méthode",
+    "titre": "Comment estimer la probabilité de victoire d’un cheval",
+    "chapo": "Une victoire ne dit rien tant qu’on ne sait pas qui elle a laissé derrière. De la lecture d’une ligne de performances au pourcentage publié chaque matin, nous suivons le même chemin pour estimer la probabilité de victoire de chaque partant des courses de galop.",
+    "date": "2026-10-15",
+    "minutes": 7,
+    "couverture": {
+      "fichier": "/media/course-duel.jpg",
+      "cadrage": "50% 40%",
+      "alt": "Deux pur-sang au coude-à-coude dans la ligne droite, jockeys penchés sur l’encolure, saisis en filé dans des tons sépia derrière des silhouettes floues au premier plan."
+    },
+    "seo": {
+      "titre": "Probabilité de victoire d’un cheval : comment l’estimer",
+      "description": "Qui le cheval a-t-il battu, dans quelle forme, sur quelle distance ? Analyser une course hippique en connaisseur pour estimer la probabilité de victoire."
+    },
+    "sections": [
+      { "id": "le-regard-du-connaisseur", "titre": "Analyser une course hippique" },
+      { "id": "sept-questions", "titre": "Sept questions, posées à chaque partant" },
+      { "id": "ceux-qu-il-a-battus", "titre": "La valeur d’un cheval" },
+      { "id": "la-course-du-jour", "titre": "Le cheval, et la course du jour" },
+      { "id": "probabilite-de-victoire", "titre": "De la lecture à la probabilité" },
+      { "id": "sans-la-cote", "titre": "Ce que la méthode laisse dehors" },
+      { "id": "la-meme-lecture", "titre": "La même lecture pour tous" },
+      { "id": "commencer", "titre": "Voir la méthode à l’œuvre" }
+    ]
+  },
+  {
     "slug": "verifier-taux-reussite-pronostic-hippique",
     "rubrique": "Produit",
     "titre": "Comment vérifier le taux de réussite d’un pronostic hippique",
