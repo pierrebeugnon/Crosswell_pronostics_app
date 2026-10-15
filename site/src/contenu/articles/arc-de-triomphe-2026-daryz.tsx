@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Encadre, H2, P, Tableau } from '@/components/blog/Corps'
-import { LIBELLE_ECART, URL_RESULTATS, inscrireAvec } from '@/config/site'
+import { H2, P, Tableau } from '@/components/blog/Corps'
+import { URL_RESULTATS, inscrireAvec } from '@/config/site'
 
 /**
  * L'ARC DE TRIOMPHE 2026, RACONTÉ — Daryz, ParisLongchamp, 4 octobre 2026.
@@ -10,16 +10,37 @@ import { LIBELLE_ECART, URL_RESULTATS, inscrireAvec } from '@/config/site'
  * une écriture de journaliste, aux transitions travaillées. Le fil est le
  * cheval, la course, et la logique de classement racontée en mots.
  *
- * TOUS LES FAITS SONT RÉELS, relevés le 5 octobre 2026 dans
- * `modele_prediction_engagement.predictions_log` (version `M9ter.etranger`,
- * publiée le 4 octobre au matin, départ à 16 h 05) et dans
- * `chevaux.performances` pour la carrière de Daryz. Pas de `<Fictif />`.
+ * TOUS LES FAITS SONT RÉELS, relevés dans
+ * `modele_prediction_engagement.predictions_log` et dans `chevaux.performances`
+ * pour la carrière de Daryz. Pas de `<Fictif />`.
+ *
+ * LE CLASSEMENT CITÉ EST CELUI QUE LES CLIENTS ONT LU : `M9bis.niveau`, le
+ * modèle servi depuis le 03/10/2026 (`db/012`, `MODELE_CLIENT`), publié le
+ * 4 octobre à 7 h 06 pour un départ à 16 h 05. CORRIGÉ LE 15/10/2026 : la
+ * première version citait les rangs de `M9ter.etranger`, un modèle comparé en
+ * interne mais jamais montré aux clients — un lecteur qui vérifiait dans
+ * l'application ne retrouvait ni « nos trois premiers rangs : 1er, 3e, 4e », ni
+ * Friendly Soul 3e. Règle : un article ne cite JAMAIS que le modèle servi à la
+ * date de la course. Il se lit dans l'historique des migrations `db/0xx` et dans
+ * `DATE_CHANGEMENT_MODELE` (`src/config/app.ts`) ; `crosswell_modele_client()`
+ * ne donne que celui d'aujourd'hui.
+ *
+ * PAS D'ENCADRÉ « ÉCART + » : la première version citait Diamond Necklace et
+ * Bay City Roller comme marqués, ce qui était exact mais trié — le marqueur
+ * était affiché sur 12 des 16 partants ce jour-là (le marché concentrait ses
+ * chances sur Daryz). Citer les deux qui sont arrivés revenait à un taux de
+ * réussite déguisé du marqueur.
  *
  * CE QUE LE RÉCIT NE DIT PAS, ET POURQUOI :
  * - aucun taux de réussite (règle du blog) ; l'article renvoie à « Nos résultats » ;
  * - il ne cache pas que Daryz était aussi le favori du marché (cote de clôture
- *   2,2) : l'argument est la convergence de deux lectures indépendantes, et nos
- *   2e et 3e rangs, qui n'étaient pas ceux du marché ;
+ *   2,2) : l'argument est la convergence de deux lectures indépendantes, et le
+ *   reste de notre classement, qui n'était pas celui du marché ;
+ * - il ne cache pas non plus Varandir, notre 3e, resté hors des cinq premiers :
+ *   le tableau ne montre que l'arrivée, le texte le nomme ;
+ * - rien sur notre fonctionnement interne (versions, variantes testées en
+ *   parallèle, façon de compter l'étranger ou le niveau des hippodromes) :
+ *   retiré le 15/10/2026 à la demande du fondateur ;
  * - il ne dit pas que la course du 5 octobre 2025 était l'Arc : la base donne
  *   un Groupe I sur 2 400 m à ParisLongchamp ce jour-là, sans le nom du prix.
  */
@@ -45,7 +66,7 @@ export default function ArcDeTriomphe2026Daryz() {
       <P>
         Il arrive qu’un cheval trouve sa piste, comme d’autres trouvent leur distance. Pour Daryz, cette piste porte un
         nom&nbsp;: ParisLongchamp. Avant l’Arc, il s’y était présenté huit fois et en était reparti vainqueur à sept
-        reprises, sa seule défaite se résumant à une deuxième place, à l’automne de sa première saison.
+        reprises, sa seule défaite se résumant à une deuxième place, en septembre de sa première saison.
       </P>
       <P>
         Un an plus tôt, presque jour pour jour, il s’imposait déjà dans un Groupe I sur ce même tracé et cette même
@@ -56,11 +77,11 @@ export default function ArcDeTriomphe2026Daryz() {
       </P>
       <P>
         Derrière ce parcours se tient une équipe qui n’a jamais varié&nbsp;: l’entraîneur Francis-Henri Graffard, le
-        jockey Mickaël Barzalona, en selle à chacune de ses sorties, et les couleurs des Aga Khan Studs. En onze
-        courses, Daryz a signé huit victoires, sans jamais changer de mains.
+        jockey Mickaël Barzalona, en selle à chacune de ses sorties, et les couleurs des Aga Khan Studs. Avant l’Arc,
+        en onze courses, Daryz avait signé huit victoires, sans jamais changer de mains.
       </P>
       <P>
-        Un connaisseur lit un tel dossier en quelques secondes. Tout l’enjeu consiste pourtant à le lire aussi bien pour
+        Un connaisseur lit un tel dossier en quelques secondes. Tout le défi consiste pourtant à le lire aussi bien pour
         chacun des seize partants, avec la même rigueur, sans se laisser porter par un nom ou une réputation. C’est
         précisément le travail que nous confions à notre modèle.
       </P>
@@ -80,26 +101,21 @@ export default function ArcDeTriomphe2026Daryz() {
 
       <H2 id="notre-logique">Ce que notre classement regarde</H2>
       <P>
-        Contrairement à une idée répandue, notre modèle ne cherche pas le cheval qui a gagné le plus souvent, mais celui
-        qui a battu les meilleurs. Une victoire arrachée face à un peloton d’élite pèse bien davantage qu’une série de
-        succès faciles. C’est d’ailleurs ce qui a hissé Daryz au sommet du classement&nbsp;: course après course, ses
-        adversaires comptaient parmi les plus solides d’Europe.
+        Notre modèle ne se contente pas de compter les victoires&nbsp;: il regarde aussi qui le cheval a battu. Et
+        course après course, les adversaires de Daryz comptaient parmi les plus solides d’Europe.
       </P>
       <P>
-        Le lieu de chaque course entre lui aussi en ligne de compte. Une victoire à ParisLongchamp, un jour de Groupe I,
-        ne saurait se comparer à un succès obtenu dans une petite réunion de province, et le classement en tient
-        naturellement compte.
+        Le niveau de chaque course entre lui aussi en ligne de compte. Une victoire dans un Groupe I ne saurait se
+        comparer à un succès obtenu dans une petite course à réclamer, et le classement en tient naturellement compte.
       </P>
       <P>
         Encore fallait-il ne pas s’arrêter aux frontières. Sur les seize partants de l’Arc, quatre n’avaient jamais couru
-        en France, et deux d’entre eux n’avaient jusque-là couru qu’au Japon. La dernière version de notre modèle lit
-        donc le palmarès étranger pour ce qu’il vaut&nbsp;: un Groupe I à Ascot reste un Groupe I. Ainsi, la troisième
-        place de Daryz en Angleterre a été comptée pour ce qu’elle était réellement, une performance au plus haut
-        niveau.
+        en France, et deux d’entre eux n’avaient jusque-là couru qu’au Japon. Notre modèle tient compte de ce qu’un
+        cheval a accompli à l’étranger&nbsp;: la troisième place de Daryz en Angleterre faisait partie de son dossier.
       </P>
       <P>
-        La forme récente, la distance, la catégorie de la course, la taille du peloton, le jockey et l’entraîneur
-        viennent ensuite compléter le tableau. Un élément, en revanche, reste volontairement à la porte&nbsp;:{' '}
+        La forme récente, la distance, la catégorie de la course, la taille du peloton, le jockey et l’entraîneur font
+        aussi partie de sa lecture. Un élément, en revanche, reste volontairement à la porte&nbsp;:{' '}
         <strong>la cote</strong>. Notre modèle ne regarde jamais le marché&nbsp;; il lit des performances, et rien
         d’autre.
       </P>
@@ -113,17 +129,21 @@ export default function ArcDeTriomphe2026Daryz() {
         entetes={['Arrivée', 'Cheval', 'Notre rang']}
         lignes={[
           ['1er', 'Daryz', '1er'],
-          ['2e', 'Bay City Roller', '7e'],
+          ['2e', 'Bay City Roller', '4e'],
           ['3e', 'Diamond Necklace', '2e'],
-          ['4e', 'Friendly Soul', '3e'],
-          ['5e', 'Kalpana', '8e'],
+          ['4e', 'Friendly Soul', '5e'],
+          ['5e', 'Kalpana', '6e'],
         ]}
       />
       <P>
-        Nos trois premiers rangs ont terminé premier, troisième et quatrième. Derrière Daryz, Diamond Necklace, que nous
-        placions deuxième, a décroché la troisième place, tandis que Friendly Soul, notre troisième, a pris la
-        quatrième. Deux chevaux que peu de monde attendait à ce niveau&nbsp;: le marché les reléguait loin derrière, à
-        des cotes de 14 et de 27.
+        Les quatre premiers de l’arrivée figuraient tous dans nos cinq premiers rangs. Derrière Daryz, Diamond Necklace,
+        que nous placions deuxième, a décroché la troisième place. Bay City Roller, quatrième de notre classement, a pris
+        la deuxième, et Friendly Soul, notre cinquième, a terminé quatrième. Seul Varandir, notre troisième, est resté
+        hors des cinq premiers.
+      </P>
+      <P>
+        Le marché, lui, les plaçait derrière Kalpana et Maltese Cross&nbsp;: à des cotes de 14 pour Diamond Necklace, de 27 pour
+        Friendly Soul et de 38 pour Bay City Roller.
       </P>
 
       <H2 id="sans-le-marche">Deux lectures indépendantes, une même conclusion</H2>
@@ -135,19 +155,10 @@ export default function ArcDeTriomphe2026Daryz() {
       </P>
       <P>
         Là où les deux lectures divergeaient, en revanche, c’est la piste qui a tranché. Derrière Daryz, le marché
-        privilégiait Kalpana et Maltese Cross&nbsp;; le premier a terminé cinquième, le second hors des cinq premiers.
-        Notre classement leur préférait Diamond Necklace et Friendly Soul, qui ont fini troisième et quatrième.
+        privilégiait Kalpana et Maltese Cross&nbsp;: Kalpana a terminé cinquième, Maltese Cross hors des cinq premiers.
+        Notre classement plaçait devant eux Diamond Necklace, Bay City Roller et Friendly Soul, qui ont fini troisième,
+        deuxième et quatrième.
       </P>
-      <P>
-        Un dernier détail mérite d’être souligné. Nous faisons tourner chaque jour plusieurs variantes de notre modèle,
-        afin de les comparer en conditions réelles&nbsp;; or, sur l’Arc, la quasi-totalité d’entre elles désignaient
-        Daryz. La conclusion ne devait donc rien à un réglage heureux&nbsp;: elle ressortait de presque toutes les façons
-        de lire les mêmes données.
-      </P>
-      <Encadre titre={`Le marqueur « ${LIBELLE_ECART} »`}>
-        Dans l’application, ce marqueur signale, une fois la course courue, les partants que notre modèle estimait
-        nettement au-dessus de ce qu’en pensait le marché. Sur l’Arc, Diamond Necklace en faisait partie.
-      </Encadre>
 
       <H2 id="chaque-matin">Chaque matin, la même exigence</H2>
       <P>
