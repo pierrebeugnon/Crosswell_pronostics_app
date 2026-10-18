@@ -62,6 +62,15 @@ export interface PartantPublic {
   nonPartant: boolean
 }
 
+/**
+ * La discipline. Elle EXISTE en base et manquait à la première version de ces
+ * pages : la maquette l'affiche sur chaque ligne de course et dans les
+ * caractéristiques, et une page qui écrit « Galop » en dur ne dit rien — le
+ * galop se court au plat, en haies et en steeple, et le lecteur veut savoir
+ * lequel.
+ */
+export type Discipline = 'Plat' | 'Haies' | 'Steeple' | 'Cross'
+
 /** Une course, réduite à ce qu'une page publique montre. */
 export interface CoursePublique {
   /** `2026-10-10|DEAUVILLE|3` — clé de liste, et base de l'adresse. */
@@ -71,6 +80,7 @@ export interface CoursePublique {
   numero: number
   nom: string | null
   categorie: string | null
+  discipline: Discipline | null
   distance: number | null
   /** Chevaux au départ, non-partants retirés. */
   partants: number
@@ -149,6 +159,28 @@ export function cinqPremiers(course: CoursePublique): PartantPublic[] {
 /** Notre rang 1 parmi les partants au départ. */
 export const favoriDe = (course: CoursePublique): PartantPublic | null =>
   course.liste.find((p) => p.rang === 1 && !p.nonPartant) ?? null
+
+/**
+ * LE TON D'UNE CATÉGORIE, comme la maquette les distingue : les groupes en
+ * aplat vert, les Listed en contour vert, le reste en neutre. C'est la seule
+ * hiérarchie de prestige que le lecteur attend sur une liste de courses.
+ *
+ * La reconnaissance est volontairement tolérante : la catégorie arrive de la
+ * source en texte libre, et elle est ABSENTE sur une ligne sur trois (50 sur
+ * 132 le 10/10/2026). Un libellé inconnu retombe en neutre, jamais en erreur.
+ */
+export function tonCategorie(categorie: string | null): 'groupe' | 'listed' | 'neutre' | null {
+  if (!categorie) return null
+  const c = categorie.toLowerCase()
+  if (/^gr\.?\s*[i1]|groupe\s*[i1]/.test(c)) return 'groupe'
+  if (c.includes('listed')) return 'listed'
+  return 'neutre'
+}
+
+/** Les disciplines présentes dans une journée, pour l'en-tête d'une réunion. */
+export function disciplinesDe(courses: CoursePublique[]): Discipline[] {
+  return [...new Set(courses.map((c) => c.discipline).filter((d): d is Discipline => d !== null))]
+}
 
 /**
  * Le décompte d'une journée, pour le résumé sous le titre. On ne compte pas

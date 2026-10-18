@@ -149,6 +149,34 @@ export function Calendrier({ jourCourant, aujourdhui }: { jourCourant: string; a
           </div>
         </details>
       </div>
+
+      <Legende />
     </div>
+  )
+}
+
+/**
+ * La légende des états. Celle de la maquette en comptait trois — « Résultats »,
+ * « Aujourd'hui », « À venir · pronostics réservés » —, la troisième décrivant
+ * un lendemain cliquable qui n'existe pas chez nous. Elle dit ici ce que le
+ * calendrier fait réellement : un jour passé mène à ses résultats, aujourd'hui
+ * est encadré, un jour futur n'est pas ouvert.
+ */
+function Legende() {
+  return (
+    <ul className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1 text-[0.6875rem] font-medium text-faint">
+      <li className="flex items-center gap-1.5">
+        <span className="w-3 h-3 rounded bg-raised border border-line" aria-hidden />
+        Résultats
+      </li>
+      <li className="flex items-center gap-1.5">
+        <span className="w-3 h-3 rounded border border-accent" aria-hidden />
+        Aujourd’hui
+      </li>
+      <li className="flex items-center gap-1.5">
+        <span className="w-3 h-3 rounded bg-canvas border border-sep" aria-hidden />
+        Pas encore couru
+      </li>
+    </ul>
   )
 }

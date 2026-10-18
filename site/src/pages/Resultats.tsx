@@ -1,11 +1,12 @@
-import { Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { Calendrier } from '@/components/resultats/Calendrier'
 import { ListeJournee } from '@/components/resultats/LigneCourse'
+import { Accordeon, type Question } from '@/components/ui/Accordeon'
 import { Fictif } from '@/components/ui/Fictif'
-import { URL_CONNEXION, URL_INSCRIPTION } from '@/config/site'
+import { NOTE_NON_PARTANTS, RYTHME_PUBLICATION_COURT, URL_CONNEXION, URL_INSCRIPTION } from '@/config/site'
 import { jourLong } from '@/lib/format'
-import { compterJournee, type JourneePublique } from '@/lib/resultats'
-import { JOUR_EXEMPLE, MAINTENANT_EXEMPLE, journeeExemple } from '@/lib/exemple-resultats'
+import { cheminJournee, compterJournee, type JourneePublique } from '@/lib/resultats'
+import { JOUR_EXEMPLE, JOURNEES_EXEMPLE, MAINTENANT_EXEMPLE, journeeExemple } from '@/lib/exemple-resultats'
 import { useTitre } from '@/lib/useTitre'
 
 /**
@@ -27,6 +28,38 @@ import { useTitre } from '@/lib/useTitre'
  * n'a qu'une trentaine de journées d'historique). À leur place, un renvoi vers
  * la mesure complète, qui existe et qui est honnête.
  */
+
+/**
+ * La FAQ de la maquette, réécrite sur ce que nous savons.
+ *
+ * Trois de ses quatre réponses promettaient ce que nous ne tenons pas :
+ * « déclarée officielle par la société de courses » (aucun statut ne nous
+ * parvient), « publié la veille à 20 h » (la publication est du matin même) et
+ * un gabarit « [À COMPLÉTER : délai moyen et source] ». Les chiffres et les
+ * formulations sont lus dans la configuration, jamais recopiés.
+ */
+const QUESTIONS: Question[] = [
+  {
+    q: 'Quand les résultats paraissent-ils ?',
+    r: `L’arrivée est publiée dès que nos relevés la rapportent, dans la journée de la course. ${RYTHME_PUBLICATION_COURT} Une fois publiées, les probabilités ne sont jamais recalculées : ce que vous lisez après la course est exactement ce que nous avions annoncé avant.`,
+  },
+  {
+    q: 'Pourquoi certaines courses n’affichent-elles pas de pronostic ?',
+    r: 'Le pronostic détaillé des courses à venir est réservé aux détenteurs d’un Pass. Une course complète est offerte chaque jour, sans carte bancaire. Les courses déjà courues, elles, sont consultables par tout le monde : notre favori, la probabilité que nous avions annoncée, et sa place réelle.',
+  },
+  {
+    q: 'Que signifie « notre favori » ?',
+    r: 'C’est le cheval que notre modèle classe premier, avec sa probabilité de victoire. Il est publié le matin même, avant la course. Un favori annoncé à 30 % gagne environ trois courses sur dix : le pourcentage décrit une fréquence attendue, pas une issue.',
+  },
+  {
+    q: 'Pourquoi certaines cotes sont-elles absentes ?',
+    r: 'Les cotes que nous affichons sont des cotes de clôture, relevées après la course : elles n’existent donc pas le jour même, et environ quatre réunions sur dix n’en ont aucune (constat d’août 2026). Notre modèle ne les lit pas — elles servent de point de comparaison, jamais d’entrée de calcul.',
+  },
+  {
+    q: 'Comment les non-partants sont-ils traités ?',
+    r: NOTE_NON_PARTANTS,
+  },
+]
 
 function Resume({ journee }: { journee: JourneePublique }) {
   const c = compterJournee(journee, MAINTENANT_EXEMPLE)
@@ -81,14 +114,31 @@ export default function Resultats() {
 
   const aVenir = compterJournee(journee, MAINTENANT_EXEMPLE).aVenir
 
+  const precedentes = JOURNEES_EXEMPLE.filter((j) => j.jour < journee.jour).slice(0, 6)
+
   return (
     <div className="w-full max-w-[75rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7 lg:gap-9">
+      <nav aria-label="Fil d’Ariane" className="text-xs font-medium text-faint">
+        <Link to="/" className="hover:text-ink">
+          Accueil
+        </Link>
+        <span aria-hidden> / </span>
+        <span className="text-soft">Résultats des courses</span>
+      </nav>
+
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 max-w-[42rem]">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Résultats des courses</span>
           <h1 className="text-[1.75rem] lg:text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05] first-letter:uppercase">
             Courses du {jourLong(journee.jour)}
           </h1>
+          {/* Le chapô de la maquette disait « l'arrivée OFFICIELLE » et « ce que
+              notre modèle avait annoncé LA VEILLE » : nous ne recevons aucun
+              statut officiel, et la publication arrive le matin même. */}
+          <p className="text-[0.9375rem] lg:text-[1rem] font-medium leading-relaxed text-muted">
+            L’arrivée de chaque course de galop, réunion par réunion — et, en face, ce que notre modèle avait annoncé
+            le matin même, qu’il ait eu raison ou non.
+          </p>
           <Resume journee={journee} />
         </div>
         <Calendrier jourCourant={journee.jour} aujourdhui={MAINTENANT_EXEMPLE.jour} />
@@ -117,6 +167,43 @@ export default function Resultats() {
         >
           Le détail, filtre par filtre
         </a>
+      </section>
+
+      {/* « Journées précédentes » de la maquette. Sa carte « Par hippodrome »
+          n'est pas reprise : ses pastilles renvoyaient sur la page elle-même,
+          et un lien qui revient où l'on est vaut moins qu'un lien absent. */}
+      {precedentes.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-[1.0625rem] font-bold">Journées précédentes</h2>
+          <div className="flex flex-wrap gap-2">
+            {precedentes.map((j) => (
+              <Link
+                key={j.jour}
+                to={cheminJournee(j.jour)}
+                className="px-4 h-11 rounded-full bg-surface border border-line flex items-center text-[0.875rem] font-semibold text-soft hover:border-line-hover transition-colors first-letter:uppercase"
+              >
+                {jourLong(j.jour)}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 rounded-2xl bg-surface border border-line">
+        <span className="text-[0.9375rem] font-medium text-muted">
+          Comprendre ce que vous lisez&nbsp;: nos articles expliquent les pourcentages et la façon dont nous les
+          mesurons.
+        </span>
+        <Link to="/blog" className="shrink-0 text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
+          Aller au blog
+        </Link>
+      </section>
+
+      <section aria-labelledby="t-faq-resultats" className="flex flex-col gap-5 pt-2">
+        <h2 id="t-faq-resultats" className="text-[1.4375rem] lg:text-[1.8125rem] font-extrabold tracking-[-0.02em]">
+          Questions fréquentes
+        </h2>
+        <Accordeon questions={QUESTIONS} />
       </section>
     </div>
   )

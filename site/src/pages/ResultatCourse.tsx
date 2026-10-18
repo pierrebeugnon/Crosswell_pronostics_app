@@ -1,4 +1,5 @@
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { Categorie } from '@/components/resultats/LigneCourse'
 import { Fictif } from '@/components/ui/Fictif'
 import { URL_INSCRIPTION } from '@/config/site'
 import { distance as formatDistance, hippodrome as formatHippodrome, jourLong, pourcent } from '@/lib/format'
@@ -170,17 +171,29 @@ export default function ResultatCourse() {
       </nav>
 
       <div className="flex flex-col gap-3">
-        {course.categorie && <span className="chip-neutral self-start">{course.categorie}</span>}
+        <Categorie valeur={course.categorie} />
         <h1 className="text-[1.75rem] lg:text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05]">
           Arrivée du {course.nom ?? `C${course.numero}`} — {formatHippodrome(course.hippodrome)} C{course.numero}
         </h1>
+        {/* Le récapitulatif en une ligne de la maquette, moins l'allocation. */}
+        <p className="num text-[0.9375rem] font-medium text-muted">
+          {[
+            course.categorie,
+            course.discipline,
+            course.distance != null ? formatDistance(course.distance) : null,
+            `${course.partants} partants`,
+            course.heureDepart ? `départ à ${course.heureDepart}` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5">
-        <Case libelle="Discipline" valeur="Galop" />
+        <Case libelle="Catégorie" valeur={course.categorie ?? 'non précisée'} />
+        <Case libelle="Discipline" valeur={course.discipline ?? '—'} />
         <Case libelle="Distance" valeur={formatDistance(course.distance)} />
         <Case libelle="Partants" valeur={String(course.partants)} />
-        <Case libelle="Départ" valeur={course.heureDepart ?? '—'} />
         {/* Un statut de non-partants pas encore vérifié n'est pas « 0 ». */}
         <Case libelle="Non-partants" valeur={course.nonPartants === null ? 'non vérifié' : String(course.nonPartants)} />
       </div>
@@ -209,6 +222,13 @@ export default function ResultatCourse() {
             Publié le matin même, avant la course, et jamais recalculé depuis.
           </p>
           <CeQueNousAvionsAnnonce course={course} />
+          {/* La maquette écrivait ici « un cheval annoncé à 34 % perd deux fois
+              sur trois » et « y compris celles que le modèle rate ». Même fait,
+              sans se dévaloriser : on décrit ce qu'un pourcentage est. */}
+          <p className="text-[0.8125rem] leading-relaxed text-faint">
+            Un pourcentage décrit une fréquence attendue sur un grand nombre de courses, pas l’issue d’une course
+            précise. Nous publions toutes les courses, sans en écarter aucune.
+          </p>
         </section>
       )}
 
@@ -234,14 +254,32 @@ export default function ResultatCourse() {
       )}
 
       <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[1.375rem] py-6 rounded-3xl bg-surface border border-line">
-        <span className="text-[1.0625rem] font-bold">Voir les pronostics du jour</span>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[1.0625rem] font-bold">Et les courses d’aujourd’hui&nbsp;?</span>
+          {/* La maquette promettait ici « les pourcentages ET LES FACTEURS du
+              pronostic ». Le modèle n'exporte pas ses facteurs — cette promesse
+              avait déjà été retirée de l'accueil une fois. */}
+          <span className="text-[0.9375rem] font-medium text-muted">
+            Une course offerte chaque jour, pronostic complet, sans carte bancaire.
+          </span>
+        </div>
         <a
           href={URL_INSCRIPTION}
           rel="noopener noreferrer"
           className="shrink-0 h-[3.25rem] px-[1.625rem] rounded-full bg-accent text-accent-ink flex items-center justify-center text-[0.9375rem] font-bold hover:bg-accent-hover transition-colors"
         >
-          Essayer gratuitement
+          Voir les pronostics du jour
         </a>
+      </section>
+
+      <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 rounded-2xl bg-surface border border-line">
+        <span className="text-[0.9375rem] font-medium text-muted">
+          Comment lire une arrivée&nbsp;? Les pourcentages, l’écart au marché et nos limites sont expliqués sur le
+          blog.
+        </span>
+        <Link to="/blog" className="shrink-0 text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
+          Lire les articles
+        </Link>
       </section>
     </div>
   )

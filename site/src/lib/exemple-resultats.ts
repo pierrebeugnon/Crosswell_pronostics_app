@@ -42,6 +42,7 @@ const COURSES: CoursePublique[] = [
     numero: 1,
     nom: 'Prix de Morlaix',
     categorie: 'Handicap',
+    discipline: 'Plat',
     distance: 2400,
     partants: 12,
     nonPartants: 1,
@@ -68,6 +69,7 @@ const COURSES: CoursePublique[] = [
     // qu'une réussite, sinon elle ne mesure rien.
     nom: 'Prix des Hautes Terres',
     categorie: 'Conditions',
+    discipline: 'Plat',
     distance: 1600,
     partants: 9,
     nonPartants: 0,
@@ -90,6 +92,7 @@ const COURSES: CoursePublique[] = [
     // aucune. L'affichage doit tenir sans elle.
     nom: null,
     categorie: null,
+    discipline: 'Haies',
     distance: 2000,
     partants: 14,
     // Statut des non-partants pas encore vérifié : `null`, et surtout pas « 0 ».
@@ -109,6 +112,7 @@ const COURSES: CoursePublique[] = [
     numero: 4,
     nom: 'Prix de la Futaie',
     categorie: 'Groupe III',
+    discipline: 'Plat',
     distance: 2400,
     partants: 8,
     nonPartants: 0,
@@ -127,6 +131,7 @@ const COURSES: CoursePublique[] = [
     numero: 5,
     nom: 'Prix du Confluent',
     categorie: 'Handicap',
+    discipline: 'Steeple',
     distance: 1800,
     partants: 16,
     nonPartants: 2,
@@ -156,6 +161,7 @@ export const VEILLE_EXEMPLE: JourneePublique = {
       numero: 1,
       nom: 'Prix des Aigles',
       categorie: 'Listed',
+      discipline: 'Plat',
       distance: 1400,
       partants: 10,
       nonPartants: 0,
@@ -177,6 +183,7 @@ export const VEILLE_EXEMPLE: JourneePublique = {
       // arrivées : le dire vaut mieux qu'un tiret muet.
       nom: 'Prix du Grand Parquet',
       categorie: 'Conditions',
+      discipline: 'Haies',
       distance: 2100,
       partants: 11,
       nonPartants: null,
