@@ -7,6 +7,8 @@ import Confidentialite from '@/pages/Confidentialite'
 import ConditionsVente from '@/pages/ConditionsVente'
 import Blog from '@/pages/Blog'
 import Article from '@/pages/Article'
+import Resultats from '@/pages/Resultats'
+import ResultatCourse from '@/pages/ResultatCourse'
 import NonTrouve from '@/pages/NonTrouve'
 
 const routeur = createBrowserRouter(
@@ -19,6 +21,15 @@ const routeur = createBrowserRouter(
         { path: 'methode', element: <Methode /> },
         { path: 'blog', element: <Blog /> },
         { path: 'blog/:slug', element: <Article /> },
+        // LES RÉSULTATS SONT DÉCLARÉS ICI MAIS ABSENTS DE `PAGES` dans
+        // `scripts/apres-build.mjs`, DÉLIBÉRÉMENT : sans fichier HTML, elles
+        // répondent 404 en production. Le lot 1 monte les écrans sur un jeu
+        // d'exemple ; on ne les ouvre qu'une fois la source réelle branchée et
+        // le rendu serveur en place, sinon le site publie des pages fictives
+        // sur des adresses indexables.
+        { path: 'resultats', element: <Resultats /> },
+        { path: 'resultats/:jour', element: <Resultats /> },
+        { path: 'resultats/:jour/:lieu/:course', element: <ResultatCourse /> },
         { path: 'mentions-legales', element: <MentionsLegales /> },
         { path: 'confidentialite', element: <Confidentialite /> },
         // L'app renvoie vers `/cgu` depuis la case de l'inscription ; le
