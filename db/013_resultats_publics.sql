@@ -18,12 +18,34 @@
 -- cote — pas même nulle. Une erreur de code ne peut pas les faire apparaître.
 -- ════════════════════════════════════════════════════════════════════════════
 --
--- CE QUE LA SOURCE OFFICIELLE COUVRE RÉELLEMENT — mesuré le 18/10/2026 sur les
--- 21 derniers jours, et c'est une limite à connaître avant de lire ces vues :
+-- ⚠️ CE QUE LA SOURCE OFFICIELLE COUVRE RÉELLEMENT. À lire avant de compter
+-- sur `reunion_num`, `discipline`, `allocation`, `terrain` ou `statut`.
 --
---   `modele_prediction_engagement.pmu_courses` ne contient QUE DU PLAT : 265
---   courses, aucune haies, aucun steeple. Auteuil n'y figure pas.
---   Rapprochées de nos prédictions : 205 courses sur 451, soit 45,5 %.
+-- La documentation de la base (`Crosswell_plateforme_V1/docs/BASE_DE_DONNEES.md`,
+-- §6.4 et §10.4) est formelle sur deux points :
+--
+--   1. `pmu_courses` est le « Programme et arrivée PMU bruts (PLAT FR) ».
+--      Le plat français, et rien d'autre : ni haies, ni steeple, ni cross.
+--      Auteuil n'y figure pas. Mesuré le 18/10/2026 : 265 courses sur 21 jours,
+--      toutes en PLAT ; rapprochées de nos prédictions, 205 sur 451 (45,5 %).
+--
+--   2. ELLE EST REMPLIE UNE FOIS, À LA MAIN — le 17/10/2026, jusqu'au 16/10,
+--      source `rattrapage_20261017`. « Pas de ramassage quotidien en
+--      production. » Autrement dit : ces cinq colonnes sont FIGÉES au 16/10 et
+--      resteront nulles sur toute course postérieure, tant que le pipeline
+--      n'aura pas de collecte quotidienne.
+--
+-- La jointure reste EXTERNE : nos courses sortent toutes, et ces colonnes
+-- valent NULL quand la source ne les porte pas. La page dit l'absence au lieu
+-- de faire disparaître une ligne. Mais il faut le savoir : ce n'est pas un
+-- champ « rempli à 45 % », c'est un champ qui ne se remplit plus.
+--
+-- Les deux autres sources envisagées sont écartées, documentation à l'appui :
+--   • `engagements.*` : « jeu de test de juin 2026 », scraper manuel des
+--     21-23/06, 111 courses. Arrêté depuis 105 jours.
+--   • `fg_plat_resultats` / `fg_obstacle_resultats` : classements annuels FG
+--     des CHEVAUX (gains cumulés sur la saison), pas des résultats de course,
+--     et schémas non exposés.
 --
 -- Donc `reunion_num`, `discipline`, `allocation`, `terrain` et `statut` sont
 -- renseignés sur environ 45 % des courses, et nuls sur le reste. La jointure
