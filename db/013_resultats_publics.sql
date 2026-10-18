@@ -1,93 +1,60 @@
 -- 013 — LES RÉSULTATS, EN LECTURE PUBLIQUE
 --
--- Ouvre à un visiteur SANS COMPTE les arrivées des courses déjà jugées, et le
--- seul programme des courses à venir. C'est ce que les pages /resultats du site
--- vitrine serviront, et la base de leur référencement.
+-- Ouvre à un visiteur SANS COMPTE ce que l'application montre déjà à un compte
+-- connecté : les arrivées des courses jugées, et le programme des courses à
+-- venir. C'est ce que servent les pages `/resultats` du site vitrine.
 --
 -- ════════════════════════════════════════════════════════════════════════════
--- LE VERROU EST DANS LE SQL, PAS DANS LE CODE, et c'est le point important.
+-- ON REPRODUIT L'APPLICATION, ON N'INVENTE RIEN.
+--
+-- L'application lit DEUX vues et deux seulement : `client_predictions` (dans
+-- `services/predictions.ts`) et `client_cotes` (dans `services/cotes.ts`).
+-- Elle ne touche ni `pmu_courses`, ni `engagements.*`, ni les schémas `fg_*`.
+-- Ces vues publiques reprennent donc la MÊME source — `predictions_log`,
+-- filtrée sur `crosswell_modele_client()` — avec la même règle de rang.
+--
+-- Conséquence assumée : pas d'allocation, pas de terrain, pas de numéro de
+-- réunion. L'en-tête de course de l'application n'en affiche aucun — elle
+-- montre « C3 · Deauville · Départ 13:20 », le type, la distance, les partants
+-- et la confiance. La maquette en demandait huit ; nous en avons cinq, les
+-- mêmes que le produit payant. Une première version de cette migration allait
+-- les chercher dans `pmu_courses` : cette table ne couvre que le plat et n'a
+-- été remplie qu'une fois, à la main, le 17/10 (documentation §6.4 et §10.4).
+-- La piste est abandonnée.
+--
+-- Ce que cette source couvre, elle, mesuré le 18/10/2026 sur 21 jours :
+-- 451 courses, 42 hippodromes, Auteuil, Compiègne, Pau et Enghien compris —
+-- PLAT ET OBSTACLE — et 82,2 % des lignes portent une cote.
+-- ════════════════════════════════════════════════════════════════════════════
+--
+-- ════════════════════════════════════════════════════════════════════════════
+-- LE VERROU EST DANS LE SQL, PAS DANS LE CODE.
 --
 -- `crosswell_acces_complet()` renvoie VRAI pour tout rôle non authentifié : un
 -- site qui lirait `client_predictions` avec une clé de service verrait donc
--- TOUT déverrouillé, et il faudrait refiltrer à la main dans du TypeScript —
+-- TOUT déverrouillé, et il faudrait refiltrer à la main en TypeScript —
 -- c'est-à-dire à l'endroit le plus facile à oublier.
 --
--- Ici, une course pas encore jugée N'A AUCUNE LIGNE dans `resultats_publics`.
--- Il n'existe pas de probabilité à cacher : elle n'est pas servie. Et
+-- Ici, une course pas encore jugée N'A AUCUNE LIGNE dans `resultats_publics` :
+-- il n'existe pas de probabilité à cacher, elle n'est pas servie. Et
 -- `programme_public` ne porte AUCUNE colonne de probabilité, de rang ni de
 -- cote — pas même nulle. Une erreur de code ne peut pas les faire apparaître.
 -- ════════════════════════════════════════════════════════════════════════════
---
--- ⚠️ CE QUE LA SOURCE OFFICIELLE COUVRE RÉELLEMENT. À lire avant de compter
--- sur `reunion_num`, `discipline`, `allocation`, `terrain` ou `statut`.
---
--- La documentation de la base (`Crosswell_plateforme_V1/docs/BASE_DE_DONNEES.md`,
--- §6.4 et §10.4) est formelle sur deux points :
---
---   1. `pmu_courses` est le « Programme et arrivée PMU bruts (PLAT FR) ».
---      Le plat français, et rien d'autre : ni haies, ni steeple, ni cross.
---      Auteuil n'y figure pas. Mesuré le 18/10/2026 : 265 courses sur 21 jours,
---      toutes en PLAT ; rapprochées de nos prédictions, 205 sur 451 (45,5 %).
---
---   2. ELLE EST REMPLIE UNE FOIS, À LA MAIN — le 17/10/2026, jusqu'au 16/10,
---      source `rattrapage_20261017`. « Pas de ramassage quotidien en
---      production. » Autrement dit : ces cinq colonnes sont FIGÉES au 16/10 et
---      resteront nulles sur toute course postérieure, tant que le pipeline
---      n'aura pas de collecte quotidienne.
---
--- La jointure reste EXTERNE : nos courses sortent toutes, et ces colonnes
--- valent NULL quand la source ne les porte pas. La page dit l'absence au lieu
--- de faire disparaître une ligne. Mais il faut le savoir : ce n'est pas un
--- champ « rempli à 45 % », c'est un champ qui ne se remplit plus.
---
--- Les deux autres sources envisagées sont écartées, documentation à l'appui :
---   • `engagements.*` : « jeu de test de juin 2026 », scraper manuel des
---     21-23/06, 111 courses. Arrêté depuis 105 jours.
---   • `fg_plat_resultats` / `fg_obstacle_resultats` : classements annuels FG
---     des CHEVAUX (gains cumulés sur la saison), pas des résultats de course,
---     et schémas non exposés.
---
--- Donc `reunion_num`, `discipline`, `allocation`, `terrain` et `statut` sont
--- renseignés sur environ 45 % des courses, et nuls sur le reste. La jointure
--- est volontairement EXTERNE : nos courses restent toutes présentes, et
--- l'absence se dit à l'écran plutôt que de faire disparaître une ligne.
---
--- Les noms d'hippodrome divergent entre les deux sources (« LYON PARILLY » vs
--- « LYON-PARILLY », « MAR.BORELY » vs « BORELY »). D'où la clé normalisée
--- ci-dessous : capitales, accents retirés, tout ce qui n'est pas alphanumérique
--- ramené à une espace. Le rapprochement se fait sur l'égalité, ou à défaut sur
--- le premier mot — ce qui rattrape « NANCY » / « NANCY-BRABOIS ».
 
 begin;
-
--- ────────────────────────────────────────────────────────────────────────────
--- La clé de rapprochement, isolée pour que les deux vues la partagent.
--- ────────────────────────────────────────────────────────────────────────────
-create or replace function public.crosswell_cle_hippodrome(nom text)
-returns text
-language sql
-immutable
-parallel safe
-as $$
-  select trim(regexp_replace(
-           upper(translate(coalesce(nom, ''), 'ÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ', 'AAAEEEEIIOOUUUC')),
-           '[^A-Z0-9]+', ' ', 'g'))
-$$;
-
-comment on function public.crosswell_cle_hippodrome(text) is
-  'Nom d''hippodrome normalisé, pour rapprocher nos prédictions des données officielles dont les libellés diffèrent.';
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- LES ARRIVÉES — une ligne par partant, courses JUGÉES uniquement.
 -- ────────────────────────────────────────────────────────────────────────────
 create or replace view public.resultats_publics as
-with nos_courses as (
+with base as (
   select
     p.reunion_date,
     p.hippodrome,
     p.course_num,
     p.course_nom,
     p.categorie,
+    p.is_handicap,
     p.distance,
     p.field_size,
     p.heure_depart,
@@ -98,7 +65,8 @@ with nos_courses as (
     p.actual_place,
     p.cote,
     p.non_partant,
-    -- Rang EFFECTIF, règle de l'application : un non-partant ne décale personne.
+    -- Rang EFFECTIF, règle de l'application : un non-partant ne décale
+    -- personne, et n'a pas de rang.
     case when p.non_partant is true then null
          else rank() over (
            partition by p.reunion_date, p.hippodrome, p.course_num, (p.non_partant is true)
@@ -111,124 +79,58 @@ with nos_courses as (
   where p.model_version = crosswell_modele_client()
     and p.hippodrome is not null
     and p.hippodrome <> '?'
-),
-officiel as (
-  select
-    c.date,
-    c.course_num,
-    public.crosswell_cle_hippodrome(c.hippodrome) as cle,
-    max(c.reunion_num)   as reunion_num,
-    max(c.discipline)    as discipline,
-    max(c.montant_prix)  as allocation,
-    max(c.terrain)       as terrain,
-    max(c.statut)        as statut
-  from modele_prediction_engagement.pmu_courses c
-  group by 1, 2, 3
 )
 select
-  n.reunion_date,
-  n.hippodrome,
-  o.reunion_num,
-  n.course_num,
-  n.course_nom,
-  n.categorie,
-  o.discipline,
-  n.distance,
-  o.allocation,
-  o.terrain,
-  o.statut,
-  n.field_size,
-  n.heure_depart,
-  n.horse_num,
-  n.horse_name,
-  n.rang,
-  n.p_win,
-  n.p_place,
-  n.actual_place,
-  n.cote,
-  n.non_partant,
-  pp.age,
-  pp.sexe,
-  -- Le poids officiel arrive en hectogrammes. Renseigné sur 43 % des lignes
-  -- seulement : l'absence se dit à l'écran, elle ne devient pas un zéro.
-  (pp.poids_monte_hg / 10.0)::numeric(5,1) as poids
-from nos_courses n
-left join officiel o
-  on o.date = n.reunion_date
- and o.course_num = n.course_num
- and (o.cle = public.crosswell_cle_hippodrome(n.hippodrome)
-      or split_part(o.cle, ' ', 1) = split_part(public.crosswell_cle_hippodrome(n.hippodrome), ' ', 1))
-left join modele_prediction_engagement.pmu_partants pp
-  on pp.date = n.reunion_date
- and pp.reunion_num = o.reunion_num
- and pp.course_num = n.course_num
- and pp.num_pmu = n.horse_num
+  reunion_date,
+  hippodrome,
+  course_num,
+  course_nom,
+  categorie,
+  is_handicap,
+  distance,
+  field_size,
+  heure_depart,
+  horse_num,
+  horse_name,
+  rang,
+  p_win,
+  p_place,
+  actual_place,
+  cote,
+  non_partant
+from base
 -- LE VERROU : seules les courses jugées sortent d'ici.
-where n.jugee;
+where jugee;
 
 comment on view public.resultats_publics is
-  'Arrivées publiques des courses JUGÉES : notre favori, la probabilité annoncée, la place réelle. Une course pas encore jugée n''y a aucune ligne — le verrou est dans la clause WHERE, pas dans le code appelant.';
+  'Arrivées publiques des courses JUGÉES : notre favori, la probabilité annoncée, la place réelle, la cote de clôture. Même source et mêmes règles que `client_predictions`, que lit l''application. Une course pas encore jugée n''y a aucune ligne — le verrou est dans la clause WHERE, pas dans le code appelant.';
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- LE PROGRAMME — courses pas encore jugées, SANS AUCUNE PROBABILITÉ.
 --
 -- Une ligne par COURSE, jamais par partant : un visiteur sans compte n'a pas à
--- connaître la composition détaillée d'une course à venir, et surtout cette
--- vue ne porte ni `p_win`, ni `pred_rank`, ni `cote`. Il n'y a rien à filtrer.
+-- connaître la composition d'une course à venir. Et cette vue ne porte ni
+-- `p_win`, ni `p_place`, ni `pred_rank`, ni `cote`. Il n'y a rien à filtrer.
 -- ────────────────────────────────────────────────────────────────────────────
 create or replace view public.programme_public as
-with nos_courses as (
-  select
-    p.reunion_date,
-    p.hippodrome,
-    p.course_num,
-    max(p.course_nom)  as course_nom,
-    max(p.categorie)   as categorie,
-    max(p.distance)    as distance,
-    max(p.field_size)  as field_size,
-    max(p.heure_depart) as heure_depart,
-    count(*) filter (where p.non_partant is not true) as partants,
-    count(*) filter (where p.non_partant is true)     as non_partants,
-    bool_or(p.actual_place is not null) as jugee
-  from modele_prediction_engagement.predictions_log p
-  where p.model_version = crosswell_modele_client()
-    and p.hippodrome is not null
-    and p.hippodrome <> '?'
-  group by 1, 2, 3
-),
-officiel as (
-  select
-    c.date,
-    c.course_num,
-    public.crosswell_cle_hippodrome(c.hippodrome) as cle,
-    max(c.reunion_num)  as reunion_num,
-    max(c.discipline)   as discipline,
-    max(c.montant_prix) as allocation,
-    max(c.terrain)      as terrain
-  from modele_prediction_engagement.pmu_courses c
-  group by 1, 2, 3
-)
 select
-  n.reunion_date,
-  n.hippodrome,
-  o.reunion_num,
-  n.course_num,
-  n.course_nom,
-  n.categorie,
-  o.discipline,
-  n.distance,
-  o.allocation,
-  o.terrain,
-  n.partants,
-  n.non_partants,
-  n.heure_depart
-from nos_courses n
-left join officiel o
-  on o.date = n.reunion_date
- and o.course_num = n.course_num
- and (o.cle = public.crosswell_cle_hippodrome(n.hippodrome)
-      or split_part(o.cle, ' ', 1) = split_part(public.crosswell_cle_hippodrome(n.hippodrome), ' ', 1))
-where not n.jugee;
+  p.reunion_date,
+  p.hippodrome,
+  p.course_num,
+  max(p.course_nom)   as course_nom,
+  max(p.categorie)    as categorie,
+  bool_or(p.is_handicap) as is_handicap,
+  max(p.distance)     as distance,
+  max(p.field_size)   as field_size,
+  max(p.heure_depart) as heure_depart,
+  count(*) filter (where p.non_partant is not true) as partants,
+  count(*) filter (where p.non_partant is true)     as non_partants
+from modele_prediction_engagement.predictions_log p
+where p.model_version = crosswell_modele_client()
+  and p.hippodrome is not null
+  and p.hippodrome <> '?'
+group by p.reunion_date, p.hippodrome, p.course_num
+having not bool_or(p.actual_place is not null);
 
 comment on view public.programme_public is
   'Programme des courses pas encore jugées, pour un visiteur sans compte. Ne porte AUCUNE colonne de probabilité, de rang ni de cote : il n''y a rien à masquer.';
@@ -238,10 +140,10 @@ comment on view public.programme_public is
 --
 -- SURTOUT PAS `security_invoker = true`, et c'est contre-intuitif : la vue
 -- s'exécuterait alors avec les droits de l'APPELANT, or `anon` n'en a aucun sur
--- `predictions_log` ni sur `pmu_courses`. Elle renverrait une erreur de
--- permission, pas des données. On garde donc le comportement par défaut — les
--- droits du PROPRIÉTAIRE de la vue — : c'est lui qui ouvre le sous-ensemble
--- filtré, pendant que les tables sources restent fermées à `anon`.
+-- `predictions_log`. Elle renverrait une erreur de permission, pas des données.
+-- On garde donc le comportement par défaut — les droits du PROPRIÉTAIRE de la
+-- vue — : c'est lui qui ouvre le sous-ensemble filtré, pendant que la table
+-- source reste fermée à `anon`.
 -- ────────────────────────────────────────────────────────────────────────────
 grant select on public.resultats_publics to anon, authenticated;
 grant select on public.programme_public  to anon, authenticated;
