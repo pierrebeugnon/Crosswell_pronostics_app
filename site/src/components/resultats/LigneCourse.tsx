@@ -3,11 +3,14 @@ import { distance as formatDistance, hippodrome as formatHippodrome, pourcent } 
 import { URL_CONNEXION } from '@/config/site'
 import {
   cheminCourse,
+  allocation,
+  arriveeConnue,
   cinqPremiers,
   disciplinesDe,
   etatCourse,
   favoriDe,
   LIBELLE_ETAT,
+  repereCourse,
   tonCategorie,
   type CoursePublique,
 } from '@/lib/resultats'
@@ -110,18 +113,24 @@ export function LigneCourse({
     <>
       <span className="num w-[3.375rem] shrink-0 flex flex-col gap-0.5">
         <span className="text-[1rem] font-bold">{course.heureDepart ?? '—'}</span>
-        <span className="text-xs font-semibold text-faint">C{course.numero}</span>
+        <span className="text-xs font-semibold text-faint">{repereCourse(course)}</span>
       </span>
 
       <span className="flex-1 min-w-0 flex flex-col gap-1.5">
         <span className="flex items-center gap-2 min-w-0">
           <span className="text-[0.9375rem] font-semibold truncate">{course.nom ?? `Course ${course.numero}`}</span>
           <Categorie valeur={course.categorie} />
+          {/* L'allocation, que la maquette porte sur chaque ligne. Elle existe
+              à 100 % dans `pmu_courses.montant_prix` — je l'avais retirée en
+              croyant l'inverse. */}
+          {allocation(course.allocation) && (
+            <span className="num shrink-0 text-xs font-semibold text-faint">{allocation(course.allocation)}</span>
+          )}
         </span>
         <span className="num text-xs font-medium text-faint truncate">{meta(course)}</span>
 
         {/* L'arrivée, sur la ligne : la première chose que cherche un lecteur. */}
-        {etat === 'terminee' && (
+        {arriveeConnue(etat) && (
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
             <Podium course={course} />
             {gagnant && (
@@ -148,7 +157,7 @@ export function LigneCourse({
           <>
             <span className={`num text-sm font-bold ${favori.arrivee === 1 ? 'text-accent' : 'text-soft'}`}>
               {favori.arrivee === null
-                ? etat === 'terminee'
+                ? arriveeConnue(etat)
                   ? 'Non classé'
                   : '—'
                 : favori.arrivee === 1

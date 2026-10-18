@@ -3,7 +3,7 @@ import { Categorie } from '@/components/resultats/LigneCourse'
 import { Fictif } from '@/components/ui/Fictif'
 import { URL_INSCRIPTION } from '@/config/site'
 import { distance as formatDistance, hippodrome as formatHippodrome, jourLong, pourcent } from '@/lib/format'
-import { cheminCourse, cheminJournee, etatCourse, favoriDe, type CoursePublique } from '@/lib/resultats'
+import { allocation, arriveeConnue, cheminCourse, cheminJournee, etatCourse, favoriDe, repereCourse, type CoursePublique } from '@/lib/resultats'
 import { MAINTENANT_EXEMPLE, courseExemple, journeeExemple } from '@/lib/exemple-resultats'
 import { useTitre } from '@/lib/useTitre'
 
@@ -56,10 +56,10 @@ function Arrivee({ course }: { course: CoursePublique }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0">
-        <table className="w-full min-w-[30rem] border-collapse text-[0.9375rem]">
+        <table className="w-full min-w-[42rem] border-collapse text-[0.9375rem]">
           <thead>
             <tr className="border-b border-line-strong">
-              {['Place', 'N°', 'Cheval', 'Cote'].map((e) => (
+              {['Place', 'N°', 'Cheval', 'Âge · sexe', 'Poids', 'Cote'].map((e) => (
                 <th
                   key={e}
                   className="text-left font-bold py-2.5 pr-4 text-[0.75rem] uppercase tracking-[0.08em] text-faint"
@@ -77,10 +77,21 @@ function Arrivee({ course }: { course: CoursePublique }) {
                 </td>
                 <td className="num py-3 pr-4 font-semibold text-soft">{p.numero}</td>
                 <td className="py-3 pr-4 font-semibold text-ink">{p.nom}</td>
+                {/* Âge et sexe sont renseignés à 100 % sur les trente derniers
+                    jours ; le poids seulement sur 43 %, d'où la case vide qui
+                    se dit au lieu d'un tiret muet. */}
+                <td className="num py-3 pr-4 text-soft">
+                  {[p.age ? `${p.age} ans` : null, p.sexe].filter(Boolean).join(' · ') || '—'}
+                </td>
+                <td className="num py-3 pr-4 text-soft">
+                  {p.poids != null ? `${String(p.poids).replace('.', ',')} kg` : <span className="text-dim">non relevé</span>}
+                </td>
                 {/* Une cote absente le jour même se dit, elle ne devient pas un
                     tiret muet : 0 ligne sur 132 le jour courant, 209 sur 210 la
                     veille (relevé du 10/10/2026). */}
-                <td className="num py-3 pr-4 text-soft">{p.cote != null ? p.cote.toFixed(1) : 'relevée ce soir'}</td>
+                <td className="num py-3 pr-4 text-soft">
+                  {p.cote != null ? p.cote.toFixed(1) : <span className="text-dim">relevée ce soir</span>}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -138,7 +149,9 @@ function CeQueNousAvionsAnnonce({ course }: { course: CoursePublique }) {
 
 export default function ResultatCourse() {
   const { jour, lieu, course: segment } = useParams()
-  const numero = Number((segment ?? '').replace(/^c/, '').split('-')[0])
+  // `r1c3-prix-du-bocage` → 3. Le `r{n}` est toléré et ignoré : c'est le
+  // couple hippodrome + numéro de course qui identifie, le reste est lisible.
+  const numero = Number((segment ?? '').match(/^(?:r\d+)?c(\d+)/)?.[1] ?? NaN)
   const course = jour && lieu && Number.isFinite(numero) ? courseExemple(jour, lieu, numero) : undefined
 
   useTitre(
@@ -173,7 +186,7 @@ export default function ResultatCourse() {
       <div className="flex flex-col gap-3">
         <Categorie valeur={course.categorie} />
         <h1 className="text-[1.75rem] lg:text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05]">
-          Arrivée du {course.nom ?? `C${course.numero}`} — {formatHippodrome(course.hippodrome)} C{course.numero}
+          Arrivée du {course.nom ?? `C${course.numero}`} — {formatHippodrome(course.hippodrome)} {repereCourse(course)}
         </h1>
         {/* Le récapitulatif en une ligne de la maquette, moins l'allocation. */}
         <p className="num text-[0.9375rem] font-medium text-muted">
@@ -189,21 +202,40 @@ export default function ResultatCourse() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         <Case libelle="Catégorie" valeur={course.categorie ?? 'non précisée'} />
+        <Case libelle="Allocation" valeur={allocation(course.allocation) ?? '—'} />
         <Case libelle="Discipline" valeur={course.discipline ?? '—'} />
         <Case libelle="Distance" valeur={formatDistance(course.distance)} />
         <Case libelle="Partants" valeur={String(course.partants)} />
+        <Case libelle="Terrain" valeur={course.terrain ?? 'non relevé'} />
+        <Case libelle="Départ" valeur={course.heureDepart ?? '—'} />
         {/* Un statut de non-partants pas encore vérifié n'est pas « 0 ». */}
         <Case libelle="Non-partants" valeur={course.nonPartants === null ? 'non vérifié' : String(course.nonPartants)} />
       </div>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-[1.1875rem] lg:text-[1.4375rem] font-extrabold tracking-[-0.02em]">
-          {etat === 'terminee' ? 'L’arrivée' : 'Cette course n’a pas encore d’arrivée'}
-        </h2>
-        {etat === 'terminee' ? (
-          <Arrivee course={course} />
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-[1.1875rem] lg:text-[1.4375rem] font-extrabold tracking-[-0.02em]">
+            {arriveeConnue(etat) ? 'L’arrivée' : 'Cette course n’a pas encore d’arrivée'}
+          </h2>
+          {/* « Arrivée provisoire » vient du statut `FIN_COURSE`, pas d'une
+              heure comparée à l'horloge comme le devinait la maquette. */}
+          {etat === 'provisoire' && (
+            <span className="px-2.5 py-1 rounded-full bg-raised border border-line-strong text-[0.6875rem] font-bold uppercase tracking-[0.06em] text-soft">
+              Arrivée provisoire
+            </span>
+          )}
+        </div>
+        {arriveeConnue(etat) ? (
+          <>
+            <Arrivee course={course} />
+            {etat === 'provisoire' && (
+              <p className="text-[0.8125rem] font-medium text-faint">
+                Cette arrivée n’est pas encore définitive&nbsp;: elle peut être modifiée.
+              </p>
+            )}
+          </>
         ) : (
           <p className="text-[0.9375rem] leading-relaxed text-muted">
             {etat === 'departDonne'

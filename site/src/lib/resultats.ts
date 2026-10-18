@@ -6,38 +6,42 @@
  * tout ce qui n'apparaît pas ici n'arrivera jamais sur une page publique, même
  * si la source le porte.
  *
- * TROIS CHAMPS DE LA MAQUETTE N'EXISTENT NULLE PART et ne sont donc pas
- * déclarés : l'ALLOCATION, le TERRAIN et le NUMÉRO DE RÉUNION. Relevé le
- * 10/10/2026 sur tout le schéma — le seul endroit qui portait les deux premiers
- * s'arrête au 06/07/2026 et est à moitié vide. Les déclarer « optionnels »
- * reviendrait à afficher du vide sur 100 % des journées : mieux vaut une page à
- * cinq caractéristiques justes qu'à huit dont trois sont muettes. C'est aussi
- * pourquoi l'adresse d'une course se bâtit sur hippodrome + numéro, et non sur
- * le « R1C3 » de la maquette.
+ * CORRECTION DU 18/10/2026 — ce fichier affirmait que l'ALLOCATION, le TERRAIN,
+ * le NUMÉRO DE RÉUNION et le STATUT OFFICIEL n'existaient nulle part, et les
+ * pages ont été amputées sur cette base. C'ÉTAIT FAUX : l'audit n'avait regardé
+ * que le schéma `public`. Tout cela vit dans
+ * `modele_prediction_engagement.pmu_courses`, rempli à 100 % sur les trente
+ * derniers jours, avec 445 863 partants d'historique remontant à 2017.
  *
- * AUCUN STATUT OFFICIEL NON PLUS. La maquette affiche « En cours · arrivée en
- * cours d'officialisation », qu'elle devine en comparant l'heure de départ à
- * l'horloge. Nous ne recevons aucun statut de société de courses : les quatre
- * états ci-dessous sont ceux que l'application emploie déjà, et ils ne
- * promettent que ce que nous savons.
+ * La leçon, pour la prochaine fois : un champ déclaré absent doit l'être après
+ * un relevé de TOUS les schémas, pas du seul qui sert déjà l'application.
  */
 
 /**
- * L'état d'une course, tel qu'on peut l'affirmer sans inventer.
+ * Le statut officiel, tel que la source le porte. Deux valeurs sur les trente
+ * derniers jours : 281 courses en `ARRIVEE_DEFINITIVE_COMPLETE` et 108 en
+ * `FIN_COURSE`. C'est une vraie distinction — la course est courue, l'arrivée
+ * n'est pas encore définitive — et c'est exactement l'état « en cours
+ * d'officialisation » de la maquette, que j'avais écarté en croyant qu'aucun
+ * statut ne nous parvenait.
+ */
+export type StatutOfficiel = 'ARRIVEE_DEFINITIVE_COMPLETE' | 'FIN_COURSE'
+
+/**
+ * L'état d'une course.
  *
- * - `terminee` : l'arrivée est relevée, on la montre.
- * - `departDonne` : l'heure de départ est passée, l'arrivée n'est pas encore
- *   chez nous. On ne dit pas « en cours d'officialisation » : nous n'en savons
- *   rien, nous constatons seulement que le départ est derrière nous.
- * - `nonRelevee` : la journée est passée et l'arrivée n'est jamais arrivée.
- *   Environ quatre réunions sur dix ne sont pas cotées, et certaines arrivées
- *   nous manquent : le dire vaut mieux qu'un tiret muet.
+ * - `definitive` : arrivée définitive, c'est le cas courant.
+ * - `provisoire` : la course est courue, l'arrivée n'est pas encore définitive.
+ * - `departDonne` : l'heure de départ est passée et aucun statut ne nous est
+ *   encore parvenu.
+ * - `nonRelevee` : la journée est passée, l'arrivée n'est jamais arrivée.
  * - `aVenir` : le départ n'est pas donné.
  */
-export type EtatCourse = 'terminee' | 'departDonne' | 'nonRelevee' | 'aVenir'
+export type EtatCourse = 'definitive' | 'provisoire' | 'departDonne' | 'nonRelevee' | 'aVenir'
 
 export const LIBELLE_ETAT: Record<EtatCourse, string> = {
-  terminee: 'Terminée',
+  definitive: 'Terminée',
+  provisoire: 'Arrivée provisoire',
   departDonne: 'Départ donné',
   nonRelevee: 'Non relevée',
   aVenir: 'À venir',
@@ -47,6 +51,14 @@ export const LIBELLE_ETAT: Record<EtatCourse, string> = {
 export interface PartantPublic {
   numero: number
   nom: string
+  /** Âge et sexe : renseignés à 100 % sur les trente derniers jours. */
+  age: number | null
+  sexe: string | null
+  /**
+   * Poids porté, en kilogrammes. Renseigné sur 43 % des lignes seulement : la
+   * colonne s'affiche quand même, et le vide se dit.
+   */
+  poids: number | null
   /** Place à l'arrivée. `null` tant que l'arrivée n'est pas relevée. */
   arrivee: number | null
   /** Notre rang publié. `null` pour un non-partant. */
@@ -77,11 +89,19 @@ export interface CoursePublique {
   cle: string
   date: string
   hippodrome: string
+  /** Numéro de réunion (`R1`, `R2`…) — `reunion_num`, rempli à 100 %. */
+  reunion: number | null
   numero: number
   nom: string | null
   categorie: string | null
   discipline: Discipline | null
   distance: number | null
+  /** Allocation en euros — `montant_prix`, rempli à 100 %. */
+  allocation: number | null
+  /** État du terrain, tel que la source le libelle. */
+  terrain: string | null
+  /** Statut officiel, s'il nous est parvenu. */
+  statut: StatutOfficiel | null
   /** Chevaux au départ, non-partants retirés. */
   partants: number
   /**
@@ -114,7 +134,11 @@ export function etatCourse(
   course: CoursePublique,
   instant: { jour: string; minutes: number },
 ): EtatCourse {
-  if (course.courue) return 'terminee'
+  // Le statut officiel prime sur tout : c'est le seul à ne rien deviner.
+  if (course.statut === 'ARRIVEE_DEFINITIVE_COMPLETE') return 'definitive'
+  if (course.statut === 'FIN_COURSE') return 'provisoire'
+
+  if (course.courue) return 'definitive'
   if (course.date < instant.jour) return 'nonRelevee'
   if (course.date > instant.jour) return 'aVenir'
 
@@ -123,15 +147,28 @@ export function etatCourse(
   return h * 60 + m <= instant.minutes ? 'departDonne' : 'aVenir'
 }
 
+/** Vrai dès que l'arrivée est publiable, définitive ou non. */
+export const arriveeConnue = (e: EtatCourse) => e === 'definitive' || e === 'provisoire'
+
 /**
- * L'adresse d'une course. Le slug ne sert qu'à la lisibilité : c'est le couple
- * hippodrome + numéro qui identifie, et lui seul est relu.
+ * L'adresse d'une course, au schéma de la maquette : `r{réunion}c{course}`.
+ * Il était tombé à `c{course}` seul quand je croyais le numéro de réunion
+ * absent de la base — il y est, à 100 %.
  */
 export function cheminCourse(course: CoursePublique): string {
   const lieu = slug(course.hippodrome)
   const nom = course.nom ? `-${slug(course.nom)}` : ''
-  return `/resultats/${course.date}/${lieu}/c${course.numero}${nom}`
+  const rang = course.reunion != null ? `r${course.reunion}` : ''
+  return `/resultats/${course.date}/${lieu}/${rang}c${course.numero}${nom}`
 }
+
+/** « R1C3 », ou « C3 » si la réunion manque. */
+export const repereCourse = (c: CoursePublique) =>
+  `${c.reunion != null ? `R${c.reunion}` : ''}C${c.numero}`
+
+/** « 364 000 € » — l'allocation, formatée à la française. */
+export const allocation = (euros: number | null) =>
+  euros == null ? null : `${euros.toLocaleString('fr-FR')} €`
 
 export const cheminJournee = (jour: string) => `/resultats/${jour}`
 
@@ -190,7 +227,8 @@ export function compterJournee(journee: JourneePublique, instant: { jour: string
   const par = (e: EtatCourse) => journee.courses.filter((c) => etatCourse(c, instant) === e).length
   return {
     total: journee.courses.length,
-    terminees: par('terminee'),
+    definitives: par('definitive'),
+    provisoires: par('provisoire'),
     departDonne: par('departDonne'),
     nonRelevees: par('nonRelevee'),
     aVenir: par('aVenir'),

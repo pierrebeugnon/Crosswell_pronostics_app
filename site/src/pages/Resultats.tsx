@@ -64,7 +64,8 @@ const QUESTIONS: Question[] = [
 function Resume({ journee }: { journee: JourneePublique }) {
   const c = compterJournee(journee, MAINTENANT_EXEMPLE)
   const bouts = [
-    c.terminees > 0 ? `${c.terminees} course${c.terminees > 1 ? 's' : ''} terminée${c.terminees > 1 ? 's' : ''}` : null,
+    c.definitives > 0 ? `${c.definitives} course${c.definitives > 1 ? 's' : ''} terminée${c.definitives > 1 ? 's' : ''}` : null,
+    c.provisoires > 0 ? `${c.provisoires} arrivée${c.provisoires > 1 ? 's' : ''} provisoire${c.provisoires > 1 ? 's' : ''}` : null,
     c.departDonne > 0 ? `${c.departDonne} départ${c.departDonne > 1 ? 's' : ''} donné${c.departDonne > 1 ? 's' : ''}` : null,
     c.aVenir > 0 ? `${c.aVenir} à venir` : null,
     c.nonRelevees > 0 ? `${c.nonRelevees} non relevée${c.nonRelevees > 1 ? 's' : ''}` : null,
