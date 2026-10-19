@@ -148,4 +148,24 @@ comment on view public.programme_public is
 grant select on public.resultats_publics to anon, authenticated;
 grant select on public.programme_public  to anon, authenticated;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- ET L'EXÉCUTION DE LA FONCTION, qui ne va pas de soi.
+--
+-- Une vue délègue les droits sur les TABLES qu'elle lit, mais PAS l'`EXECUTE`
+-- sur les FONCTIONS qu'elle appelle : celles-ci sont vérifiées contre
+-- l'appelant. Les deux vues filtrent sur `crosswell_modele_client()`, qu'`anon`
+-- ne pouvait pas exécuter — elles renvoyaient donc « permission denied for
+-- function », pas des données. Trouvé par un essai HTTP réel avec la clé anon,
+-- pas par la lecture des droits : la table des GRANT paraissait correcte.
+--
+-- CE QUE CELA EXPOSE, et il faut le savoir : la fonction devient appelable en
+-- RPC par un visiteur anonyme, qui apprend donc l'étiquette interne du modèle
+-- servi (`M9bis.niveau`). Rien d'exploitable, mais le site, lui, n'affiche
+-- jamais cet identifiant — il parle du « Score Crosswell ». Pour le refermer
+-- un jour, il faudrait que la version servie vienne d'une table plutôt que
+-- d'une fonction : une vue délègue l'accès aux tables, et aucun GRANT ne
+-- serait alors nécessaire.
+-- ────────────────────────────────────────────────────────────────────────────
+grant execute on function public.crosswell_modele_client() to anon;
+
 commit;
