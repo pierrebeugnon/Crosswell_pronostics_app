@@ -1,43 +1,31 @@
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { Calendrier } from '@/components/resultats/Calendrier'
 import { ListeJournee } from '@/components/resultats/LigneCourse'
 import { Accordeon, type Question } from '@/components/ui/Accordeon'
-import { Fictif } from '@/components/ui/Fictif'
 import { NOTE_NON_PARTANTS, RYTHME_PUBLICATION_COURT, URL_CONNEXION, URL_INSCRIPTION } from '@/config/site'
 import { jourLong } from '@/lib/format'
-import { cheminJournee, compterJournee, type JourneePublique } from '@/lib/resultats'
-import { JOUR_EXEMPLE, JOURNEES_EXEMPLE, MAINTENANT_EXEMPLE, journeeExemple } from '@/lib/exemple-resultats'
+import { cheminJournee, compterJournee, instantParis, type JourneePublique } from '@/lib/resultats'
+import { chargerJournee, chargerJourneesDisponibles } from '@/services/resultats'
 import { useTitre } from '@/lib/useTitre'
 
 /**
  * LES RÉSULTATS D'UNE JOURNÉE — `/resultats` et `/resultats/AAAA-MM-JJ`.
  *
- * LOT 1 : la page est montée sur un JEU D'EXEMPLE, et la route est
- * volontairement ABSENTE de la table `PAGES` de `scripts/apres-build.mjs`. Elle
- * n'a donc ni fichier HTML, ni canonique, ni entrée au sitemap, et répond 404
- * en production. On la regarde par `npm run dev`, le temps de valider les
- * écrans ; la source réelle et le rendu serveur viennent ensuite.
+ * Les données viennent des vues publiques `resultats_publics` et
+ * `programme_public` (migrations db/013 et db/014). Le verrou est en base :
+ * une course pas encore jugée n'a aucune probabilité à montrer, parce qu'elle
+ * n'en a aucune dans la vue.
  *
- * La page ne lit JAMAIS l'horloge : l'instant arrive en paramètre. C'est ce qui
- * permettra de la rendre côté serveur sans qu'un rendu et l'autre divergent.
+ * LA ROUTE RESTE ABSENTE DE `PAGES` dans `scripts/apres-build.mjs` : sans
+ * fichier HTML, elle répond 404 en production. On l'ouvrira avec le rendu
+ * serveur — publier aujourd'hui une page dont le HTML servi est vide
+ * reviendrait à offrir à Google des milliers d'adresses sans contenu.
  *
- * Ce qu'on ne reprend pas de la maquette, et pourquoi : le bloc « Transparence »
- * et ses quatre chiffres (inventés, tirés d'un générateur à graine fixe, et
- * présentés sous le mot « Mesuré »), les pastilles « par hippodrome » (elles
- * renvoyaient sur la page elle-même) et les archives mensuelles (le modèle servi
- * n'a qu'une trentaine de journées d'historique). À leur place, un renvoi vers
- * la mesure complète, qui existe et qui est honnête.
+ * L'instant de Paris est lu ICI, une fois, et passé en props : voir
+ * `instantParis`.
  */
 
-/**
- * La FAQ de la maquette, réécrite sur ce que nous savons.
- *
- * Trois de ses quatre réponses promettaient ce que nous ne tenons pas :
- * « déclarée officielle par la société de courses » (aucun statut ne nous
- * parvient), « publié la veille à 20 h » (la publication est du matin même) et
- * un gabarit « [À COMPLÉTER : délai moyen et source] ». Les chiffres et les
- * formulations sont lus dans la configuration, jamais recopiés.
- */
 const QUESTIONS: Question[] = [
   {
     q: 'Quand les résultats paraissent-ils ?',
@@ -55,32 +43,29 @@ const QUESTIONS: Question[] = [
     q: 'Pourquoi certaines cotes sont-elles absentes ?',
     r: 'Les cotes que nous affichons sont des cotes de clôture, relevées après la course : elles n’existent donc pas le jour même, et environ quatre réunions sur dix n’en ont aucune (constat d’août 2026). Notre modèle ne les lit pas — elles servent de point de comparaison, jamais d’entrée de calcul.',
   },
-  {
-    q: 'Comment les non-partants sont-ils traités ?',
-    r: NOTE_NON_PARTANTS,
-  },
+  { q: 'Comment les non-partants sont-ils traités ?', r: NOTE_NON_PARTANTS },
 ]
 
-function Resume({ journee }: { journee: JourneePublique }) {
-  const c = compterJournee(journee, MAINTENANT_EXEMPLE)
+function Resume({ journee, maintenant }: { journee: JourneePublique; maintenant: { jour: string; minutes: number } }) {
+  const c = compterJournee(journee, maintenant)
+  const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`
   const bouts = [
-    c.definitives > 0 ? `${c.definitives} course${c.definitives > 1 ? 's' : ''} terminée${c.definitives > 1 ? 's' : ''}` : null,
-    c.provisoires > 0 ? `${c.provisoires} arrivée${c.provisoires > 1 ? 's' : ''} provisoire${c.provisoires > 1 ? 's' : ''}` : null,
-    c.departDonne > 0 ? `${c.departDonne} départ${c.departDonne > 1 ? 's' : ''} donné${c.departDonne > 1 ? 's' : ''}` : null,
+    c.definitives > 0 ? pluriel(c.definitives, 'course terminée', 'courses terminées') : null,
+    c.provisoires > 0 ? pluriel(c.provisoires, 'arrivée provisoire', 'arrivées provisoires') : null,
+    c.departDonne > 0 ? pluriel(c.departDonne, 'départ donné', 'départs donnés') : null,
     c.aVenir > 0 ? `${c.aVenir} à venir` : null,
-    c.nonRelevees > 0 ? `${c.nonRelevees} non relevée${c.nonRelevees > 1 ? 's' : ''}` : null,
+    c.nonRelevees > 0 ? pluriel(c.nonRelevees, 'non relevée', 'non relevées') : null,
   ].filter(Boolean)
 
   return <p className="text-[0.9375rem] font-medium text-muted">{bouts.join(' · ') || 'Aucune course ce jour-là.'}</p>
 }
 
-/** Le bandeau d'appel, quand il reste des courses dont le pronostic est ouvert. */
 function Bandeau({ nombre }: { nombre: number }) {
   if (nombre === 0) return null
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 rounded-2xl bg-surface border border-line">
       <span className="text-[0.9375rem] font-semibold">
-        {nombre} course{nombre > 1 ? 's' : ''} à venir aujourd’hui
+        {nombre} course{nombre > 1 ? 's' : ''} à venir
       </span>
       <span className="flex gap-2.5 shrink-0">
         <a
@@ -104,21 +89,66 @@ function Bandeau({ nombre }: { nombre: number }) {
 
 export default function Resultats() {
   const { jour } = useParams()
-  const demande = jour ?? JOUR_EXEMPLE
-  const journee = journeeExemple(demande)
+  // Un seul calcul par montage : sans cela, chaque rendu décale les minutes.
+  const maintenant = useMemo(instantParis, [])
 
-  useTitre(journee ? `Résultats du ${jourLong(journee.jour)}` : 'Résultats')
+  const [journees, setJournees] = useState<string[] | null>(null)
+  const [journee, setJournee] = useState<JourneePublique | null>(null)
+  const [erreur, setErreur] = useState<string | null>(null)
 
-  // Une date sans donnée n'est pas une page vide : c'est une page qui n'existe
-  // pas. En production, ce sera un vrai 404 ; ici, on revient au jour servi.
-  if (!journee) return <Navigate to="/resultats" replace />
+  // La journée demandée, ou la plus récente qui ait des résultats.
+  const demande = jour ?? journees?.[0] ?? null
 
-  const aVenir = compterJournee(journee, MAINTENANT_EXEMPLE).aVenir
+  useEffect(() => {
+    let vivant = true
+    chargerJourneesDisponibles()
+      .then((j) => vivant && setJournees(j))
+      .catch(() => vivant && setErreur('Les résultats ne sont pas joignables pour le moment.'))
+    return () => {
+      vivant = false
+    }
+  }, [])
 
-  const precedentes = JOURNEES_EXEMPLE.filter((j) => j.jour < journee.jour).slice(0, 6)
+  useEffect(() => {
+    if (!demande) return
+    let vivant = true
+    setJournee(null)
+    chargerJournee(demande)
+      .then((j) => vivant && setJournee(j))
+      .catch(() => vivant && setErreur('Les résultats ne sont pas joignables pour le moment.'))
+    return () => {
+      vivant = false
+    }
+  }, [demande])
+
+  useTitre(journee ? `Résultats du ${jourLong(journee.jour)}` : 'Résultats des courses')
+
+  const cadre = 'w-full max-w-[75rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7 lg:gap-9'
+
+  if (erreur) {
+    return (
+      <div className={cadre}>
+        <h1 className="text-[1.75rem] font-extrabold tracking-[-0.03em]">Résultats des courses</h1>
+        <p className="text-[0.9375rem] leading-relaxed text-muted">{erreur}</p>
+      </div>
+    )
+  }
+
+  if (!journee) {
+    return (
+      <div className={cadre}>
+        <p className="text-[0.9375rem] text-faint" role="status">
+          Chargement des résultats…
+        </p>
+      </div>
+    )
+  }
+
+  const compte = compterJournee(journee, maintenant)
+  const precedentes = (journees ?? []).filter((j) => j < journee.jour).slice(0, 6)
 
   return (
-    <div className="w-full max-w-[75rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7 lg:gap-9">
+    <div className={cadre}>
       <nav aria-label="Fil d’Ariane" className="text-xs font-medium text-faint">
         <Link to="/" className="hover:text-ink">
           Accueil
@@ -133,23 +163,22 @@ export default function Resultats() {
           <h1 className="text-[1.75rem] lg:text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05] first-letter:uppercase">
             Courses du {jourLong(journee.jour)}
           </h1>
-          {/* Le chapô de la maquette disait « l'arrivée OFFICIELLE » et « ce que
-              notre modèle avait annoncé LA VEILLE » : nous ne recevons aucun
-              statut officiel, et la publication arrive le matin même. */}
           <p className="text-[0.9375rem] lg:text-[1rem] font-medium leading-relaxed text-muted">
             L’arrivée de chaque course de galop, réunion par réunion — et, en face, ce que notre modèle avait annoncé
             le matin même, qu’il ait eu raison ou non.
           </p>
-          <Resume journee={journee} />
+          <Resume journee={journee} maintenant={maintenant} />
         </div>
-        <Calendrier jourCourant={journee.jour} aujourdhui={MAINTENANT_EXEMPLE.jour} />
+        <Calendrier jourCourant={journee.jour} aujourdhui={maintenant.jour} />
       </div>
 
-      <Bandeau nombre={aVenir} />
+      <Bandeau nombre={compte.aVenir} />
 
-      <ListeJournee courses={journee.courses} maintenant={MAINTENANT_EXEMPLE} />
-
-      <Fictif />
+      {journee.courses.length > 0 ? (
+        <ListeJournee courses={journee.courses} maintenant={maintenant} />
+      ) : (
+        <p className="text-[0.9375rem] leading-relaxed text-muted">Aucune course publiée ce jour-là.</p>
+      )}
 
       <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-[1.375rem] py-6 lg:px-10 lg:py-8 rounded-3xl bg-surface border border-line">
         <div className="flex flex-col gap-2 max-w-[38rem]">
@@ -170,20 +199,17 @@ export default function Resultats() {
         </a>
       </section>
 
-      {/* « Journées précédentes » de la maquette. Sa carte « Par hippodrome »
-          n'est pas reprise : ses pastilles renvoyaient sur la page elle-même,
-          et un lien qui revient où l'on est vaut moins qu'un lien absent. */}
       {precedentes.length > 0 && (
         <section className="flex flex-col gap-3">
           <h2 className="text-[1.0625rem] font-bold">Journées précédentes</h2>
           <div className="flex flex-wrap gap-2">
             {precedentes.map((j) => (
               <Link
-                key={j.jour}
-                to={cheminJournee(j.jour)}
+                key={j}
+                to={cheminJournee(j)}
                 className="px-4 h-11 rounded-full bg-surface border border-line flex items-center text-[0.875rem] font-semibold text-soft hover:border-line-hover transition-colors first-letter:uppercase"
               >
-                {jourLong(j.jour)}
+                {jourLong(j)}
               </Link>
             ))}
           </div>

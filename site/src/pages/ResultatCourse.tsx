@@ -1,10 +1,22 @@
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { Categorie } from '@/components/resultats/LigneCourse'
-import { Fictif } from '@/components/ui/Fictif'
 import { URL_INSCRIPTION } from '@/config/site'
 import { distance as formatDistance, hippodrome as formatHippodrome, jourLong, pourcent } from '@/lib/format'
-import { allocation, arriveeConnue, cheminCourse, cheminJournee, etatCourse, favoriDe, repereCourse, type CoursePublique } from '@/lib/resultats'
-import { MAINTENANT_EXEMPLE, courseExemple, journeeExemple } from '@/lib/exemple-resultats'
+import {
+  allocation,
+  arriveeConnue,
+  cheminCourse,
+  cheminJournee,
+  etatCourse,
+  favoriDe,
+  instantParis,
+  repereCourse,
+  slug,
+  type CoursePublique,
+  type JourneePublique,
+} from '@/lib/resultats'
+import { chargerJournee } from '@/services/resultats'
 import { useTitre } from '@/lib/useTitre'
 
 /**
@@ -56,10 +68,10 @@ function Arrivee({ course }: { course: CoursePublique }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0">
-        <table className="w-full min-w-[42rem] border-collapse text-[0.9375rem]">
+        <table className="w-full min-w-[26rem] border-collapse text-[0.9375rem]">
           <thead>
             <tr className="border-b border-line-strong">
-              {['Place', 'N°', 'Cheval', 'Âge · sexe', 'Poids', 'Cote'].map((e) => (
+              {['Place', 'N°', 'Cheval', 'Cote'].map((e) => (
                 <th
                   key={e}
                   className="text-left font-bold py-2.5 pr-4 text-[0.75rem] uppercase tracking-[0.08em] text-faint"
@@ -77,15 +89,6 @@ function Arrivee({ course }: { course: CoursePublique }) {
                 </td>
                 <td className="num py-3 pr-4 font-semibold text-soft">{p.numero}</td>
                 <td className="py-3 pr-4 font-semibold text-ink">{p.nom}</td>
-                {/* Âge et sexe sont renseignés à 100 % sur les trente derniers
-                    jours ; le poids seulement sur 43 %, d'où la case vide qui
-                    se dit au lieu d'un tiret muet. */}
-                <td className="num py-3 pr-4 text-soft">
-                  {[p.age ? `${p.age} ans` : null, p.sexe].filter(Boolean).join(' · ') || '—'}
-                </td>
-                <td className="num py-3 pr-4 text-soft">
-                  {p.poids != null ? `${String(p.poids).replace('.', ',')} kg` : <span className="text-dim">non relevé</span>}
-                </td>
                 {/* Une cote absente le jour même se dit, elle ne devient pas un
                     tiret muet : 0 ligne sur 132 le jour courant, 209 sur 210 la
                     veille (relevé du 10/10/2026). */}
@@ -152,25 +155,87 @@ export default function ResultatCourse() {
   // `r1c3-prix-du-bocage` → 3. Le `r{n}` est toléré et ignoré : c'est le
   // couple hippodrome + numéro de course qui identifie, le reste est lisible.
   const numero = Number((segment ?? '').match(/^(?:r\d+)?c(\d+)/)?.[1] ?? NaN)
-  const course = jour && lieu && Number.isFinite(numero) ? courseExemple(jour, lieu, numero) : undefined
+  const maintenant = useMemo(instantParis, [])
+
+  const [journee, setJournee] = useState<JourneePublique | null>(null)
+  const [erreur, setErreur] = useState(false)
+
+  // On charge LA JOURNÉE, pas la seule course : l'adresse porte un slug
+  // d'hippodrome (`la-roche-posay`) alors que la base garde la graphie source
+  // (`LA-ROCHE-POSAY`). Replier la journée évite d'inventer une table de
+  // correspondance — et donne les autres courses de la réunion sans requête
+  // supplémentaire.
+  useEffect(() => {
+    if (!jour) return
+    let vivant = true
+    chargerJournee(jour)
+      .then((j) => vivant && setJournee(j))
+      .catch(() => vivant && setErreur(true))
+    return () => {
+      vivant = false
+    }
+  }, [jour])
+
+  const course = journee?.courses.find((c) => c.numero === numero && slug(c.hippodrome) === lieu)
 
   useTitre(
     course
-      ? `Arrivée du ${course.nom ?? `C${course.numero}`} — ${formatHippodrome(course.hippodrome)}`
-      : 'Course introuvable',
+      ? `Arrivée du ${course.nom ?? repereCourse(course)} — ${formatHippodrome(course.hippodrome)}`
+      : 'Résultat d’une course',
   )
 
-  if (!course) return <Navigate to="/resultats" replace />
+  const cadre = 'w-full max-w-[60rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7'
 
-  const etat = etatCourse(course, MAINTENANT_EXEMPLE)
+  if (erreur) {
+    return (
+      <div className={cadre}>
+        <p className="text-[0.9375rem] leading-relaxed text-muted">
+          Cette arrivée n’est pas joignable pour le moment.{' '}
+          <Link to="/resultats" className="text-accent">
+            Revenir aux résultats
+          </Link>
+          .
+        </p>
+      </div>
+    )
+  }
+
+  if (!journee) {
+    return (
+      <div className={cadre}>
+        <p className="text-[0.9375rem] text-faint" role="status">
+          Chargement de l’arrivée…
+        </p>
+      </div>
+    )
+  }
+
+  // Une adresse qui ne désigne aucune course jugée n'est pas une page vide :
+  // c'est une page qui n'existe pas. En production, le rendu serveur devra
+  // répondre un vrai 404 ici.
+  if (!course) {
+    return (
+      <div className={cadre}>
+        <h1 className="text-[1.75rem] font-extrabold tracking-[-0.03em]">Cette course n’a pas de résultat</h1>
+        <p className="text-[0.9375rem] leading-relaxed text-muted">
+          Elle n’a pas encore été courue, ou son arrivée ne nous est pas parvenue.{' '}
+          <Link to={cheminJournee(jour ?? '')} className="text-accent">
+            Voir la journée
+          </Link>
+          .
+        </p>
+      </div>
+    )
+  }
+
+  const etat = etatCourse(course, maintenant)
   const favori = favoriDe(course)
-  const journee = journeeExemple(course.date)
-  const autres = (journee?.courses ?? []).filter(
+  const autres = journee.courses.filter(
     (c) => c.hippodrome === course.hippodrome && c.cle !== course.cle,
   )
 
   return (
-    <div className="w-full max-w-[60rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7">
+    <div className={cadre}>
       <nav aria-label="Fil d’Ariane" className="text-xs font-medium text-faint">
         <Link to="/resultats" className="hover:text-ink">
           Résultats
@@ -202,16 +267,25 @@ export default function ResultatCourse() {
         </p>
       </div>
 
+      {/* ON N'AFFICHE QUE CE QU'ON A. La maquette dessine huit cases, dont
+          allocation, discipline et terrain : aucune de ces trois n'est servie
+          par les vues publiques, et l'en-tête de course de l'application ne les
+          montre pas davantage. Quatre cases vides sur huit valent moins que
+          quatre cases pleines — chacune se rend donc seulement si elle a une
+          valeur, et la grille se referme sur ce qui reste. */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-        <Case libelle="Catégorie" valeur={course.categorie ?? 'non précisée'} />
-        <Case libelle="Allocation" valeur={allocation(course.allocation) ?? '—'} />
-        <Case libelle="Discipline" valeur={course.discipline ?? '—'} />
-        <Case libelle="Distance" valeur={formatDistance(course.distance)} />
+        {course.categorie && <Case libelle="Catégorie" valeur={course.categorie} />}
+        {course.allocation != null && <Case libelle="Allocation" valeur={allocation(course.allocation)!} />}
+        {course.discipline && <Case libelle="Discipline" valeur={course.discipline} />}
+        {course.distance != null && <Case libelle="Distance" valeur={formatDistance(course.distance)} />}
         <Case libelle="Partants" valeur={String(course.partants)} />
-        <Case libelle="Terrain" valeur={course.terrain ?? 'non relevé'} />
-        <Case libelle="Départ" valeur={course.heureDepart ?? '—'} />
-        {/* Un statut de non-partants pas encore vérifié n'est pas « 0 ». */}
-        <Case libelle="Non-partants" valeur={course.nonPartants === null ? 'non vérifié' : String(course.nonPartants)} />
+        {course.terrain && <Case libelle="Terrain" valeur={course.terrain} />}
+        {course.heureDepart && <Case libelle="Départ" valeur={course.heureDepart} />}
+        {/* Un statut de non-partants pas encore vérifié n'est pas « 0 » — mais
+            ici la vue les compte vraiment, donc zéro veut dire zéro. */}
+        {course.nonPartants !== null && course.nonPartants > 0 && (
+          <Case libelle="Non-partants" valeur={String(course.nonPartants)} />
+        )}
       </div>
 
       <section className="flex flex-col gap-4">
@@ -264,7 +338,6 @@ export default function ResultatCourse() {
         </section>
       )}
 
-      <Fictif />
 
       {autres.length > 0 && (
         <section className="flex flex-col gap-3">

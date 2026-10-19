@@ -151,6 +151,32 @@ export function etatCourse(
 export const arriveeConnue = (e: EtatCourse) => e === 'definitive' || e === 'provisoire'
 
 /**
+ * L'INSTANT À PARIS — jour civil et minutes depuis minuit.
+ *
+ * Lu À UN SEUL ENDROIT, par la page, qui le passe ensuite en props. Les
+ * composants ne touchent jamais l'horloge : un rendu serveur et un rendu
+ * navigateur doivent conclure la même chose, et une lecture cachée au fond
+ * d'un composant rend ce genre d'écart introuvable.
+ *
+ * L'heure de Paris, pas celle de la machine : une course « à venir » ne peut
+ * pas devenir « partie » parce que le visiteur est à Montréal.
+ */
+export function instantParis(): { jour: string; minutes: number } {
+  const maintenant = new Date()
+  const jour = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(maintenant)
+  const [h, m] = new Intl.DateTimeFormat('fr-FR', {
+    timeZone: 'Europe/Paris',
+    hour: 'numeric',
+    minute: 'numeric',
+    hourCycle: 'h23',
+  })
+    .format(maintenant)
+    .split(':')
+    .map(Number)
+  return { jour, minutes: h * 60 + m }
+}
+
+/**
  * L'adresse d'une course, au schéma de la maquette : `r{réunion}c{course}`.
  * Il était tombé à `c{course}` seul quand je croyais le numéro de réunion
  * absent de la base — il y est, à 100 %.
