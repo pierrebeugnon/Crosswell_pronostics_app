@@ -106,20 +106,31 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Le client Stripe du compte, créé une fois et gardé. La clé d'idempotence
-    // est stable par compte : deux appels simultanés ne créent qu'un client.
-    let client = abonnement?.stripe_customer_id ?? null
-    if (!client) {
-      const c = await stripe.customers.create(
-        { email: moi.email, metadata: { user_id: moi.id } },
-        { idempotencyKey: `client-${moi.id}` },
-      )
-      client = c.id
-      const { error } = await admin
-        .from('abonnements')
-        .upsert({ user_id: moi.id, stripe_customer_id: client, mis_a_jour_le: new Date().toISOString() }, { onConflict: 'user_id' })
-      if (error) throw error
-    }
+    /*
+     * LE CLIENT STRIPE NAÎT AU PAIEMENT, PAS À L'OUVERTURE DE LA CAISSE.
+     *
+     * Décision du fondateur, 26/10/2026. On créait le client ici, avant même
+     * d'afficher la page de paiement : tout visiteur qui ouvrait la caisse puis
+     * la refermait apparaissait dans la liste des clients Stripe, et dans
+     * `abonnements` avec une formule « gratuit » — un compte du 15/10 y a été
+     * pris pour un abonné. Désormais, pour un premier achat, Checkout crée lui-même
+     * le client À LA FIN DU PAIEMENT (`customer_email` + `customer_creation`), et
+     * le webhook l'enregistre (`decisionAbonnement`, `decisionPassJour`).
+     *
+     * Un client déjà connu (il a payé une fois) reste passé tel quel, avec
+     * `customer_update` : c'est sur SON adresse que se calcule la TVA des
+     * renouvellements. Pour un nouveau client, Checkout pose l'adresse saisie sur
+     * le client qu'il crée : rien n'est perdu.
+     */
+    const client = abonnement?.stripe_customer_id ?? null
+    const acheteur = client
+      ? { customer: client, customer_update: { address: 'auto' as const, name: 'auto' as const } }
+      : {
+          customer_email: moi.email,
+          // En mode `subscription`, Checkout crée toujours le client (le
+          // paramètre y est refusé) ; en `payment`, il faut le demander.
+          ...(formule === 'jour' ? { customer_creation: 'always' as const } : {}),
+        }
 
     const metadata = { user_id: moi.id, formule }
     const retour = `${corps.retour}${corps.retour.includes('?') ? '&' : '?'}session_id={CHECKOUT_SESSION_ID}`
@@ -132,7 +143,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create(
       {
         mode: formule === 'jour' ? 'payment' : 'subscription',
-        customer: client,
+        ...acheteur,
         client_reference_id: moi.id,
         line_items: [{ price: prixStripe(formule), quantity: 1 }],
         success_url: retour,
@@ -155,19 +166,16 @@ Deno.serve(async (req) => {
          */
         automatic_tax: { enabled: true },
         /*
-         * SANS CECI, L'ADRESSE SAISIE À LA CAISSE EST JETÉE. Le client Stripe
-         * est créé avec l'e-mail seul ; Checkout demande le pays (et le code
-         * postal avec la carte), ce qui suffit à déterminer le taux dans l'UE,
-         * mais ne l'écrit sur le client que si on l'y autorise. Or les factures
-         * de renouvellement se calculent sur l'adresse DU CLIENT : sans elle,
-         * le deuxième mois partirait sans TVA. `name` suit la même logique :
-         * une facture porte le nom de l'acheteur.
+         * L'ADRESSE SAISIE À LA CAISSE DOIT FINIR SUR LE CLIENT : les factures
+         * de renouvellement se calculent sur l'adresse DU CLIENT, sans elle le
+         * deuxième mois partirait sans TVA. Pour un client déjà connu,
+         * `customer_update` (dans `acheteur`, plus haut) l'y autorise ; pour un
+         * premier achat, Checkout crée le client avec l'adresse saisie.
          *
          * Pas de `billing_address_collection: 'required'` : avec le calcul
          * automatique, Checkout demande déjà ce qu'il lui faut, et la TVA se
          * décide au pays. Trois champs de plus n'y changeraient rien.
          */
-        customer_update: { address: 'auto', name: 'auto' },
         // Environ une heure, au lieu des vingt-quatre par défaut. Une page de
         // paiement laissée ouverte reste payable : un client pouvait ouvrir un
         // Pass 1 jour, souscrire un abonnement, puis revenir payer l'ancienne
