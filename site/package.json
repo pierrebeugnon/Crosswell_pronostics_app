@@ -6,7 +6,7 @@
   "description": "Crosswell — site vitrine de la plateforme de pronostics hippiques. Statique, sans base ni compte : il présente le service et renvoie vers l'application.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/apres-build.mjs",
+    "build": "tsc --noEmit && vite build && vite build --ssr src/entree-serveur.tsx --outDir dist-serveur && node scripts/apres-build.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

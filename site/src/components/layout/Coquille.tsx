@@ -35,7 +35,11 @@ export function Coquille() {
         <Outlet />
       </main>
       <PiedDePage />
-      <ScrollRestoration />
+      {/* ScrollRestoration exige un routeur DE DONNÉES : sous le StaticRouter
+          du rendu serveur, il lève « must be used within a data router » et
+          fait échouer toute la page. Il n’a de toute façon rien à restaurer
+          hors navigateur. */}
+      {typeof window !== 'undefined' && <ScrollRestoration />}
     </div>
   )
 }

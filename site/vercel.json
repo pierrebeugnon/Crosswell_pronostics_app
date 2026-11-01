@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "trailingSlash": false,
   "redirects": [
+    { "source": "/fr", "destination": "https://crosswell.io/", "permanent": true },
+    { "source": "/fr/:chemin*", "destination": "https://crosswell.io/", "permanent": true },
+    { "source": "/en", "destination": "https://crosswell.io/", "permanent": true },
+    { "source": "/en/:chemin*", "destination": "https://crosswell.io/", "permanent": true },
     {
       "source": "/",
       "has": [{ "type": "host", "value": "www.crosswell.io" }],
@@ -13,11 +17,12 @@
       "has": [{ "type": "host", "value": "www.crosswell.io" }],
       "destination": "https://crosswell.io/:chemin*",
       "permanent": true
-    },
-    { "source": "/fr", "destination": "/", "permanent": true },
-    { "source": "/fr/:chemin*", "destination": "/", "permanent": true },
-    { "source": "/en", "destination": "/", "permanent": true },
-    { "source": "/en/:chemin*", "destination": "/", "permanent": true }
+    }
+  ],
+  "rewrites": [
+    { "source": "/sitemap-resultats.xml", "destination": "/api/sitemap-resultats" },
+    { "source": "/resultats", "destination": "/api/resultats?chemin=/resultats" },
+    { "source": "/resultats/:chemin*", "destination": "/api/resultats?chemin=/resultats/:chemin*" }
   ],
   "headers": [
     {
@@ -31,6 +36,10 @@
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": ".*\\.vercel\\.app" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/api/(.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]

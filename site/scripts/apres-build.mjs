@@ -23,7 +23,7 @@
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ICI = dirname(fileURLToPath(import.meta.url))
 
@@ -35,21 +35,38 @@ const ICI = dirname(fileURLToPath(import.meta.url))
  */
 const ARTICLES = JSON.parse(await readFile(join(ICI, '..', 'src', 'contenu', 'articles.json'), 'utf8'))
 const DIST = join(ICI, '..', 'dist')
+const DIST_SERVEUR = join(ICI, '..', 'dist-serveur')
+
+/**
+ * LA TÊTE DE LA RUBRIQUE RÉSULTATS, lue dans le bundle de rendu serveur.
+ *
+ * Ce script tourne APRÈS `vite build --ssr` (voir `npm run build`), donc
+ * `dist-serveur/entree-serveur.js` existe déjà. L'importer plutôt que recopier
+ * son titre, c'est la même règle que pour les articles juste au-dessus : la
+ * fonction `api/resultats` sert cette tête sur `/resultats`, et deux copies
+ * d'un même titre finissent toujours par diverger.
+ */
+const { rendre, teteRubrique } = await import(
+  pathToFileURL(join(DIST_SERVEUR, 'entree-serveur.js')).href
+)
+const RUBRIQUE = teteRubrique()
 
 /**
  * L'ORIGINE CANONIQUE. C'est la seule valeur à changer le jour où le domaine
  * définitif est tranché — `robots.txt`, `sitemap.xml` et tous les `canonical`
  * en découlent.
  *
- * Par défaut : l'URL Vercel actuelle. Ce n'est PAS un domaine de production
- * souhaitable (voir la note « Déploiement » du projet) ; tant qu'elle est en
- * place, `vercel.json` pose un `X-Robots-Tag: noindex` sur cet hôte pour que le
- * site inachevé n'entre pas dans l'index sous une adresse qu'il faudra quitter.
+ * Par défaut : `crosswell.io`, le domaine de production depuis le 03/10/2026.
+ * Le défaut était l'URL Vercel du projet, du temps où le domaine n'était pas
+ * tranché : laissé en place, il faisait écrire des `canonical` en `.vercel.app`
+ * sur les pages servies par le vrai domaine — le doublon exact que la balise
+ * est censée empêcher. `vercel.json` garde son `X-Robots-Tag: noindex` sur
+ * `*.vercel.app`, qui protège les déploiements de prévisualisation.
+ *
+ * MÊME VALEUR DANS `api/resultats.ts`, qui pose les canoniques des pages de
+ * résultats : les deux lisent `VITE_URL_SITE` et retombent sur le même défaut.
  */
-const ORIGINE = (process.env.VITE_URL_SITE ?? 'https://crosswell-pronostics-site.vercel.app').replace(
-  /\/+$/,
-  '',
-)
+const ORIGINE = (process.env.VITE_URL_SITE ?? 'https://crosswell.io').replace(/\/+$/, '')
 
 const SUFFIXE = 'Crosswell Pronostics'
 
@@ -95,6 +112,29 @@ const PAGES = [
     description:
       'Les données que nous conservons, celles que nous ne collectons pas, et comment exercer vos droits.',
     priorite: '0.3',
+  },
+  // `/resultats` N'A PAS DE FICHIER, et c'est la condition pour qu'il marche.
+  // Chez Vercel, une réécriture n'est examinée QU'APRÈS le système de fichiers :
+  // si `dist/resultats/index.html` existait, il serait servi — coquille vide —
+  // et la fonction `api/resultats` ne serait jamais appelée. Cette entrée ne
+  // sert donc qu'à deux choses : fabriquer l'enveloppe que la fonction
+  // remplit (`dist-serveur/coquille.js`), et déclarer l'adresse au sitemap.
+  //
+  // Le titre et la description sont ceux de la RUBRIQUE, et ils sont LUS DANS
+  // LE BUNDLE (`teteRubrique`, plus haut) : la fonction `api/resultats` sert la
+  // même tête sur `/resultats`, et deux copies d'un même titre finissent
+  // toujours par diverger.
+  {
+    chemin: '/resultats',
+    titre: RUBRIQUE.titre,
+    description: RUBRIQUE.description,
+    priorite: '0.9',
+    sansFichier: true,
+    // AU SITEMAP depuis le 26/10/2026, en même temps que `INDEXABLE` est passé
+    // à `true` dans `api/resultats.ts`. Les deux vont ensemble : déclarer au
+    // moteur une adresse qu'on lui demande par ailleurs d'ignorer est un signal
+    // contradictoire. Les adresses datées et les pages de course changent chaque
+    // jour : elles sont dans `/sitemap-resultats.xml`, servi par une fonction.
   },
   {
     chemin: '/blog',
@@ -298,17 +338,60 @@ function pageHtml(gabarit, { chemin, titre, description, article, canonique }, {
   return html
 }
 
-function sitemap() {
+/**
+ * LE CORPS DE LA PAGE, DANS LE HTML SERVI.
+ *
+ * Sans lui, un robot qui n'exécute pas le JavaScript lit une page vide, et Google
+ * diffère un rendu qu'il sautera parfois sur un domaine jeune. `src/main.tsx`
+ * reprend ce balisage avec `hydrateRoot`.
+ *
+ * APPLIQUÉ AUX SEULS FICHIERS DE `PAGES`. La coquille de `api/resultats` et le
+ * 404 gardent `#root` vide : la première y verse son propre corps, et le second
+ * sert aussi des adresses de résultats, qu'un corps « introuvable » contredirait
+ * une fois hydraté.
+ */
+function avecCorps(html, page) {
+  const { corps } = rendre(page.chemin, {})
+  // Un article absent de `CORPS` (`src/contenu/articles.ts`) rendrait la page
+  // introuvable sous un titre valable : mieux vaut un échec de build.
+  if (!corps.includes('<h1') || (page.article && !corps.includes(page.article.titre))) {
+    throw new Error(`apres-build : le rendu de ${page.chemin} ne contient pas son titre.`)
+  }
+  const rempli = html.replace(
+    /<div id="root"([^>]*)><\/div>/,
+    (_, attributs) => `<div id="root"${attributs}>${corps}</div>`,
+  )
+  if (rempli === html) throw new Error(`apres-build : #root est introuvable pour ${page.chemin}.`)
+  return rempli
+}
+
+function sitemapPages() {
   const entrees = PAGES.filter((p) => !p.horsSitemap)
-    .map(({ chemin, priorite }) => {
+    .map(({ chemin, priorite, article }) => {
       const url = chemin === '/' ? `${ORIGINE}/` : `${ORIGINE}${chemin}`
-      return `  <url>\n    <loc>${echappe(url)}</loc>\n    <priority>${priorite}</priority>\n  </url>`
+      // `lastmod` pour les seuls articles, dont la date est écrite dans
+      // `articles.json` et reprise par `dateModified`. Ailleurs, ce serait une
+      // date de build, qui change à chaque déploiement sans que le contenu bouge :
+      // un signal faux. Mieux vaut ne rien déclarer.
+      const modifie = article ? `\n    <lastmod>${article.date}</lastmod>` : ''
+      return `  <url>\n    <loc>${echappe(url)}</loc>${modifie}\n    <priority>${priorite}</priority>\n  </url>`
     })
     .join('\n')
 
-  // Pas de `lastmod` : une date de build, qui change à chaque déploiement sans
-  // que le contenu bouge, est un signal faux. Mieux vaut ne rien déclarer.
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entrees}\n</urlset>\n`
+}
+
+/**
+ * `/sitemap.xml` EST UN INDEX, parce que deux listes vivent à deux rythmes : les
+ * pages écrites au build, et les résultats servis par `api/sitemap-resultats`.
+ * L'adresse ne change pas : c'est celle déclarée à la Search Console.
+ */
+function indexSitemaps() {
+  const entrees = ['sitemap-pages.xml', 'sitemap-resultats.xml']
+    .map((f) => `  <sitemap>\n    <loc>${ORIGINE}/${f}</loc>\n  </sitemap>`)
+    .join('\n')
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entrees}\n</sitemapindex>\n`
 }
 
 function robots() {
@@ -328,7 +411,16 @@ const gabarit = await readFile(join(DIST, 'index.html'), 'utf8')
 
 // Garde-fous : si le gabarit change de forme, on veut un échec bruyant au build
 // plutôt qu'un site déployé avec des balises restées à leur valeur d'accueil.
-for (const marqueur of ['<title>', 'name="description"', 'property="og:title"', 'property="og:type"', '</head>']) {
+for (const marqueur of [
+  '<title>',
+  'name="description"',
+  'property="og:title"',
+  'property="og:type"',
+  '</head>',
+  // La fonction `api/resultats` verse le corps rendu dans ce conteneur : sans
+  // lui, elle servirait une page sans contenu. Mieux vaut échouer ici.
+  'id="root"',
+]) {
   if (!gabarit.includes(marqueur)) {
     throw new Error(
       `apres-build : « ${marqueur} » est introuvable dans dist/index.html. ` +
@@ -338,7 +430,8 @@ for (const marqueur of ['<title>', 'name="description"', 'property="og:title"', 
 }
 
 for (const page of PAGES) {
-  const html = pageHtml(gabarit, page)
+  if (page.sansFichier) continue
+  const html = avecCorps(pageHtml(gabarit, page), page)
   const cible = page.chemin === '/' ? join(DIST, 'index.html') : join(DIST, page.chemin, 'index.html')
   await mkdir(dirname(cible), { recursive: true })
   await writeFile(cible, html, 'utf8')
@@ -361,9 +454,47 @@ await writeFile(
   'utf8',
 )
 
-await writeFile(join(DIST, 'sitemap.xml'), sitemap(), 'utf8')
+await writeFile(join(DIST, 'sitemap.xml'), indexSitemaps(), 'utf8')
+await writeFile(join(DIST, 'sitemap-pages.xml'), sitemapPages(), 'utf8')
 await writeFile(join(DIST, 'robots.txt'), robots(), 'utf8')
 
+/**
+ * LES DEUX ENVELOPPES DE LA FONCTION `api/resultats`.
+ *
+ * Elle a besoin du HTML construit — celui qui porte les URL hachées du bundle.
+ * Il est écrit ici en MODULES JAVASCRIPT plutôt que lu en HTML à l'exécution :
+ * une fonction Vercel ne reçoit pas la sortie statique dans son système de
+ * fichiers, alors qu'un `import` est suivi par l'empaqueteur et embarqué sans
+ * réglage. C'est aussi un échec au build, et non en production, si le fichier
+ * manque.
+ */
+/**
+ * `JSON.stringify` donne un littéral JavaScript valide, à deux caractères
+ * près : U+2028 et U+2029 terminent une ligne en JavaScript et ne sont pas
+ * échappés par JSON. Laissés tels quels, ils couperaient le module en deux.
+ */
+const moduleTexte = (nom, texte) =>
+  `// Écrit par scripts/apres-build.mjs — ne pas modifier à la main.\n` +
+  `export const ${nom} = ${JSON.stringify(texte)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')}\n`
+
+const rubrique = PAGES.find((p) => p.chemin === '/resultats')
+if (!rubrique) throw new Error('apres-build : l’entrée /resultats a disparu de PAGES.')
+
+await writeFile(
+  join(DIST_SERVEUR, 'coquille.js'),
+  moduleTexte('COQUILLE', pageHtml(gabarit, rubrique)),
+  'utf8',
+)
+await writeFile(
+  join(DIST_SERVEUR, 'introuvable.js'),
+  moduleTexte('INTROUVABLE', await readFile(join(DIST, '404.html'), 'utf8')),
+  'utf8',
+)
+
+const fichiers = PAGES.filter((p) => !p.sansFichier).length
 console.log(
-  `après-build : ${PAGES.length} pages, 404.html, sitemap.xml et robots.txt écrits (origine ${ORIGINE})`,
+  `après-build : ${fichiers} pages rendues, 404.html, sitemap.xml, sitemap-pages.xml, robots.txt, ` +
+    `et les enveloppes dist-serveur/{coquille,introuvable}.js (origine ${ORIGINE})`,
 )

@@ -32,7 +32,7 @@ const TOUS = 'Tous les articles' as const
 function Meta({ a }: { a: Article }) {
   return (
     <span className="num text-xs font-medium text-faint">
-      {new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} ·{' '}
+      {new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })} ·{' '}
       {a.minutes} min de lecture
     </span>
   )

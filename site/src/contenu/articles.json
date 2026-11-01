@@ -1,5 +1,44 @@
 [
   {
+    "slug": "calendrier-grandes-courses-galop-france",
+    "rubrique": "Analyses",
+    "titre": "Le calendrier des grandes courses de galop en France",
+    "chapo": "La saison 2026 des Groupe s’est refermée le 25 octobre à Saint-Cloud. Voici les cent dix courses de Groupe du plat courues en France cette année et les quatorze d’obstacle — la date, l’hippodrome, la distance et les chevaux admis.",
+    "date": "2026-10-26",
+    "minutes": 8,
+    "couverture": {
+      "fichier": "/media/course-bande.jpg",
+      "cadrage": "55% 45%",
+      "alt": "Deux chevaux et leurs jockeys lancés à pleine vitesse, saisis en filé dans des tons sépia, la piste et la lice réduites à des traînées."
+    },
+    "seo": {
+      "titre": "Calendrier des grandes courses de galop en France",
+      "description": "Les 110 courses de Groupe du plat courues en France en 2026 : mois, hippodrome, distance et conditions. Les 28 Groupe I, du Prix Ganay au Prix Royal-Oak."
+    },
+    "sections": [
+      {
+        "id": "le-classement",
+        "titre": "Lire le classement"
+      },
+      {
+        "id": "le-calendrier",
+        "titre": "Le calendrier, mois par mois"
+      },
+      {
+        "id": "les-lieux",
+        "titre": "Où elles se courent"
+      },
+      {
+        "id": "ce-que-nous-en-avons-lu",
+        "titre": "Ce que nous en avons lu"
+      },
+      {
+        "id": "commencer",
+        "titre": "Suivre la prochaine saison"
+      }
+    ]
+  },
+  {
     "slug": "probabilite-victoire-cheval-analyser-course-hippique",
     "rubrique": "Méthode",
     "titre": "Comment estimer la probabilité de victoire d’un cheval",
@@ -16,21 +55,45 @@
       "description": "Qui le cheval a-t-il battu, dans quelle forme, sur quelle distance ? Analyser une course hippique en connaisseur pour estimer la probabilité de victoire."
     },
     "sections": [
-      { "id": "le-regard-du-connaisseur", "titre": "Analyser une course hippique" },
-      { "id": "sept-questions", "titre": "Sept questions, posées à chaque partant" },
-      { "id": "ceux-qu-il-a-battus", "titre": "La valeur d’un cheval" },
-      { "id": "la-course-du-jour", "titre": "Le cheval, et la course du jour" },
-      { "id": "probabilite-de-victoire", "titre": "De la lecture à la probabilité" },
-      { "id": "sans-la-cote", "titre": "Ce que la méthode laisse dehors" },
-      { "id": "la-meme-lecture", "titre": "La même lecture pour tous" },
-      { "id": "commencer", "titre": "Voir la méthode à l’œuvre" }
+      {
+        "id": "le-regard-du-connaisseur",
+        "titre": "Analyser une course hippique"
+      },
+      {
+        "id": "sept-questions",
+        "titre": "Sept questions, posées à chaque partant"
+      },
+      {
+        "id": "ceux-qu-il-a-battus",
+        "titre": "La valeur d’un cheval"
+      },
+      {
+        "id": "la-course-du-jour",
+        "titre": "Le cheval, et la course du jour"
+      },
+      {
+        "id": "probabilite-de-victoire",
+        "titre": "De la lecture à la probabilité"
+      },
+      {
+        "id": "sans-la-cote",
+        "titre": "Ce que la méthode laisse dehors"
+      },
+      {
+        "id": "la-meme-lecture",
+        "titre": "La même lecture pour tous"
+      },
+      {
+        "id": "commencer",
+        "titre": "Voir la méthode à l’œuvre"
+      }
     ]
   },
   {
     "slug": "verifier-taux-reussite-pronostic-hippique",
     "rubrique": "Produit",
     "titre": "Comment vérifier le taux de réussite d’un pronostic hippique",
-    "chapo": "Un pourcentage sans effectif, sans point de comparaison et sans date ne prouve rien. Les quatre questions à poser à n’importe quel taux de réussite, et les réponses que nous publions en accès libre.",
+    "chapo": "Un pourcentage sans effectif, sans point de comparaison et sans date ne prouve rien. Les quatre questions à poser à n’importe quel taux de réussite, et où lire nos réponses, dès la formule gratuite.",
     "date": "2026-10-10",
     "minutes": 6,
     "couverture": {
@@ -39,15 +102,33 @@
     },
     "seo": {
       "titre": "Taux de réussite d’un pronostic hippique : le vérifier",
-      "description": "Effectif, point de comparaison, calibration, période : les quatre questions à poser à un taux de réussite, et où lire nos réponses en accès libre."
+      "description": "Effectif, point de comparaison, calibration, période : les quatre questions à poser à un taux de réussite, et où lire nos réponses dès la formule gratuite."
     },
     "sections": [
-      { "id": "effectif", "titre": "Un taux sans effectif ne veut rien dire" },
-      { "id": "au-hasard", "titre": "Comparé à quoi ? Au hasard, d’abord" },
-      { "id": "calibration", "titre": "La calibration" },
-      { "id": "la-fenetre", "titre": "Qui choisit la fenêtre ?" },
-      { "id": "quand-la-methode-change", "titre": "Quand la méthode change" },
-      { "id": "nos-resultats", "titre": "Nos résultats, et comment les lire" }
+      {
+        "id": "effectif",
+        "titre": "Un taux sans effectif ne veut rien dire"
+      },
+      {
+        "id": "au-hasard",
+        "titre": "Comparé à quoi ? Au hasard, d’abord"
+      },
+      {
+        "id": "calibration",
+        "titre": "La calibration"
+      },
+      {
+        "id": "la-fenetre",
+        "titre": "Qui choisit la fenêtre ?"
+      },
+      {
+        "id": "quand-la-methode-change",
+        "titre": "Quand la méthode change"
+      },
+      {
+        "id": "nos-resultats",
+        "titre": "Nos résultats, et comment les lire"
+      }
     ]
   },
   {
@@ -68,12 +149,30 @@
       "description": "Daryz en tête de notre arrivée prédite, publiée le matin de l’Arc 2026 sans lire une cote : ce que le modèle a mesuré, et ce que la course a confirmé."
     },
     "sections": [
-      { "id": "daryz", "titre": "Un cheval chez lui à Longchamp" },
-      { "id": "le-matin", "titre": "Le matin de l’Arc" },
-      { "id": "notre-logique", "titre": "Ce que notre classement regarde" },
-      { "id": "l-arrivee", "titre": "L’arrivée" },
-      { "id": "sans-le-marche", "titre": "Deux lectures indépendantes" },
-      { "id": "chaque-matin", "titre": "Chaque matin, la même exigence" }
+      {
+        "id": "daryz",
+        "titre": "Un cheval chez lui à Longchamp"
+      },
+      {
+        "id": "le-matin",
+        "titre": "Le matin de l’Arc"
+      },
+      {
+        "id": "notre-logique",
+        "titre": "Ce que notre classement regarde"
+      },
+      {
+        "id": "l-arrivee",
+        "titre": "L’arrivée"
+      },
+      {
+        "id": "sans-le-marche",
+        "titre": "Deux lectures indépendantes"
+      },
+      {
+        "id": "chaque-matin",
+        "titre": "Chaque matin, la même exigence"
+      }
     ]
   },
   {
@@ -92,12 +191,30 @@
       "description": "Crosswell publie la probabilité de victoire et les chances de place de chaque partant des courses françaises de galop. Une course offerte chaque jour."
     },
     "sections": [
-      { "id": "ce-que-crosswell-publie", "titre": "Tout le programme du jour, chiffré dès le matin" },
-      { "id": "lire-un-pourcentage", "titre": "Un pourcentage se compare" },
-      { "id": "comment-le-modele-calcule", "titre": "Sept facteurs mesurés, aucune cote lue" },
-      { "id": "editeur-independant", "titre": "Un éditeur indépendant" },
-      { "id": "nos-resultats-publies", "titre": "Nos taux, publiés avec leur effectif" },
-      { "id": "commencer", "titre": "Commencer gratuitement" }
+      {
+        "id": "ce-que-crosswell-publie",
+        "titre": "Tout le programme du jour, chiffré dès le matin"
+      },
+      {
+        "id": "lire-un-pourcentage",
+        "titre": "Un pourcentage se compare"
+      },
+      {
+        "id": "comment-le-modele-calcule",
+        "titre": "Sept facteurs mesurés, aucune cote lue"
+      },
+      {
+        "id": "editeur-independant",
+        "titre": "Un éditeur indépendant"
+      },
+      {
+        "id": "nos-resultats-publies",
+        "titre": "Nos taux, publiés avec leur effectif"
+      },
+      {
+        "id": "commencer",
+        "titre": "Commencer gratuitement"
+      }
     ]
   }
 ]

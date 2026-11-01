@@ -1,12 +1,20 @@
-import { URL_RESULTATS } from '@/config/site'
-
 /**
  * Une seule source pour la barre du haut, le menu de téléphone et le pied de
  * page (colonne « Produit »), comme dans les maquettes `design/screens/Landing*`.
  *
- * « Nos résultats » sort vers l'application : la page y vit, derrière un
- * compte. « Tarifs » est une ancre de l'accueil ; depuis une autre page, la
- * coquille fait défiler jusqu'au fragment à l'arrivée.
+ * « Résultats » MÈNE AU SITE, et non plus à l'application. L'entrée sortait
+ * vers `URL_RESULTATS` tant que le site n'avait pas de page de résultats : il
+ * en a une depuis le 19/10/2026, rendue côté serveur, avec les arrivées, les
+ * jockeys et ce que le modèle avait annoncé. Envoyer le visiteur derrière un
+ * compte pour voir des courses déjà courues revenait à lui fermer la porte
+ * qu'on vient d'ouvrir — et à priver le site de sa page la plus indexable.
+ *
+ * `URL_RESULTATS` sert toujours, mais depuis la page elle-même : « Le détail,
+ * filtre par filtre » renvoie aux statistiques de l'application, qui ne sont
+ * pas la même chose que les arrivées du jour.
+ *
+ * « Tarifs » est une ancre de l'accueil ; depuis une autre page, la coquille
+ * fait défiler jusqu'au fragment à l'arrivée.
  */
 export interface Entree {
   libelle: string
@@ -22,7 +30,7 @@ export interface Entree {
 
 export const ENTREES: readonly Entree[] = [
   { libelle: 'Comment ça marche', vers: '/methode', description: 'La méthode, et ce que le modèle regarde' },
-  { libelle: 'Nos résultats', vers: URL_RESULTATS, externe: true, description: 'Nos performances, mois par mois' },
+  { libelle: 'Résultats', vers: '/resultats', description: 'Les arrivées du jour, et ce que nous avions annoncé' },
   { libelle: 'Blog', vers: '/blog', description: 'Méthode, analyses, hippodromes' },
   { libelle: 'Tarifs', vers: '/#tarifs', description: 'Gratuit, Pass 1 jour, mensuel, annuel' },
 ]

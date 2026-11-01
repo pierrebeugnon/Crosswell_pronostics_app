@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Accordeon, type Question } from '@/components/ui/Accordeon'
 import { Fictif } from '@/components/ui/Fictif'
 import {
@@ -8,7 +9,6 @@ import {
   RYTHME_PUBLICATION_COURT,
   SEUILS_CONFIANCE,
   URL_INSCRIPTION,
-  URL_RESULTATS,
 } from '@/config/site'
 import { EXEMPLE } from '@/lib/exemple'
 import { pourcent } from '@/lib/format'
@@ -435,9 +435,9 @@ export default function Methode() {
                 </li>
               ))}
             </ul>
-            <a href={URL_RESULTATS} className="self-start text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
+            <Link to="/resultats" className="self-start text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
               Voir tous nos résultats publiés
-            </a>
+            </Link>
           </Section>
 
           <Section id="questions" titre="Vous vous demandez peut-être">

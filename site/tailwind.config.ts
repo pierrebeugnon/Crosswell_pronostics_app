@@ -49,6 +49,7 @@ export default {
         warn: jeton('--c-warn'),
         wait: { DEFAULT: jeton('--c-wait'), soft: jeton('--c-wait-soft') },
         info: { DEFAULT: jeton('--c-info'), soft: jeton('--c-info-soft') },
+        quinte: { DEFAULT: jeton('--c-quinte'), deep: jeton('--c-quinte-deep') },
       },
       /* Montserrat partout, de 400 à 800 : la maquette n'a qu'une police. */
       fontFamily: {

@@ -1,3 +1,4 @@
+import { MARGE_ECART } from '@/config/site'
 /**
  * LES RÉSULTATS DE COURSES, CÔTÉ VITRINE — types et règles d'affichage.
  *
@@ -51,20 +52,34 @@ export const LIBELLE_ETAT: Record<EtatCourse, string> = {
 export interface PartantPublic {
   numero: number
   nom: string
-  /** Âge et sexe : renseignés à 100 % sur les trente derniers jours. */
-  age: number | null
-  sexe: string | null
   /**
-   * Poids porté, en kilogrammes. Renseigné sur 43 % des lignes seulement : la
-   * colonne s'affiche quand même, et le vide se dit.
+   * Âge À LA DATE DE LA COURSE, calculé en base depuis la date de naissance :
+   * une arrivée de l'an dernier doit dire l'âge qu'il avait ce jour-là.
+   * Renseigné à 100 % (mesuré le 21/10/2026).
    */
+  age: number | null
+  /** Graphie de la source : « MALE », « HONGRE », « FEMELLE ». 84 %. */
+  sexe: string | null
+  /** Poids porté, en kilogrammes. 100 %. */
   poids: number | null
+  /**
+   * Jockey et entraîneur. `null` LE JOUR MÊME, et ce n'est pas une anomalie :
+   * leur source s'écrit la nuit suivante, vers 5 h 50 (heure de Paris). La
+   * page du jour les omet, celle de la veille les porte — 97,7 % mesurés.
+   */
+  jockey: string | null
+  entraineur: string | null
+  /** Origines. 96,8 %. */
+  pere: string | null
+  mere: string | null
   /** Place à l'arrivée. `null` tant que l'arrivée n'est pas relevée. */
   arrivee: number | null
   /** Notre rang publié. `null` pour un non-partant. */
   rang: number | null
   /** Probabilité de victoire annoncée, de 0 à 1. */
   pWin: number | null
+  /** Probabilité de place annoncée (dans les 3 premiers), de 0 à 1. */
+  pPlace: number | null
   /**
    * Cote DE CLÔTURE, relevée APRÈS la course. Elle est absente le jour même —
    * mesuré le 10/10/2026 : 0 ligne sur 132 le jour courant, 209 sur 210 la
@@ -94,12 +109,31 @@ export interface CoursePublique {
   numero: number
   nom: string | null
   categorie: string | null
+  /** Course à handicap : les poids sont attribués pour égaliser les chances. */
+  handicap: boolean
   discipline: Discipline | null
   distance: number | null
   /** Allocation en euros — `montant_prix`, rempli à 100 %. */
   allocation: number | null
   /** État du terrain, tel que la source le libelle. */
   terrain: string | null
+  /**
+   * LA COURSE EST LE QUINTÉ+ DU JOUR, tel que le PMU la désigne.
+   *
+   * Le mot est une EXCEPTION ÉCRITE au vocabulaire banni du positionnement,
+   * accordée par le fondateur le 28/10/2026 : il NOMME une course, et rien
+   * d'autre. Aucun rapport, aucune mise, aucune invitation à jouer ne
+   * l'accompagne — voir `CLAUDE.md`, section « Le positionnement ».
+   *
+   * Source : `modele_prediction_engagement.quintes` (migration 038 du
+   * pipeline), exposée par db/018 sur les deux vues publiques.
+   *
+   * FAUX NE VEUT PAS DIRE « il n'y en a pas aujourd'hui » : le Quinté+ se court
+   * au trot environ un jour sur deux (34 des 79 jours relevés le 28/10/2026),
+   * et nous n'avons alors aucune course à marquer. Une journée entièrement à
+   * `false` est donc le cas NORMAL, pas le signe d'une collecte manquée.
+   */
+  quinte: boolean
   /** Statut officiel, s'il nous est parvenu. */
   statut: StatutOfficiel | null
   /** Chevaux au départ, non-partants retirés. */
@@ -181,7 +215,9 @@ export function instantParis(): { jour: string; minutes: number } {
  * Il était tombé à `c{course}` seul quand je croyais le numéro de réunion
  * absent de la base — il y est, à 100 %.
  */
-export function cheminCourse(course: CoursePublique): string {
+export function cheminCourse(
+  course: Pick<CoursePublique, 'date' | 'hippodrome' | 'reunion' | 'numero' | 'nom'>,
+): string {
   const lieu = slug(course.hippodrome)
   const nom = course.nom ? `-${slug(course.nom)}` : ''
   const rang = course.reunion != null ? `r${course.reunion}` : ''
@@ -197,6 +233,9 @@ export const allocation = (euros: number | null) =>
   euros == null ? null : `${euros.toLocaleString('fr-FR')} €`
 
 export const cheminJournee = (jour: string) => `/resultats/${jour}`
+
+/** La page qui relie toutes les journées, au-delà de ce que montre le calendrier. */
+export const CHEMIN_ARCHIVES = '/resultats/archives'
 
 /** Minuscules, sans accent, tirets — stable d'un rendu à l'autre. */
 export function slug(texte: string): string {
@@ -260,3 +299,34 @@ export function compterJournee(journee: JourneePublique, instant: { jour: string
     aVenir: par('aVenir'),
   }
 }
+
+/**
+ * PROBABILITÉS IMPLICITES DES COTES, renormalisées sur les partants.
+ *
+ * Copie conforme de `probasMarche` dans `../src/lib/aggregate.ts` : la somme
+ * brute des 1/cote dépasse 1 — c'est la marge de l'opérateur, environ 20 %.
+ * Comparer notre probabilité à une implicite NON corrigée nous ferait paraître
+ * systématiquement pessimistes, et ferait passer pour « Écart + » des partants
+ * qui ne le sont pas.
+ *
+ * Un non-partant garde parfois une cote relevée avant son retrait : elle
+ * n'entre ni dans la somme, ni dans la comparaison.
+ */
+export function probasMarche(course: CoursePublique): Map<number, number> {
+  const cotes = course.liste.filter((p) => !p.nonPartant && p.cote != null && p.cote > 0)
+  const somme = cotes.reduce((s, p) => s + 1 / (p.cote as number), 0)
+  const m = new Map<number, number>()
+  if (!somme) return m
+  for (const p of cotes) m.set(p.numero, 1 / (p.cote as number) / somme)
+  return m
+}
+
+/**
+ * « Écart + » : notre probabilité dépasse d'au moins `MARGE_ECART` (en
+ * relatif) celle qu'implique la cote, marge de l'opérateur retirée.
+ *
+ * Le marqueur se lit APRÈS COUP : les cotes servies sont des cotes de clôture.
+ * Ce n'est pas un conseil de mise, c'est un écart entre deux estimations.
+ */
+export const ecartPlus = (pWin: number | null, pMarche: number | undefined) =>
+  pWin != null && pMarche != null && pWin > pMarche + MARGE_ECART * pMarche

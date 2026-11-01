@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom'
-import { distance as formatDistance, hippodrome as formatHippodrome, pourcent } from '@/lib/format'
+import {
+  distance as formatDistance,
+  hippodrome as formatHippodrome,
+  nomCourse as formatNomCourse,
+  pourcent,
+} from '@/lib/format'
 import { URL_CONNEXION } from '@/config/site'
 import {
   cheminCourse,
@@ -61,6 +66,32 @@ export function Categorie({ valeur }: { valeur: string | null }) {
   )
 }
 
+/**
+ * LE QUINTÉ+ DU JOUR.
+ *
+ * Le seul mot de pari que ce site s'autorise, et seulement parce qu'il NOMME
+ * une course : exception écrite au positionnement, accordée le 28/10/2026
+ * (voir `CLAUDE.md`). Il n'est suivi d'aucun rapport, d'aucune mise et
+ * d'aucune invitation à jouer — c'est ce qui le rend acceptable.
+ *
+ * TEINTE `quinte` — le rouge, demandé par le fondateur le 28/10/2026 pour la
+ * reconnaissance : c'est la couleur sous laquelle le Quinté+ se présente
+ * partout ailleurs. Ni le vert, qui sur cette page veut dire « notre
+ * pronostic » et « gagnant » — l'étiquette de groupe, la pastille du
+ * vainqueur, le favori trouvé : une course mise en avant n'est ni l'un ni
+ * l'autre, et lui donner cette couleur reviendrait à laisser croire que nous
+ * la recommandons. Ni `loss`, l'autre rouge, qui dit « erreur » et « perdu » :
+ * d'où un jeton à part, assez distant pour ne pas s'y confondre (voir le
+ * commentaire de `--c-quinte` dans `index.css`).
+ */
+export function Quinte() {
+  return (
+    <span className="shrink-0 px-2 py-[3px] rounded-full text-[0.625rem] font-extrabold uppercase tracking-[0.04em] bg-quinte-deep text-quinte border border-quinte/40">
+      Quinté+
+    </span>
+  )
+}
+
 /** Les cinq premiers, en pastilles ; le gagnant en vert. */
 function Podium({ course }: { course: CoursePublique }) {
   const cinq = cinqPremiers(course)
@@ -117,12 +148,30 @@ export function LigneCourse({
       </span>
 
       <span className="flex-1 min-w-0 flex flex-col gap-1.5">
-        <span className="flex items-center gap-2 min-w-0">
-          <span className="text-[0.9375rem] font-semibold truncate">{course.nom ?? `Course ${course.numero}`}</span>
+        {/* `flex-wrap` N'EST PAS DÉCORATIF. Sur un téléphone, cette ligne ne
+            dispose que d'une centaine de pixels — le reste part à l'heure et à
+            la colonne d'état, toutes deux `shrink-0`. Sans retour à la ligne,
+            les étiquettes (qui ne se compriment pas) écrasent le nom de la
+            course : mesuré le 28/10/2026 à 375 px, « Prix Cap » tombait à 2 px
+            de large avec la seule étiquette HAND., et « Prix Santo Pietro » à
+            ZÉRO une fois la pastille Quinté+ ajoutée — le nom disparaissait
+            purement et simplement. Avec le retour à la ligne, ce sont les
+            étiquettes qui passent dessous, et le nom garde la largeur. */}
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+          <span className="text-[0.9375rem] font-semibold truncate">
+            {formatNomCourse(course.nom, course.numero)}
+          </span>
           <Categorie valeur={course.categorie} />
-          {/* L'allocation, que la maquette porte sur chaque ligne. Elle existe
-              à 100 % dans `pmu_courses.montant_prix` — je l'avais retirée en
-              croyant l'inverse. */}
+          {course.quinte && <Quinte />}
+          {/* L'allocation, que la maquette porte sur chaque ligne. Elle vient de
+              `pmu_courses.montant_prix`, qui ne couvre que le plat : elle reste
+              absente des courses d'obstacle, et le bloc disparaît alors.
+              CORRECTION DU 28/10/2026 : ce commentaire disait qu'elle ne
+              s'affichait JAMAIS. C'était vrai, mais pour une autre raison — les
+              vues joignaient l'hippodrome à la casse près, et nos deux sources
+              écrivent « ParisLongchamp » et « PARISLONGCHAMP ». db/018 normalise
+              la jointure ; 668 courses de Longchamp portent désormais leur
+              allocation, l'Arc de Triomphe compris. Voir db/013 et db/018. */}
           {allocation(course.allocation) && (
             <span className="num shrink-0 text-xs font-semibold text-faint">{allocation(course.allocation)}</span>
           )}
@@ -175,8 +224,14 @@ export function LigneCourse({
     </>
   )
 
-  const classe =
-    'flex items-start gap-3.5 w-full px-4 py-3.5 rounded-xl border border-sep bg-sunken hover:border-line-hover transition-colors'
+  // La surbrillance du Quinté+ : filet et fond rouges. Elle se lit à côté de
+  // l'état de la course, jamais à sa place — une course mise en avant peut
+  // être à venir, courue ou non relevée comme n'importe quelle autre.
+  const classe = `flex items-start gap-3.5 w-full px-4 py-3.5 rounded-xl border transition-colors ${
+    course.quinte
+      ? 'border-quinte/50 bg-quinte/[0.06] hover:border-quinte'
+      : 'border-sep bg-sunken hover:border-line-hover'
+  }`
 
   // Une course pas encore courue n'a pas de page : elle n'a rien à montrer, et
   // publier une adresse vide sur un site indexable est pire que pas d'adresse.
@@ -192,7 +247,7 @@ export function LigneCourse({
     <Link
       to={cheminCourse(course)}
       className={classe}
-      aria-label={`${formatHippodrome(course.hippodrome)}, course ${course.numero}, ${LIBELLE_ETAT[etat].toLowerCase()}`}
+      aria-label={`${formatHippodrome(course.hippodrome)}, course ${course.numero}${course.quinte ? ', Quinté+' : ''}, ${LIBELLE_ETAT[etat].toLowerCase()}`}
     >
       {corps}
     </Link>
@@ -227,6 +282,13 @@ export function ListeJournee({
       {groupes.map(([lieu, liste]) => (
         <section key={lieu} className="flex flex-col gap-2.5" aria-label={formatHippodrome(lieu)}>
           <div className="flex flex-wrap items-center gap-2.5">
+            {/* Le numéro de réunion, que la maquette porte en tête de groupe.
+                Absent hors plat : la source qui le donne ne couvre que lui. */}
+            {liste[0].reunion != null && (
+              <span className="num px-2 py-[3px] rounded-full bg-raised border border-line-strong text-[0.6875rem] font-extrabold text-soft">
+                R{liste[0].reunion}
+              </span>
+            )}
             <h2 className="text-[0.9375rem] font-bold">{formatHippodrome(lieu)}</h2>
             {disciplinesDe(liste).map((d) => (
               <span

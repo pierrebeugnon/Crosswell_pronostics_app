@@ -1,22 +1,33 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Categorie } from '@/components/resultats/LigneCourse'
-import { URL_INSCRIPTION } from '@/config/site'
-import { distance as formatDistance, hippodrome as formatHippodrome, jourLong, pourcent } from '@/lib/format'
+import { Categorie, Quinte } from '@/components/resultats/LigneCourse'
+import { LIBELLE_ECART, MARGE_ECART, URL_INSCRIPTION } from '@/config/site'
+import {
+  distance as formatDistance,
+  hippodrome as formatHippodrome,
+  jourLong,
+  nomCourse as formatNomCourse,
+  pourcent,
+} from '@/lib/format'
 import {
   allocation,
   arriveeConnue,
   cheminCourse,
+  ecartPlus,
   cheminJournee,
   etatCourse,
   favoriDe,
   instantParis,
+  probasMarche,
   repereCourse,
   slug,
+  tonCategorie,
   type CoursePublique,
   type JourneePublique,
 } from '@/lib/resultats'
 import { chargerJournee } from '@/services/resultats'
+import { useDonneesInitiales } from '@/lib/donnees-initiales'
+import { decrire } from '@/lib/resultats-seo'
 import { useTitre } from '@/lib/useTitre'
 
 /**
@@ -24,12 +35,13 @@ import { useTitre } from '@/lib/useTitre'
  * C'est la page d'atterrissage : celle que trouve quelqu'un qui cherche une
  * arrivée, et le seul endroit où notre annonce et le résultat se regardent.
  *
- * TROIS CHAMPS DE LA MAQUETTE SONT ABSENTS, et c'est assumé : l'ALLOCATION, le
- * TERRAIN et le NUMÉRO DE RÉUNION n'existent nulle part dans la base (relevé du
- * 10/10/2026 sur tout le schéma). Le H1 perd donc son « Allocation 364 000 € »
- * et son « R1C3 », et les huit cases de caractéristiques tombent à cinq. Mieux
- * vaut cinq cases justes que huit dont trois sont muettes sur 100 % des
- * journées.
+ * TROIS CHAMPS DE LA MAQUETTE NE SONT PAS SERVIS, et c’est assumé : l’ALLOCATION,
+ * le TERRAIN et le NUMÉRO DE RÉUNION. La raison n’est pas qu’ils manquent à la
+ * base — c’est que les vues publiques reproduisent EXACTEMENT ce que lit
+ * l’application (db/013), et que l’application ne les affiche pas non plus.
+ * Le H1 perd donc son « Allocation 364 000 € » et son « R1C3 », et les huit
+ * cases de caractéristiques tombent à cinq. Le jour où l’app les affichera, la
+ * vue les ajoutera et ces cases reparaîtront ici sans retoucher la page.
  *
  * Le titre ne dit pas « officielle » : aucun statut de société de courses ne
  * nous parvient. Nous publions l'arrivée que nos relevés rapportent.
@@ -49,32 +61,71 @@ function Case({ libelle, valeur }: { libelle: string; valeur: string }) {
   )
 }
 
-/** L'arrivée relevée : tous les partants classés, le gagnant en vert. */
-function Arrivee({ course }: { course: CoursePublique }) {
-  const classes = course.liste
-    .filter((p) => p.arrivee !== null)
-    .sort((a, b) => (a.arrivee ?? 99) - (b.arrivee ?? 99))
+/** La pastille « Écart + » — le marqueur de l'app, jamais le mot « value ». */
+function Ecart() {
+  return (
+    <span className="shrink-0 px-2 py-[3px] rounded-full bg-accent/[0.12] text-accent text-[0.6875rem] font-bold">
+      {LIBELLE_ECART}
+    </span>
+  )
+}
 
-  if (!classes.length) {
+/**
+ * TOUS LES PARTANTS — le tableau de la maquette, colonne pour colonne :
+ * Préd. · Arrivée · N° · Cheval et jockey · Chances de victoire · Placé · Cote.
+ *
+ * Il remplace une version à quatre colonnes (Place, N°, Cheval, Cote), écrite
+ * quand les vues publiques ne servaient ni jockey, ni probabilité de place, ni
+ * poids. La migration db/016 les sert ; il n'y avait plus de raison de s'en
+ * passer.
+ *
+ * L'ORDRE EST CELUI DE L'ARRIVÉE, pas celui du pronostic : c'est ce que le
+ * lecteur vient chercher. Les non-partants ferment la liste, sans place.
+ */
+function TousLesPartants({ course }: { course: CoursePublique }) {
+  const marche = probasMarche(course)
+
+  const lignes = [...course.liste].sort((a, b) => {
+    if (a.nonPartant !== b.nonPartant) return a.nonPartant ? 1 : -1
+    return (a.arrivee ?? 99) - (b.arrivee ?? 99) || a.numero - b.numero
+  })
+
+  if (!lignes.length) {
     return (
       <p className="text-[0.9375rem] leading-relaxed text-muted">
-        Nos relevés n’ont pas rapporté l’arrivée de cette course.
+        Nos relevés n’ont pas rapporté la composition de cette course.
       </p>
     )
   }
 
-  const nonPartants = course.liste.filter((p) => p.nonPartant)
+  // Une colonne qui serait vide sur TOUTE la course ne s'affiche pas : mieux
+  // vaut six colonnes pleines que huit dont deux sont muettes. C'est ce qui
+  // fait que la page du jour et celle de la veille n'ont pas la même largeur,
+  // et c'est voulu — le jockey n'arrive que la nuit suivante.
+  const avecJockey = lignes.some((p) => p.jockey)
+  const avecPlace = lignes.some((p) => p.pPlace != null)
+  const avecCote = lignes.some((p) => p.cote != null)
+
+  const colonnes = [
+    'Préd.',
+    'Arrivée',
+    'N°',
+    avecJockey ? 'Cheval · Jockey' : 'Cheval',
+    'Chances de victoire',
+    ...(avecPlace ? ['Placé'] : []),
+    ...(avecCote ? ['Cote'] : []),
+  ]
 
   return (
     <div className="flex flex-col gap-4">
       <div className="overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0">
-        <table className="w-full min-w-[26rem] border-collapse text-[0.9375rem]">
+        <table className="w-full min-w-[40rem] border-collapse text-[0.9375rem]">
           <thead>
             <tr className="border-b border-line-strong">
-              {['Place', 'N°', 'Cheval', 'Cote'].map((e) => (
+              {colonnes.map((e) => (
                 <th
                   key={e}
-                  className="text-left font-bold py-2.5 pr-4 text-[0.75rem] uppercase tracking-[0.08em] text-faint"
+                  className="text-left font-bold py-2.5 pr-4 text-[0.75rem] uppercase tracking-[0.08em] text-faint whitespace-nowrap"
                 >
                   {e}
                 </th>
@@ -82,32 +133,52 @@ function Arrivee({ course }: { course: CoursePublique }) {
             </tr>
           </thead>
           <tbody>
-            {classes.map((p) => (
-              <tr key={p.numero} className="border-b border-track">
-                <td className={`num py-3 pr-4 font-extrabold ${p.arrivee === 1 ? 'text-accent' : 'text-soft'}`}>
-                  {p.arrivee}
-                </td>
-                <td className="num py-3 pr-4 font-semibold text-soft">{p.numero}</td>
-                <td className="py-3 pr-4 font-semibold text-ink">{p.nom}</td>
-                {/* Une cote absente le jour même se dit, elle ne devient pas un
-                    tiret muet : 0 ligne sur 132 le jour courant, 209 sur 210 la
-                    veille (relevé du 10/10/2026). */}
-                <td className="num py-3 pr-4 text-soft">
-                  {p.cote != null ? p.cote.toFixed(1) : <span className="text-dim">relevée ce soir</span>}
-                </td>
-              </tr>
-            ))}
+            {lignes.map((p) => {
+              const gagnant = p.arrivee === 1
+              return (
+                <tr key={p.numero} className={`border-b border-track ${p.nonPartant ? 'opacity-55' : ''}`}>
+                  <td className="num py-3 pr-4 font-semibold text-faint">{p.rang ?? '—'}</td>
+                  <td className={`num py-3 pr-4 font-extrabold ${gagnant ? 'text-accent' : 'text-soft'}`}>
+                    {p.nonPartant ? 'NP' : (p.arrivee ?? '—')}
+                  </td>
+                  <td className="num py-3 pr-4 font-semibold text-soft">{p.numero}</td>
+                  <td className="py-3 pr-4">
+                    <span className="flex flex-col gap-[2px]">
+                      <span className="font-semibold text-ink">{p.nom}</span>
+                      {avecJockey && (
+                        <span className="text-xs font-medium text-faint">
+                          {p.jockey ?? '—'}
+                          {p.poids != null && <span className="num"> · {p.poids} kg</span>}
+                        </span>
+                      )}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <span className="flex items-center gap-2">
+                      <span className="num font-semibold text-soft">{pourcent(p.pWin)}</span>
+                      {ecartPlus(p.pWin, marche.get(p.numero)) && <Ecart />}
+                    </span>
+                  </td>
+                  {avecPlace && <td className="num py-3 pr-4 text-soft">{pourcent(p.pPlace)}</td>}
+                  {avecCote && (
+                    // Une cote absente se dit, elle ne devient pas un tiret
+                    // muet : elle est relevée APRÈS la course.
+                    <td className="num py-3 pr-4 text-soft">
+                      {p.cote != null ? p.cote.toFixed(1) : <span className="text-dim">non relevée</span>}
+                    </td>
+                  )}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
-      {nonPartants.length > 0 && (
-        <p className="text-[0.8125rem] font-medium text-faint">
-          Non-partant{nonPartants.length > 1 ? 's' : ''} :{' '}
-          {nonPartants.map((p) => `n°${p.numero} ${p.nom}`).join(', ')}.
-        </p>
-      )}
+
       <p className="text-xs font-medium leading-relaxed text-faint">
-        Les cotes affichées sont des cotes de clôture, relevées après la course. Notre modèle ne les lit pas.
+        «&nbsp;Préd.&nbsp;» est le rang que nous avions publié le matin même.{' '}
+        {avecCote && 'Les cotes sont des cotes de clôture, relevées après la course : notre modèle ne les lit pas. '}
+        {LIBELLE_ECART} signale que notre probabilité dépasse d’au moins {pourcent(MARGE_ECART)} celle qu’implique la
+        cote, marge de l’opérateur retirée. Un pourcentage décrit une fréquence attendue, pas l’issue d’une course.
       </p>
     </div>
   )
@@ -157,7 +228,13 @@ export default function ResultatCourse() {
   const numero = Number((segment ?? '').match(/^(?:r\d+)?c(\d+)/)?.[1] ?? NaN)
   const maintenant = useMemo(instantParis, [])
 
-  const [journee, setJournee] = useState<JourneePublique | null>(null)
+  // Ce que le rendu serveur a déjà lu, s’il porte bien SUR CETTE JOURNÉE :
+  // au navigateur, une navigation interne vers une autre date retomberait
+  // sinon sur la journée semée au premier chargement.
+  const semee = useDonneesInitiales()?.journee
+  const preparee = semee && jour && semee.jour === jour ? semee : null
+
+  const [journee, setJournee] = useState<JourneePublique | null>(preparee)
   const [erreur, setErreur] = useState(false)
 
   // On charge LA JOURNÉE, pas la seule course : l'adresse porte un slug
@@ -166,7 +243,7 @@ export default function ResultatCourse() {
   // correspondance — et donne les autres courses de la réunion sans requête
   // supplémentaire.
   useEffect(() => {
-    if (!jour) return
+    if (!jour || preparee) return
     let vivant = true
     chargerJournee(jour)
       .then((j) => vivant && setJournee(j))
@@ -174,15 +251,22 @@ export default function ResultatCourse() {
     return () => {
       vivant = false
     }
-  }, [jour])
+  }, [jour, preparee])
 
   const course = journee?.courses.find((c) => c.numero === numero && slug(c.hippodrome) === lieu)
 
-  useTitre(
-    course
-      ? `Arrivée du ${course.nom ?? repereCourse(course)} — ${formatHippodrome(course.hippodrome)}`
-      : 'Résultat d’une course',
+  // LE MÊME TITRE QUE LE HTML SERVI — voir le commentaire jumeau dans
+  // `Resultats.tsx`. `numero` peut être `NaN` sur une adresse mal formée : on
+  // ne demande alors aucune tête, sinon `decrire` renverrait celle de la
+  // journée sur une page qui n'existe pas.
+  const tete = useMemo(
+    () =>
+      Number.isInteger(numero)
+        ? decrire({ jour: jour ?? null, lieu: lieu ?? null, numero }, journee)
+        : null,
+    [jour, lieu, numero, journee],
   )
+  useTitre(tete ? tete.titre : 'Résultat d’une course', { suffixe: !tete })
 
   const cadre = 'w-full max-w-[60rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7'
 
@@ -249,14 +333,22 @@ export default function ResultatCourse() {
       </nav>
 
       <div className="flex flex-col gap-3">
-        <Categorie valeur={course.categorie} />
+        {(tonCategorie(course.categorie) || course.quinte) && (
+          <span className="flex flex-wrap items-center gap-2">
+            <Categorie valeur={course.categorie} />
+            {course.quinte && <Quinte />}
+          </span>
+        )}
         <h1 className="text-[1.75rem] lg:text-[2.3125rem] font-extrabold tracking-[-0.03em] leading-[1.05]">
-          Arrivée du {course.nom ?? `C${course.numero}`} — {formatHippodrome(course.hippodrome)} {repereCourse(course)}
+          {arriveeConnue(etat) ? 'Arrivée' : 'Programme'} du {formatNomCourse(course.nom, course.numero)} —{' '}
+          {formatHippodrome(course.hippodrome)}{' '}
+          {repereCourse(course)}
         </h1>
-        {/* Le récapitulatif en une ligne de la maquette, moins l'allocation. */}
+        {/* Le récapitulatif en une ligne de la maquette. */}
         <p className="num text-[0.9375rem] font-medium text-muted">
           {[
             course.categorie,
+            course.handicap ? 'Handicap' : null,
             course.discipline,
             course.distance != null ? formatDistance(course.distance) : null,
             `${course.partants} partants`,
@@ -267,12 +359,14 @@ export default function ResultatCourse() {
         </p>
       </div>
 
-      {/* ON N'AFFICHE QUE CE QU'ON A. La maquette dessine huit cases, dont
-          allocation, discipline et terrain : aucune de ces trois n'est servie
-          par les vues publiques, et l'en-tête de course de l'application ne les
-          montre pas davantage. Quatre cases vides sur huit valent moins que
-          quatre cases pleines — chacune se rend donc seulement si elle a une
-          valeur, et la grille se referme sur ce qui reste. */}
+      {/* ON N'AFFICHE QUE CE QU'ON A, et la règle survit au fait que la base
+          en donne désormais beaucoup plus (db/016). Discipline et allocation
+          ne sont plus les cases mortes qu'elles étaient : la discipline sort à
+          100 %, l'allocation et le terrain seulement là où la source les joint
+          — environ un tiers des courses aujourd'hui, le plat uniquement. Une
+          case sans valeur ne se rend pas, et la grille se referme : c'est ce
+          qui permet d'ajouter une source partielle sans dégrader la page des
+          courses qu'elle ne couvre pas. */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         {course.categorie && <Case libelle="Catégorie" valeur={course.categorie} />}
         {course.allocation != null && <Case libelle="Allocation" valeur={allocation(course.allocation)!} />}
@@ -291,7 +385,7 @@ export default function ResultatCourse() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-[1.1875rem] lg:text-[1.4375rem] font-extrabold tracking-[-0.02em]">
-            {arriveeConnue(etat) ? 'L’arrivée' : 'Cette course n’a pas encore d’arrivée'}
+            {arriveeConnue(etat) ? 'Tous les partants' : 'Cette course n’a pas encore d’arrivée'}
           </h2>
           {/* « Arrivée provisoire » vient du statut `FIN_COURSE`, pas d'une
               heure comparée à l'horloge comme le devinait la maquette. */}
@@ -303,7 +397,7 @@ export default function ResultatCourse() {
         </div>
         {arriveeConnue(etat) ? (
           <>
-            <Arrivee course={course} />
+            <TousLesPartants course={course} />
             {etat === 'provisoire' && (
               <p className="text-[0.8125rem] font-medium text-faint">
                 Cette arrivée n’est pas encore définitive&nbsp;: elle peut être modifiée.
@@ -312,9 +406,11 @@ export default function ResultatCourse() {
           </>
         ) : (
           <p className="text-[0.9375rem] leading-relaxed text-muted">
-            {etat === 'departDonne'
-              ? 'Le départ est donné. L’arrivée paraîtra ici dès que nos relevés la rapportent.'
-              : 'Nos relevés n’ont pas rapporté l’arrivée de cette course.'}
+            {etat === 'aVenir'
+              ? 'Le départ n’est pas encore donné. L’arrivée paraîtra ici dès que nos relevés la rapportent.'
+              : etat === 'departDonne'
+                ? 'Le départ est donné. L’arrivée paraîtra ici dès que nos relevés la rapportent.'
+                : 'Nos relevés n’ont pas rapporté l’arrivée de cette course.'}
           </p>
         )}
       </section>

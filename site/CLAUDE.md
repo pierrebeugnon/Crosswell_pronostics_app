@@ -1,18 +1,28 @@
 # Crosswell — Site vitrine (`site/`)
 
 Site public de **Crosswell Pronostics**, la plateforme client de pronostics hippiques
-(`../`, même dépôt). Statique : aucune base, aucun compte, aucun appel réseau. Il présente
-le service et renvoie vers l'application (`URL_APPLICATION` dans `src/config/site.ts`).
-Projet Vite + React 19 + TypeScript + Tailwind, frère de l'app.
+(`../`, même dépôt). Il présente le service et renvoie vers l'application
+(`URL_APPLICATION` dans `src/config/site.ts`). Projet Vite + React 19 + TypeScript +
+Tailwind, frère de l'app.
+
+**Sans compte, mais plus sans base.** Jusqu'au 19/10/2026 le site était entièrement statique
+(« aucune base, aucun appel réseau »). Les pages de résultats lisent désormais trois vues
+publiques de Supabase, à la clé anonyme et en lecture seule — voir « Les résultats » plus
+bas. Tout le reste du site n'appelle toujours rien, et **aucune page du site n'a de
+connexion** : la session vit dans l'application, sur une autre origine.
 
 ```bash
 cd site && npm run dev        # http://localhost:5195
 cd site && npm run typecheck  # tsc --noEmit — DOIT passer avant de rendre la main
-cd site && npm run build
+cd site && npm run build      # vite build, puis vite build --ssr, puis apres-build.mjs
 ```
 
 Pages : `/` (accueil), `/methode` (« Comment ça marche »), `/blog` et `/blog/<slug>`,
+`/resultats`, `/resultats/archives`, `/resultats/<AAAA-MM-JJ>` et `/resultats/<date>/<hippodrome>/c<n>-<slug>`,
 `/cgv` (alias `/cgu`), `/confidentialite`, `/mentions-legales`, et la page introuvable.
+Les routes vivent dans **`src/routes.tsx`**, pas dans `App.tsx` : elles sont partagées
+entre le routeur du navigateur et le rendu serveur, pour qu'une page ne puisse pas exister
+d'un côté et manquer de l'autre.
 Alias `@/` → `src/`. Identifiants, commentaires et textes **en français**, comme dans l'app.
 
 ## Le périmètre — particulier, pronostics, rien d'autre
@@ -57,7 +67,13 @@ notre logo** (`components/brand/Logo`, copie de celui de l'app).
 | `@/components/ui/Accordeon` | FAQ en `<details name>` natifs, la première ouverte (copié dans l'app). |
 | `@/components/ui/Fictif` | « Chevaux et chiffres fictifs, pour illustration. » — **obligatoire** sous tout exemple. |
 | `@/lib/exemple` | `EXEMPLE`, la course fictive partagée par l'accueil et « Comment ça marche ». |
-| `@/lib/format` | `pourcent` (espace insécable avant « % »). |
+| `@/lib/format` | `pourcent` (espace insécable avant « % »), `jourLong`/`jourCourt`, `distance`, `hippodrome` et `nomCourse` — ces deux derniers remettent en casse de titre ce que la base garde en capitales. |
+| `@/routes` | `ROUTES`, la table des routes, partagée par `App.tsx` (navigateur) et `entree-serveur.tsx` (serveur). |
+| `@/lib/resultats` | Les types publics d'une journée et d'une course, les cinq états (`definitive`…`aVenir`), `cheminCourse`/`cheminJournee`, `slug`, `favoriDe`, `instantParis`. |
+| `@/services/resultats` | `chargerJournee`, `chargerCourse`, `chargerJourneesDisponibles` — la lecture des trois vues, et le repliage des lignes à plat en courses. |
+| `@/lib/resultats-seo` | `analyser` (le chemin), `decrire` (titre, description, canonique, données structurées), `teteRubrique`. |
+| `@/lib/donnees-initiales` | Le pont entre le rendu serveur et le navigateur : `FournisseurDonnees`, `useDonneesInitiales`, `serialiser`. |
+| `@/lib/supabase` | Le client, minuscule : sans session, sans rafraîchissement, `null` si les variables manquent. |
 | `@/components/blog/Corps` | Les blocs du corps d'un article : `H2`, `H3`, `P`, `Liste`, `Chiffre`, `Encadre`, `Tableau`. |
 | `@/contenu/articles` | Le catalogue du blog : `ARTICLES`, `articlesRecents`, `articleParSlug`, `rubriquesUtilisees`, `articlesLies`. Métadonnées dans `articles.json`. |
 | `@/config/site` | Adresses, `CONTACT` / `ecrire(objet)`, `FORMULES`, `RYTHME_PUBLICATION(_COURT)`, `HEURE_RELEVE`, `NOTE_NON_PARTANTS`, `MARGE_ECART`, `LIBELLE_ECART`, `SEUILS_CONFIANCE`, `SEUIL_ECHANTILLON`, `FENETRE_JOURS`, `AVERTISSEMENT`, `EDITEUR`. |
@@ -81,10 +97,114 @@ il est dans la sauvegarde `Desktop\crosswell-pronostics-sauvegarde-2026-09-18\si
   comptés » (`#mesure`) : une correction de l'une se reporte sur l'autre.
 - **Blog** (`pages/Blog.tsx`, `pages/Article.tsx`) : l'index filtré par rubrique, et
   l'article. Voir « Écrire un article » ci-dessous.
+- **Résultats** (`pages/Resultats.tsx`, `pages/ResultatCourse.tsx`) : la journée, et
+  l'arrivée d'une course. Voir « Les résultats » ci-dessous — ce sont les deux seules
+  pages qui lisent la base, et les deux seules rendues côté serveur.
 - **Pages légales** : Confidentialité et Mentions légales, en onglets. **Pas de CGU** tant
   qu'elles ne sont pas rédigées et validées (la maquette n'en donne qu'un squelette à
   « [À COMPLÉTER] ») — or elles deviennent nécessaires avant de vendre des Pass en ligne.
   **Pas de page « Jeu responsable »** : hors de notre positionnement (ci-dessous).
+
+## Les résultats — la base, et le rendu serveur
+
+Ouvertes le 19/10/2026. Ce sont les seules pages du site qui lisent des données, et les
+seules servies par une fonction plutôt que par un fichier.
+
+### Ce que la base expose, et pourquoi le verrou n'est pas ici
+
+Trois vues publiques, lisibles à la **clé anonyme** et à rien d'autre :
+
+| Vue | Migration | Contenu |
+| --- | --- | --- |
+| `resultats_publics` | `db/013`, `db/014` | Une ligne par partant des courses **jugées** : rang annoncé, probabilité, place réelle, cote. |
+| `programme_public` | `db/013`, `db/014` | Une ligne par course **à venir**, sans **aucune** colonne de probabilité. |
+| `journees_publiques` | `db/015` | Une ligne par jour ayant des résultats — le calendrier. |
+
+**Le verrou est en SQL, jamais dans le front.** Une course pas encore jugée n'a aucune
+ligne dans `resultats_publics`, et `programme_public` ne porte pas de colonne à cacher.
+Aucun filtre côté client ne vaudrait cela : un filtre s'oublie, une colonne absente non.
+`src/lib/supabase.ts` coupe `persistSession` et `autoRefreshToken`, et rend `null` quand
+les variables manquent — une page de résultats mal configurée ne doit pas faire tomber
+l'accueil. La clé anonyme est **publique par conception**, comme dans l'app : ce qu'elle
+ouvre est décidé par les droits.
+
+Les vues **reproduisent ce que lit l'application**, pas plus : ni allocation, ni terrain,
+ni numéro de réunion, ni âge/sexe/poids: l'app ne les affiche pas non plus. La seule
+source qui les porte (`pmu_courses`, `pmu_partants`) ne couvre que le plat et n'est plus
+alimentée. Le jour où l'app les affichera, la vue les ajoutera et les composants les
+porteront sans retouche : les cases sont déjà écrites, elles ne s'affichent pas quand la
+valeur est `null`. **Ne pas repartir de `pmu_*` :** regarder comment l'app fait, et faire
+pareil (arbitrage du fondateur, 19/10/2026).
+
+### Le rendu serveur — `api/resultats.ts`
+
+Une coquille vide que React remplit dans le navigateur ne suffit pas : Google exécute le
+JavaScript, mais sur un domaine jeune ce rendu est différé et parfois sauté, et d'autres robots
+ne l'exécutent pas. Le reste du site est donc rendu **au build** (voir « Le build produit des
+fichiers réels »). Les résultats changent chaque jour : ils ont une fonction, **et ces pages
+seulement**.
+
+La chaîne, dans l'ordre :
+
+1. `vercel.json` réécrit `/resultats` et `/resultats/:chemin*` vers `/api/resultats`, **en
+   passant le chemin demandé en paramètre `chemin`** : après réécriture, `request.url` ne
+   vaut plus que `/api/resultats`.
+2. la fonction lit la journée via `chargerJournee` — **le même code que le navigateur**,
+   importé depuis `dist-serveur/entree-serveur.js` ;
+3. elle rend l'arbre React avec ces données (`rendre`), pose la tête (`decrire`), et dépose
+   les mêmes données dans un `<script>` pour que le navigateur n'ait pas à refaire la
+   requête ;
+4. elle répond un **vrai 404** quand l'adresse ne désigne rien, et **503** si la base est
+   injoignable — jamais 404, qui ferait désindexer des pages valables à la première panne.
+
+Quatre règles qui ne se devinent pas :
+
+- **`export default { fetch: … }`**, pas `export default function`. Vercel ne documente un
+  `export default` qui est une fonction que pour le style Node `(req, res)`, où `request`
+  est un `IncomingMessage` : `new URL(request.url)` lèverait et la valeur renvoyée serait
+  ignorée. Ce n'est pas un choix de style.
+- **`/resultats` n'a PAS de fichier HTML**, et c'est la condition pour que tout marche :
+  chez Vercel une réécriture n'est examinée qu'**après** le système de fichiers. D'où le
+  drapeau `sansFichier` sur son entrée de `PAGES`, dans `scripts/apres-build.mjs`.
+- **Les pages ne lisent jamais `window` directement** : `src/lib/donnees-initiales.tsx`
+  donne deux chemins — un contexte React au serveur (il n'y a pas de `window`), et
+  `window.__CROSSWELL__` au navigateur, consommé à la première lecture. Resservir cette
+  valeur à la seconde navigation afficherait la veille sous le titre du jour.
+- **`api/` n'importe rien de `src/` directement.** Les sources lisent `import.meta.env.VITE_…`,
+  que Vite remplace à la construction et que Node ne connaît pas ; et Vercel ne supporte
+  pas les *path mappings* du `tsconfig.json` (donc pas d'alias `@/`). Tout passe par
+  `src/entree-serveur.tsx`, qui réexporte ce dont la fonction a besoin.
+
+### L'indexation est ouverte depuis le 26/10/2026
+
+`INDEXABLE = true`, en tête de `api/resultats.ts`, et `/resultats` est au sitemap. Les deux
+vont **ensemble** : déclarer au sitemap une adresse qu'on demande de ne pas indexer est un
+signal contradictoire.
+
+**Deux chemins vers les anciennes journées**, parce que le calendrier s'arrête à 60 :
+`/resultats/archives` (`pages/ArchivesResultats.tsx`), lié depuis « Journées précédentes », et
+`/sitemap-resultats.xml` (`api/sitemap-resultats.ts`), qui liste journées et courses jugées.
+
+### Titres et descriptions : une seule source
+
+`src/lib/resultats-seo.ts` calcule titre, description, canonique et données structurées.
+Il est dans le **même bundle que les pages**, donc le titre servi au robot est calculé par
+le même code, avec les mêmes formateurs, que le H1 affiché.
+
+**Les deux pages appellent `decrire()` pour leur `useTitre`, avec `{ suffixe: false }`** —
+même règle que les articles, et pour la même raison : Google exécute le JavaScript, donc un
+`useTitre` qui poserait sa propre formule ferait lire au moteur un titre différent de celui
+qu'il a reçu. C'est arrivé : au premier déploiement du rendu serveur (21/10/2026), les trois
+types de page divergeaient. `decrire()` prend son `origine` **en dernier et optionnelle**,
+justement pour que les pages puissent l'appeler sans en avoir une sous la main.
+
+Un détail qui se trompe facilement : la `Demande` passée depuis la page se construit sur le
+paramètre d'adresse, **pas** sur la journée affichée. Sur `/resultats` sans date, le serveur
+sert le titre de la rubrique ; l'onglet doit dire la même chose, même si le corps montre les
+courses du jour. `teteRubrique()` est même
+**importée par `scripts/apres-build.mjs`** depuis le bundle : le titre de `/resultats` n'est
+écrit qu'à un seul endroit. Le vocabulaire du positionnement s'applique ici aussi — c'est
+l'endroit où l'on écrit « pour Google » et où le mot banni revient tout seul.
 
 ## Écrire un article
 
@@ -129,6 +249,33 @@ misez que… », page Jeu responsable) : **rien de cela n'est repris**.
 - **Vocabulaire banni** : pari, parier, mise, miser, jouer, joueur, jeu d'argent, gain,
   gagner de l'argent, rendement, rentable, ROI, bankroll, value, cash, « bon plan »,
   « tuyau », « coup sûr », « conseil » (sauf pour dire que nous n'en sommes pas un).
+- **UNE EXCEPTION, accordée par le fondateur le 28/10/2026 : « Quinté+ ».** Il la tient pour
+  la désignation usuelle du grand rendez-vous de la journée, et non pour une invitation à
+  parier. Le terme est donc autorisé pour NOMMER une course, et à rien d'autre : ni
+  « jouer le Quinté+ », ni un pronostic présenté comme une combinaison à jouer. Ne pas
+  retirer cette ligne au nom de la règle générale — c'est un arbitrage, pas un oubli.
+  **C'est en place depuis le 28/10/2026.** Le drapeau est collecté par `pmu_arrivees.py`
+  depuis la réponse du programme PMU déjà téléchargée (`courses[].paris[].codePari` vaut
+  `QUINTE_PLUS`), rangé dans `modele_prediction_engagement.quintes` (migration 038 du
+  pipeline) et servi par `db/018` (`resultats_publics`, `programme_public`) et `db/019`
+  (`client_predictions`). À l'écran, trois formes : une pastille **rouge** `Quinté+` (liste
+  d'une journée et page d'arrivée du site ; programme et en-tête de course de l'app), un
+  **filet rouge** sur l'élément cliquable (ligne du site, ligne du programme, pastille du
+  ruban de téléphone, carte de l'accueil) et, là où une pastille écraserait le nom, **le mot
+  en rouge dans le texte** (cartes et liste de l'accueil de l'app). Le rouge est un choix du
+  fondateur (28/10/2026), pour la reconnaissance : c'est la couleur sous laquelle le Quinté+
+  se présente partout ailleurs. **Jamais en vert** : le vert dit « notre pronostic » et
+  « gagnant » partout ailleurs, et le réutiliser laisserait croire que nous recommandons
+  cette course. Et **jamais `loss`**, l'autre rouge de la charte, qui porte les erreurs,
+  les pertes et les cotes en hausse : le Quinté+ a son propre jeton, `--c-quinte`
+  (#FF4757), assez distant du corail pour qu'on ne les confonde pas — les mesures sont dans
+  le commentaire du jeton.
+  Deux limites à connaître avant de toucher à tout cela. Le Quinté+ se court **souvent au
+  trot**, discipline hors de notre périmètre : 34 des 79 jours relevés le 28/10, soit 43 %
+  de journées où il n'y a rien à mettre en avant — c'est NORMAL, pas une collecte manquée.
+  Et il ne faut PAS poser le drapeau sur `pmu_courses`, qui ne garde que le plat : le
+  Quinté+ du 28/10 était le Prix Santo Pietro, une course de haies à Auteuil, absente de
+  cette table.
 - **« Value » → « Écart + »** (`LIBELLE_ECART`), le marqueur de l'app : notre probabilité de
   victoire dépasse d'au moins `MARGE_ECART` (10 %, en relatif) celle qu'implique la cote,
   marge de l'opérateur retirée. Les cotes de l'app sont **de clôture, relevées après la
@@ -192,7 +339,9 @@ Paiement (Stripe Checkout, page hébergée) → Bienvenue. « Essayer gratuiteme
 chaque bouton de formule y arrive la formule cochée (`inscrireAvec`). La phrase sous la
 grille dit « Paiement sécurisé par Stripe ».
 
-Ce qui manque encore, et interdit de mettre le site en ligne :
+Le site **est en ligne sur `crosswell.io` depuis le 03/10/2026** : la liste ci-dessous
+disait « interdit de mettre le site en ligne », ce n'est plus l'état des lieux. Ce sont
+désormais les manques du **parcours d'achat**, pas du déploiement :
 
 - **Le paiement Stripe côté serveur** (fonction `paiement-session`, webhook) : sans lui,
   l'étape Paiement de l'app affiche « pas encore ouvert ». Voir `../src/services/paiement.ts`.
@@ -207,6 +356,15 @@ Ce qui manque encore, et interdit de mettre le site en ligne :
 
 En développement, `.env.development` fait pointer le site vers l'app locale (port 5190) :
 sans lui, « Se connecter » ouvrirait la production, qui n'a pas la même version.
+
+**Les deux variables Supabase vivent dans `site/.env.local`, qui n'est pas suivi par git** :
+`VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`. Elles ont d'abord été écrites dans
+`.env.development`, qui **est** suivi — une clé dans l'historique du dépôt. Ne pas refaire
+cette erreur : `.env.development` ne porte qu'une note.
+Vite les **fige à la construction**, dans le bundle du navigateur comme dans celui du rendu
+serveur : elles doivent donc être déclarées **dans le projet Vercel**
+(`crosswell-pronostics-site`), sinon `supabase` vaut `null` et les pages de résultats
+répondent « indisponible » en production alors qu'elles marchent en local.
 
 ## Ton
 
@@ -223,21 +381,39 @@ réflexe habituel pour un SPA, et c'est **faux ici** : le site répondait **200 
 quelle URL**, y compris `/robots.txt` et `/sitemap.xml` qui renvoyaient du HTML. Google y voit
 des « soft 404 » en masse et des doublons. La réécriture a été retirée le 20 septembre 2026.
 
+**`vercel.json` porte depuis le 19/10/2026 deux réécritures, et elles ne contredisent pas
+ce qui précède** : elles sont bornées à `/resultats` et `/resultats/:chemin*`, et leur
+destination est une fonction qui répond un vrai 404 quand l'adresse ne désigne rien — pas
+un `index.html` servi en 200. C'est exactement l'inverse de l'attrape-tout. **Ne jamais
+élargir ces sources**, et ne jamais ajouter de règle sur `/(.*)`. Une troisième, depuis le
+01/11/2026, ne porte que sur l'adresse exacte `/sitemap-resultats.xml`.
+
 Ce qui la remplace : `scripts/apres-build.mjs`, lancé par `npm run build` après `vite build`.
 Il écrit, à partir du `dist/index.html` construit :
 
 - **un fichier HTML réel par route** (`dist/methode/index.html`, …), chacun avec son `<title>`,
-  sa description, son `<link rel="canonical">` absolu et son `og:url` — Vercel les sert
-  directement, sans réécriture ;
-- **`dist/404.html`** en `noindex`, que Vercel sert avec un vrai code 404 pour tout le reste ;
-- **`dist/robots.txt` et `dist/sitemap.xml`**, dérivés de la même table `PAGES` pour qu'ils ne
-  puissent pas diverger du routeur.
+  sa description, son `<link rel="canonical">` absolu, son `og:url` et, depuis le 01/11/2026,
+  **son corps rendu** (`avecCorps`, que `src/main.tsx` reprend avec `hydrateRoot`) — Vercel les
+  sert directement, sans réécriture ;
+- **`dist/404.html`** en `noindex`, `#root` vide, que Vercel sert avec un vrai code 404 pour tout
+  le reste ;
+- **`dist/robots.txt`, `dist/sitemap.xml` (un index) et `dist/sitemap-pages.xml`**, dérivés de la
+  même table `PAGES` pour qu'ils ne puissent pas diverger du routeur.
+
+**Une page éditoriale doit donc rendre le même HTML au build et au navigateur** : pas d'horloge,
+pas de `window`, pas de date sans `timeZone`. Un écart ne casse rien, mais React refait la page.
 
 Règles qui en découlent :
 
-- **Toute nouvelle route de `src/App.tsx` doit être ajoutée à `PAGES`** dans
+- **Toute nouvelle route de `src/routes.tsx` doit être ajoutée à `PAGES`** dans
   `scripts/apres-build.mjs`, sinon elle n'a ni fichier HTML, ni canonical, ni entrée au
   sitemap — et Vercel la servira en 404.
+- **Une exception, et une seule : les résultats.** `/resultats` est dans `PAGES` mais porte
+  `sansFichier` (la réécriture doit gagner, voir « Les résultats »), et les adresses datées
+  ou de course n'y sont pas du tout : elles se comptent par milliers et changent chaque
+  jour, un fichier par course serait un build sans fin. C'est la fonction `api/resultats`
+  qui leur donne tête, canonique et code de retour. Toute autre route, elle, reste un
+  fichier.
 - Le `<title>` et la description y sont **recopiés** de ce que `useTitre` pose côté client :
   les deux doivent dire la même chose. Le script a des garde-fous qui font échouer le build si
   `index.html` change de forme.

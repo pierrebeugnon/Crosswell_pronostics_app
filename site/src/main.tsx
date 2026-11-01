@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import { Analytics } from '@vercel/analytics/react'
 import App from '@/App'
 import '@/index.css'
@@ -17,9 +17,30 @@ import '@/index.css'
  * Elle ne fonctionne qu'une fois activée dans le projet Vercel ; sans cela, le
  * composant ne fait rien.
  */
-createRoot(document.getElementById('root')!).render(
+const application = (
   <StrictMode>
     <App />
     <Analytics />
-  </StrictMode>,
+  </StrictMode>
 )
+
+const racine = document.getElementById('root')!
+
+/**
+ * TROIS CAS, ET UN SEUL HYDRATE.
+ *
+ * Les pages éditoriales arrivent déjà rendues par `scripts/apres-build.mjs` :
+ * `hydrateRoot` reprend ce balisage sans le refaire. Une page vide (le 404, le
+ * serveur de développement) se monte normalement.
+ *
+ * LES RÉSULTATS RESTENT SOUS `createRoot`, reconnaissables à leurs données
+ * semées : leur HTML est calculé à une heure (`instantParis`) que le navigateur
+ * ne retrouvera pas, et il sort d'un cache. Sur un écart, React referait le
+ * rendu, or `useDonneesInitiales` consomme les données à la première lecture :
+ * la page retomberait sur « Chargement… ».
+ */
+if (racine.firstElementChild && !window.__CROSSWELL__) {
+  hydrateRoot(racine, application)
+} else {
+  createRoot(racine).render(application)
+}

@@ -40,17 +40,39 @@ const MOIS_LONG = [
   'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
 ]
 
-function Case({ jour, courant, aujourdhui }: { jour: string; courant: boolean; aujourdhui: string }) {
+function Case({
+  jour,
+  courant,
+  aujourdhui,
+  servies,
+}: {
+  jour: string
+  courant: boolean
+  aujourdhui: string
+  /** Les journées qui ont des résultats. Vide = la liste n'est pas encore là. */
+  servies: Set<string>
+}) {
   const [, , j] = partsDe(jour)
   const futur = jour > aujourdhui
+
+  // Un jour PASSÉ SANS COURSE n'a pas de page non plus, et la grille le rendait
+  // pourtant cliquable : un dimanche sans réunion menait à un 404, depuis une
+  // adresse que le robot finit par explorer. `servies` vient de
+  // `journees_publiques`, qui ne connaît que les jours ayant des arrivées.
+  // Tant que la liste n'est pas chargée (ensemble vide), on laisse cliquable
+  // plutôt que d'éteindre tout le mois le temps d'une requête.
+  const sansCourse = servies.size > 0 && !servies.has(jour)
 
   const base =
     'num h-9 rounded-lg grid place-items-center text-[0.8125rem] font-semibold transition-colors'
 
-  // Un jour à venir n'a pas de page : il est inerte, et annoncé comme tel.
-  if (futur) {
+  if (futur || sansCourse) {
     return (
-      <span className={`${base} text-dim`} aria-disabled title="Journée à venir">
+      <span
+        className={`${base} text-dim`}
+        aria-disabled
+        title={futur ? 'Journée à venir' : 'Aucune course ce jour-là'}
+      >
         {j}
       </span>
     )
@@ -73,7 +95,15 @@ function Case({ jour, courant, aujourdhui }: { jour: string; courant: boolean; a
   )
 }
 
-function Grille({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui: string }) {
+function Grille({
+  jourCourant,
+  aujourdhui,
+  servies,
+}: {
+  jourCourant: string
+  aujourdhui: string
+  servies: Set<string>
+}) {
   const [annee, mois] = partsDe(jourCourant)
   const { nbJours, decalage } = moisDe(annee, mois)
 
@@ -92,7 +122,7 @@ function Grille({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui: 
         ))}
         {Array.from({ length: nbJours }, (_, i) => {
           const jour = iso(annee, mois, i + 1)
-          return <Case key={jour} jour={jour} courant={jour === jourCourant} aujourdhui={aujourdhui} />
+          return <Case key={jour} jour={jour} courant={jour === jourCourant} aujourdhui={aujourdhui} servies={servies} />
         })}
       </div>
     </div>
@@ -100,7 +130,15 @@ function Grille({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui: 
 }
 
 /** La semaine du jour courant, sur une ligne — l'affichage de téléphone. */
-function Semaine({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui: string }) {
+function Semaine({
+  jourCourant,
+  aujourdhui,
+  servies,
+}: {
+  jourCourant: string
+  aujourdhui: string
+  servies: Set<string>
+}) {
   const [a, m, j] = partsDe(jourCourant)
   const d = new Date(Date.UTC(a, m - 1, j))
   const lundi = new Date(d)
@@ -115,7 +153,7 @@ function Semaine({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui:
         return (
           <div key={jour} className="flex flex-col items-center gap-1">
             <span className="text-[0.6875rem] font-bold text-faint">{JOURS[i]}</span>
-            <Case jour={jour} courant={jour === jourCourant} aujourdhui={aujourdhui} />
+            <Case jour={jour} courant={jour === jourCourant} aujourdhui={aujourdhui} servies={servies} />
           </div>
         )
       })}
@@ -123,7 +161,17 @@ function Semaine({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui:
   )
 }
 
-export function Calendrier({ jourCourant, aujourdhui }: { jourCourant: string; aujourdhui: string }) {
+export function Calendrier({
+  jourCourant,
+  aujourdhui,
+  journees,
+}: {
+  jourCourant: string
+  aujourdhui: string
+  /** Les journées qui ont des résultats, telles que `journees_publiques` les sert. */
+  journees: string[]
+}) {
+  const servies = new Set(journees)
   const [annee, mois] = partsDe(jourCourant)
   const titre = `${MOIS_LONG[mois - 1]} ${annee}`
 
@@ -133,19 +181,19 @@ export function Calendrier({ jourCourant, aujourdhui }: { jourCourant: string; a
 
       {/* Grand écran : le mois entier, toujours déplié. */}
       <div className="hidden lg:block">
-        <Grille jourCourant={jourCourant} aujourdhui={aujourdhui} />
+        <Grille jourCourant={jourCourant} aujourdhui={aujourdhui} servies={servies} />
       </div>
 
       {/* Téléphone : la semaine, et le mois derrière un `<details>` natif —
           pas d'état client, donc rien à rejouer au rendu serveur. */}
       <div className="lg:hidden flex flex-col gap-3">
-        <Semaine jourCourant={jourCourant} aujourdhui={aujourdhui} />
+        <Semaine jourCourant={jourCourant} aujourdhui={aujourdhui} servies={servies} />
         <details className="group">
           <summary className="list-none cursor-pointer text-[0.8125rem] font-bold text-accent min-h-11 flex items-center">
             Voir le mois
           </summary>
           <div className="pt-3">
-            <Grille jourCourant={jourCourant} aujourdhui={aujourdhui} />
+            <Grille jourCourant={jourCourant} aujourdhui={aujourdhui} servies={servies} />
           </div>
         </details>
       </div>

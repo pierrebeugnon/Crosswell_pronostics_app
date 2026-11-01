@@ -10,7 +10,6 @@ import {
   NOTE_NON_PARTANTS,
   RYTHME_PUBLICATION,
   URL_INSCRIPTION,
-  URL_RESULTATS,
   inscrireAvec,
   type Formule,
 } from '@/config/site'
@@ -171,10 +170,10 @@ export default function Accueil() {
       <section className="grid gap-8 lg:gap-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-center px-5 lg:px-20 pt-9 lg:pt-[5.5rem] pb-2 lg:pb-10">
         <div className="flex flex-col gap-5 lg:gap-6 animate-fade-up">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
-            Pronostics hippiques · toutes les courses de galop du jour
+            Toutes les courses de galop du jour
           </span>
           <h1 className="text-[2.125rem] lg:text-[3.3125rem] font-extrabold tracking-[-0.035em] leading-[1.02] [text-wrap:balance]">
-            Chaque matin, l’arrivée la plus probable.
+            Pronostics hippiques&nbsp;: chaque matin, l’arrivée la plus probable.
           </h1>
           <p className="max-w-[33.75rem] text-[0.9375rem] lg:text-[1.125rem] font-medium leading-relaxed text-muted">
             Notre modèle chiffre les chances de chaque partant&nbsp;: pourcentage de victoire, pourcentage de place,
@@ -255,15 +254,17 @@ export default function Accueil() {
             Jugez-nous sur pièces&nbsp;: tous nos pronostics confrontés à l’arrivée officielle, et publiés. Tous, sans tri.
           </h2>
           <p className="text-[0.9375rem] font-medium leading-relaxed text-muted">
-            Filtrez par période, type de course, distance ou hippodrome. Chaque taux s’affiche avec son effectif.
+            Chaque arrivée se consulte librement, jour par jour, en face de la probabilité publiée le matin même. Dans
+            l’application, dès la formule gratuite, filtrez nos taux par période, type de course, distance ou
+            hippodrome&nbsp;: chacun s’affiche avec son effectif.
           </p>
         </div>
-        <a
-          href={URL_RESULTATS}
+        <Link
+          to="/resultats"
           className="shrink-0 h-[3.25rem] px-[1.625rem] rounded-full border border-line-strong flex items-center justify-center text-[0.9375rem] font-bold hover:border-line-hover transition-colors"
         >
           Voir tous nos résultats
-        </a>
+        </Link>
       </section>
 
       {/* ── Tarifs ────────────────────────────────────────────────────────── */}
