@@ -54,7 +54,7 @@ export function EnTete() {
           <Logo />
         </Link>
         <nav aria-label="Navigation" className="hidden lg:flex items-center gap-1">
-          {ENTREES.map((e) => (
+          {ENTREES.filter((e) => !e.horsBarre).map((e) => (
             <LienEntree
               key={e.libelle}
               entree={e}

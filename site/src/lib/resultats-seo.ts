@@ -15,6 +15,7 @@ import {
   type CoursePublique,
   type JourneePublique,
 } from '@/lib/resultats'
+import type { Statistiques } from '@/lib/statistiques'
 
 /**
  * CE QUE LE ROBOT LIT DANS LA TÊTE — titre, description, canonique, données
@@ -314,6 +315,52 @@ function teteArchives(origine: string): Tete {
         ],
       }),
     ],
+  }
+}
+
+/**
+ * La tête de `/statistiques`.
+ *
+ * LUE AUSSI PAR LE BUILD, comme `teteRubrique`, d'où `donnees` facultatif : le
+ * build ne connaît pas les chiffres, et le jeu de données n'est déclaré que par
+ * la fonction, avec sa vraie période.
+ */
+export function teteStatistiques(origine: string, donnees?: Statistiques): Tete {
+  const titre = 'Statistiques des courses de galop en France — Crosswell'
+  const description =
+    'Favoris, disciplines, pelotons, hippodromes : les statistiques des courses de galop en France, calculées sur les arrivées, chaque taux avec son effectif.'
+  const url = `${origine}/statistiques`
+
+  const blocs: unknown[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${origine}/` },
+        { '@type': 'ListItem', position: 2, name: 'Statistiques', item: url },
+      ],
+    },
+  ]
+  if (donnees) {
+    blocs.push({
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: 'Statistiques des courses de galop en France',
+      description,
+      url,
+      inLanguage: 'fr-FR',
+      isAccessibleForFree: true,
+      temporalCoverage: `${donnees.debut}/${donnees.fin}`,
+      spatialCoverage: 'France',
+      creator: { '@type': 'Organization', name: MARQUE },
+    })
+  }
+
+  return {
+    titre,
+    description,
+    canonique: '/statistiques',
+    donneesStructurees: blocs.map((b) => JSON.stringify(b)),
   }
 }
 

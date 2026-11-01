@@ -9,6 +9,7 @@ import Blog from '@/pages/Blog'
 import Article from '@/pages/Article'
 import Resultats from '@/pages/Resultats'
 import ArchivesResultats from '@/pages/ArchivesResultats'
+import Statistiques from '@/pages/Statistiques'
 import ResultatCourse from '@/pages/ResultatCourse'
 import NonTrouve from '@/pages/NonTrouve'
 
@@ -38,6 +39,8 @@ export const ROUTES: RouteObject[] = [
       { path: 'resultats/archives', element: <ArchivesResultats /> },
       { path: 'resultats/:jour', element: <Resultats /> },
       { path: 'resultats/:jour/:lieu/:course', element: <ResultatCourse /> },
+      // Rendue par la même fonction, à partir des mêmes vues publiques.
+      { path: 'statistiques', element: <Statistiques /> },
       { path: 'mentions-legales', element: <MentionsLegales /> },
       { path: 'confidentialite', element: <Confidentialite /> },
       // L'app renvoie vers `/cgu` depuis la case de l'inscription ; le

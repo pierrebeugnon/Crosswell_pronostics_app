@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import type { JourneePublique } from '@/lib/resultats'
+import type { Statistiques } from '@/lib/statistiques'
 
 /**
  * LES DONNÉES DÉJÀ CHARGÉES — le pont entre le rendu serveur et le navigateur.
@@ -26,6 +27,7 @@ import type { JourneePublique } from '@/lib/resultats'
 export interface DonneesInitiales {
   journee?: JourneePublique
   journees?: string[]
+  statistiques?: Statistiques
 }
 
 /** La clé, écrite une fois : le serveur l'émet, le client la lit. */

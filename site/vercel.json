@@ -21,6 +21,7 @@
   ],
   "rewrites": [
     { "source": "/sitemap-resultats.xml", "destination": "/api/sitemap-resultats" },
+    { "source": "/statistiques", "destination": "/api/resultats?chemin=/statistiques" },
     { "source": "/resultats", "destination": "/api/resultats?chemin=/resultats" },
     { "source": "/resultats/:chemin*", "destination": "/api/resultats?chemin=/resultats/:chemin*" }
   ],

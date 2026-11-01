@@ -46,7 +46,7 @@ const DIST_SERVEUR = join(ICI, '..', 'dist-serveur')
  * fonction `api/resultats` sert cette tête sur `/resultats`, et deux copies
  * d'un même titre finissent toujours par diverger.
  */
-const { rendre, teteRubrique } = await import(
+const { rendre, teteRubrique, teteStatistiques } = await import(
   pathToFileURL(join(DIST_SERVEUR, 'entree-serveur.js')).href
 )
 const RUBRIQUE = teteRubrique()
@@ -135,6 +135,15 @@ const PAGES = [
     // moteur une adresse qu'on lui demande par ailleurs d'ignorer est un signal
     // contradictoire. Les adresses datées et les pages de course changent chaque
     // jour : elles sont dans `/sitemap-resultats.xml`, servi par une fonction.
+  },
+  // Même raison que `/resultats` : un fichier ici masquerait la fonction. Cette
+  // entrée ne sert qu'à déclarer l'adresse au sitemap.
+  {
+    chemin: '/statistiques',
+    titre: teteStatistiques('').titre,
+    description: teteStatistiques('').description,
+    priorite: '0.8',
+    sansFichier: true,
   },
   {
     chemin: '/blog',

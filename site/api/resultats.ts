@@ -3,9 +3,11 @@ import {
   analyser,
   chargerJournee,
   chargerJourneesDisponibles,
+  chargerStatistiques,
   decrire,
   instantParis,
   rendre,
+  teteStatistiques,
   type JourneePublique,
 } from '../dist-serveur/entree-serveur.js'
 import { COQUILLE } from '../dist-serveur/coquille.js'
@@ -172,8 +174,33 @@ function introuvable(): Response {
   })
 }
 
+/**
+ * LES STATISTIQUES. Une requête par journée à chaque calcul : c'est le CDN qui
+ * doit le porter. Six heures de cache, et un jour de service périmé pendant la
+ * revalidation : les chiffres ne bougent qu'une fois par jour de courses, et le
+ * visiteur n'attend pas le calcul.
+ */
+async function servirStatistiques(chemin: string): Promise<Response> {
+  try {
+    const statistiques = await chargerStatistiques()
+    const { corps, donnees: balise } = rendre(chemin, { statistiques })
+    return new Response(assembler(teteStatistiques(ORIGINE, statistiques), corps, balise), {
+      status: 200,
+      headers: enTetes('public, max-age=0, s-maxage=21600, stale-while-revalidate=86400'),
+    })
+  } catch (e) {
+    console.error('api/resultats', chemin, e)
+    return new Response(INTROUVABLE, {
+      status: 503,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+    })
+  }
+}
+
 async function servir(request: Request): Promise<Response> {
   const chemin = new URL(request.url).searchParams.get('chemin') ?? '/resultats'
+
+  if (chemin === '/statistiques') return servirStatistiques(chemin)
 
   const demande = analyser(chemin)
   if (!demande) return introuvable()

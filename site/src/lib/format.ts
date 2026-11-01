@@ -112,10 +112,22 @@ export const casseDeTitre = (nom: string) =>
       sep + mot.toLocaleLowerCase('fr'),
     )
 
+/**
+ * Les graphies de la source qu'une mise en casse ne sauve pas, et que le lecteur
+ * chercherait autrement. Seul l'affichage change : les adresses se calculent sur
+ * le nom de la base, et ne bougent donc pas.
+ */
+const HIPPODROMES: Record<string, string> = {
+  PARISLONGCHAMP: 'ParisLongchamp',
+  COMPIEGNE: 'Compiègne',
+  'BDX LE BOUSCAT': 'Bordeaux-Le Bouscat',
+  'MAR.BORELY': 'Marseille-Borély',
+}
+
 /** 'LA TESTE-BA' → 'La Teste-Ba' — les hippodromes arrivent en capitales. */
 export function hippodrome(nom: string | null): string {
   if (!nom || nom === '?') return 'Hippodrome inconnu'
-  return casseDeTitre(nom)
+  return HIPPODROMES[nom] ?? casseDeTitre(nom)
 }
 
 /**

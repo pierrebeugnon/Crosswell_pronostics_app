@@ -18,7 +18,7 @@ cd site && npm run build      # vite build, puis vite build --ssr, puis apres-bu
 ```
 
 Pages : `/` (accueil), `/methode` (« Comment ça marche »), `/blog` et `/blog/<slug>`,
-`/resultats`, `/resultats/archives`, `/resultats/<AAAA-MM-JJ>` et `/resultats/<date>/<hippodrome>/c<n>-<slug>`,
+`/resultats`, `/resultats/archives`, `/resultats/<AAAA-MM-JJ>` et `/resultats/<date>/<hippodrome>/c<n>-<slug>`, `/statistiques`,
 `/cgv` (alias `/cgu`), `/confidentialite`, `/mentions-legales`, et la page introuvable.
 Les routes vivent dans **`src/routes.tsx`**, pas dans `App.tsx` : elles sont partagées
 entre le routeur du navigateur et le rendu serveur, pour qu'une page ne puisse pas exister
@@ -184,6 +184,16 @@ signal contradictoire.
 **Deux chemins vers les anciennes journées**, parce que le calendrier s'arrête à 60 :
 `/resultats/archives` (`pages/ArchivesResultats.tsx`), lié depuis « Journées précédentes », et
 `/sitemap-resultats.xml` (`api/sitemap-resultats.ts`), qui liste journées et courses jugées.
+
+### Les statistiques : les courses, jamais le modèle
+
+`/statistiques` est rendue par la même fonction (`servirStatistiques`), à partir de
+`resultats_publics`. **Elle ne lit aucune colonne du modèle** (`lib/statistiques.ts`, couvert
+par `tests/site/statistiques.test.ts`) : les taux de nos pronostics vivent dans l'application.
+Aucun chiffre n'est écrit dans le texte de la page, tout vient du calcul. « Le favori » y désigne
+la cote de clôture la plus basse : **ne pas le confondre avec « notre favori »**. Une requête par
+journée à chaque calcul : le cache du CDN est ce qui rend cela supportable, et les liens passent
+par `<a>`, pas par le routeur, pour que le navigateur ne refasse pas ces requêtes.
 
 ### Titres et descriptions : une seule source
 
@@ -385,8 +395,9 @@ des « soft 404 » en masse et des doublons. La réécriture a été retirée le
 ce qui précède** : elles sont bornées à `/resultats` et `/resultats/:chemin*`, et leur
 destination est une fonction qui répond un vrai 404 quand l'adresse ne désigne rien — pas
 un `index.html` servi en 200. C'est exactement l'inverse de l'attrape-tout. **Ne jamais
-élargir ces sources**, et ne jamais ajouter de règle sur `/(.*)`. Une troisième, depuis le
-01/11/2026, ne porte que sur l'adresse exacte `/sitemap-resultats.xml`.
+élargir ces sources**, et ne jamais ajouter de règle sur `/(.*)`. Deux autres, depuis
+novembre 2026, ne portent que sur les adresses exactes `/sitemap-resultats.xml` et
+`/statistiques`.
 
 Ce qui la remplace : `scripts/apres-build.mjs`, lancé par `npm run build` après `vite build`.
 Il écrit, à partir du `dist/index.html` construit :

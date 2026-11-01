@@ -1,11 +1,13 @@
 import { supabase } from '@/lib/supabase'
-import type {
-  CoursePublique,
-  Discipline,
-  JourneePublique,
-  PartantPublic,
-  StatutOfficiel,
+import {
+  instantParis,
+  type CoursePublique,
+  type Discipline,
+  type JourneePublique,
+  type PartantPublic,
+  type StatutOfficiel,
 } from '@/lib/resultats'
+import { calculerStatistiques, type LigneStatistique, type Statistiques } from '@/lib/statistiques'
 
 /**
  * LA LECTURE DES RÉSULTATS — deux vues publiques, et rien d'autre.
@@ -275,6 +277,48 @@ export async function chargerAdressesCourses(journees: string[]): Promise<Adress
   )
 
   return parMois.flat()
+}
+
+/** Assez peu pour ménager la base, assez pour qu'une année se lise en quelques secondes. */
+const JOURNEES_EN_PARALLELE = 6
+
+/**
+ * LES STATISTIQUES, sur toutes les journées closes.
+ *
+ * JOURNÉE PAR JOURNÉE, parce qu'une journée tient sous le plafond de lignes de
+ * l'API et qu'un mois non (environ 250 lignes par jour). Le coût est réel : c'est
+ * le CDN qui l'absorbe, voir `servirStatistiques` dans `api/resultats.ts`.
+ *
+ * LE JOUR MÊME EST EXCLU : ses cotes de clôture ne sont pas encore relevées, et
+ * il ferait varier les taux au fil des arrivées.
+ *
+ * Aucune colonne du modèle n'est demandée, ni rang, ni probabilité.
+ */
+export async function chargerStatistiques(): Promise<Statistiques> {
+  const client = supabase
+  if (!client) throw new Error('Les résultats ne sont pas disponibles.')
+
+  const aujourdhui = instantParis().jour
+  const journees = (await chargerJourneesDisponibles(TOUTES_LES_JOURNEES)).filter((j) => j < aujourdhui)
+
+  const lignes: LigneStatistique[] = []
+  for (let i = 0; i < journees.length; i += JOURNEES_EN_PARALLELE) {
+    const lots = await Promise.all(
+      journees.slice(i, i + JOURNEES_EN_PARALLELE).map(async (jour) => {
+        const { data, error } = await client
+          .from('resultats_publics')
+          .select('reunion_date,hippodrome,course_num,discipline,is_handicap,actual_place,cote,non_partant')
+          .eq('reunion_date', jour)
+
+        if (error) throw error
+        if (data.length >= PLAFOND_LIGNES) throw new Error(`Statistiques : ${jour} dépasse le plafond de lignes.`)
+        return data as LigneStatistique[]
+      }),
+    )
+    for (const lot of lots) lignes.push(...lot)
+  }
+
+  return calculerStatistiques(lignes)
 }
 
 /**

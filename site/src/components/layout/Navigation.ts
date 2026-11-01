@@ -20,7 +20,10 @@ export interface Entree {
   libelle: string
   /** Chemin interne (`/methode`, `/#tarifs`) ou adresse externe. */
   vers: string
+  /** Ouvre l'adresse par une vraie navigation, hors du routeur. */
   externe?: boolean
+  /** Absente de la barre du haut : à 1024 px, un cinquième lien la fait déborder. */
+  horsBarre?: boolean
   /**
    * La ligne sous le libellé, dans le menu de téléphone uniquement : il a la
    * place de dire où mène chaque entrée, l'en-tête de bureau ne l'a pas.
@@ -31,6 +34,15 @@ export interface Entree {
 export const ENTREES: readonly Entree[] = [
   { libelle: 'Comment ça marche', vers: '/methode', description: 'La méthode, et ce que le modèle regarde' },
   { libelle: 'Résultats', vers: '/resultats', description: 'Les arrivées du jour, et ce que nous avions annoncé' },
+  // `externe` : une vraie navigation, servie par le CDN. Par le routeur, le
+  // navigateur lancerait lui-même une requête par journée pour refaire le calcul.
+  {
+    libelle: 'Statistiques',
+    vers: '/statistiques',
+    externe: true,
+    horsBarre: true,
+    description: 'Favoris, disciplines, pelotons, hippodromes',
+  },
   { libelle: 'Blog', vers: '/blog', description: 'Méthode, analyses, hippodromes' },
   { libelle: 'Tarifs', vers: '/#tarifs', description: 'Gratuit, Pass 1 jour, mensuel, annuel' },
 ]

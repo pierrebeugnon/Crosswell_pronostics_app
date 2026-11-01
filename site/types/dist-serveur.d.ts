@@ -47,9 +47,16 @@ declare module '*/dist-serveur/entree-serveur.js' {
     courses: CoursePublique[]
   }
 
+  /** Opaque ici : la fonction les charge et les transmet, sans les lire. */
+  export interface Statistiques {
+    debut: string
+    fin: string
+  }
+
   export interface DonneesInitiales {
     journee?: JourneePublique
     journees?: string[]
+    statistiques?: Statistiques
   }
 
   export interface Demande {
@@ -84,6 +91,8 @@ declare module '*/dist-serveur/entree-serveur.js' {
   export function courseDemandee(journee: JourneePublique, d: Demande): CoursePublique | undefined
   export function decrire(d: Demande, journee: JourneePublique | null, origine?: string): Tete | null
   export function teteRubrique(): Tete
+  export function teteStatistiques(origine: string, donnees?: Statistiques): Tete
+  export function chargerStatistiques(): Promise<Statistiques>
   export function chargerJournee(jour: string): Promise<JourneePublique>
   export function chargerJourneesDisponibles(limite?: number): Promise<string[]>
   export function chargerAdressesCourses(journees: string[]): Promise<AdresseCourse[]>

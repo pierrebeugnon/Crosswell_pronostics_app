@@ -275,6 +275,15 @@ export default function Resultats() {
 
       <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 rounded-2xl bg-surface border border-line">
         <span className="text-[0.9375rem] font-medium text-muted">
+          Disciplines, tailles de peloton, favori du marché&nbsp;: toutes ces courses, mises en chiffres.
+        </span>
+        <a href="/statistiques" className="shrink-0 text-[0.9375rem] font-bold text-accent hover:text-accent-hover">
+          Voir les statistiques
+        </a>
+      </section>
+
+      <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 rounded-2xl bg-surface border border-line">
+        <span className="text-[0.9375rem] font-medium text-muted">
           Comprendre ce que vous lisez&nbsp;: nos articles expliquent les pourcentages et la façon dont nous les
           mesurons.
         </span>
