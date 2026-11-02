@@ -314,14 +314,16 @@ export default function Resultats() {
           )}
 
           {/* LE CHANGEMENT DE MODÈLE SE DIT, IL NE SE SUBIT PAS. Cette page
-              recalcule tout sur le modèle servi : le 03/10/2026, les taux ont
-              changé et l'historique est reparti du 10/09. Sans cette phrase, un
+              recalcule tout sur le modèle servi : le 02/11/2026, les taux ont
+              changé et l'historique est celui du nouveau modèle depuis le 11/09.
+              Sans cette phrase, un
               client fidèle verrait des chiffres bouger sans raison — ce qui
               ressemble à une retouche, pas à de la rigueur. */}
           <p className="text-[0.8125rem] text-soft leading-relaxed px-4 py-3 rounded-xl bg-raised border border-line-strong">
             Depuis le {dateCourte(DATE_CHANGEMENT_MODELE)} {DATE_CHANGEMENT_MODELE.slice(0, 4)}, les pronostics sont
-            calculés par une nouvelle version du {NOM_SCORE}. Les taux ci-dessus portent sur elle seule, et repartent
-            donc de sa mise en service&nbsp;: ils ne sont pas comparables à ceux publiés avant cette date.
+            calculés par une nouvelle version du {NOM_SCORE}. Les taux ci-dessus portent sur elle seule, y compris les
+            courses qu’elle calculait déjà en interne depuis le 11 septembre 2026&nbsp;: ils ne sont pas comparables à
+            ceux publiés avant cette date.
           </p>
 
           <p className="text-xs text-muted leading-relaxed pt-2">

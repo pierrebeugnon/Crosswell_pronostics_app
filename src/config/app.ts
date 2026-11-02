@@ -15,9 +15,12 @@
  * les deux divergent, l'intersection des filtres est vide et l'application
  * s'affiche sans aucune course, sans lever la moindre erreur.
  *
- * `M9bis.niveau` depuis le 03/10/2026, en remplacement de `rating+forme.v1`.
+ * `M9ter.etranger` depuis le 02/11/2026 (décision du fondateur), après
+ * `M9bis.niveau` (03/10 → 02/11) et `rating+forme.v1`. Mesure live appariée
+ * du 11/09 au 01/11, 1 137 courses : classement +0,59 pt de C-index
+ * [+0,30 ; +0,87], victoire du favori +0,7 pt (non significatif).
  */
-export const MODELE_CLIENT = 'M9bis.niveau'
+export const MODELE_CLIENT = 'M9ter.etranger'
 
 /** Nom public du modèle. Le client ne voit jamais `rating+forme.v1`. */
 export const NOM_SCORE = 'Score Crosswell'
@@ -44,12 +47,17 @@ export const SEUIL_TRANCHE = 20
 
 /**
  * LA CONFIANCE D'UNE COURSE — à quel point notre rang 1 se détache. Elle ne
- * dépend que de sa probabilité de victoire : « Élevée » à partir de 28 %,
- * « Moyenne » de 18 à 28 %, « Faible » en dessous. Seuils repris des maquettes
- * de la refonte (`design/screens/How.dc.html`, « La confiance ») : la page
- * Méthode les citera, d'où leur place ici.
+ * dépend que de sa probabilité de victoire : « Élevée » à partir de 41 %,
+ * « Moyenne » de 25 à 41 %, « Faible » en dessous. La page Méthode les cite.
+ *
+ * 41 / 25 DEPUIS LE 02/11/2026, 28 / 18 AVANT. M9ter annonce ses chances à la
+ * température de son contrat, plus franche que celle de M9bis (rang 1 à
+ * 26,5 % en moyenne contre 19,1 %). Aux anciens seuils, « Élevée » serait
+ * passée de 10 % à 35 % des courses et n'aurait plus rien distingué. Les
+ * nouveaux gardent les mêmes parts de courses (mesure du 20/10 au 01/11,
+ * 273 courses : « Élevée » 10 %, son favori y gagne ~46 %).
  */
-export const SEUILS_CONFIANCE = { elevee: 0.28, moyenne: 0.18 } as const
+export const SEUILS_CONFIANCE = { elevee: 0.41, moyenne: 0.25 } as const
 
 /**
  * CE QUE L'ON SAIT D'UN NON-PARTANT, ET QUAND — une seule formulation, reprise
@@ -127,11 +135,12 @@ export const DATE_CORRECTION_MESURE = '2026-09-14'
 /**
  * Date du changement de modèle servi (`MODELE_CLIENT`), publiée pour la même
  * raison que ci-dessus : « Nos résultats » recalcule tout sur le modèle en
- * cours, donc les taux affichés ont changé ce jour-là, et l'historique repart
- * du 10/09/2026 au lieu du 11/08. Des chiffres qui bougent sans explication
- * datée ressemblent à une retouche.
+ * cours, donc les taux affichés ont changé ce jour-là. Le 02/11/2026,
+ * l'historique devient celui de M9ter, qui calculait en interne depuis le
+ * 11/09/2026 (03/10/2026 pour le passage à M9bis). Des chiffres qui bougent
+ * sans explication datée ressemblent à une retouche.
  */
-export const DATE_CHANGEMENT_MODELE = '2026-10-03'
+export const DATE_CHANGEMENT_MODELE = '2026-11-02'
 
 /**
  * Écart minimal entre notre probabilité et celle du marché pour qu'un partant
