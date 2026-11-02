@@ -210,6 +210,16 @@ n'entrons pas. Il en découle des règles de contenu qui ne sont pas du style, m
   de ses probabilités ; il ne valorise rien en euros et ne recommande aucune action. Le
   vocabulaire **hippique**, lui, est le bon : pronostic, favori, rang, gagnant, placé, arrivée,
   partants, dossard, non-partant.
+- **UNE EXCEPTION, accordée par le fondateur le 28/10/2026 : « Quinté+ ».** Il la tient pour
+  la désignation usuelle du grand rendez-vous de la journée, et non pour une invitation à
+  parier. Le mot est donc autorisé pour NOMMER une course, et à rien d'autre : ni « jouer le
+  Quinté+ », ni un pronostic présenté comme une combinaison à jouer. Ne pas retirer cette
+  ligne au nom de la règle générale — c'est un arbitrage, pas un oubli. À l'écran, la course
+  du jour porte une pastille rouge `Quinté+` (`components/courses/PastilleQuinte`), un filet
+  rouge sur l'élément cliquable, ou le mot en rouge dans le texte là où une pastille
+  écraserait le nom. **Jamais en vert** (le vert dit « notre pronostic ») et **jamais le rouge
+  `loss`** (qui dit « erreur ») : le Quinté+ a son propre jeton, `--c-quinte`. La doctrine
+  complète et les deux limites de la donnée sont dans `site/CLAUDE.md`.
 - **Aucune valorisation monétaire nulle part.** Les rapports PMU (`rapport_gagnant`,
   `rapport_place`) restent dans la couche de données mais ne sont plus affichés ; la section
   « rendement d'une mise plate » de `/resultats` a été supprimée, pas reformulée. Les cotes,

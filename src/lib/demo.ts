@@ -146,6 +146,19 @@ export function lignesDemo(): LignePrediction[] {
         const courue = j < 0 || (j === 0 && minutes + 25 <= m.minutes)
         const heure = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`
 
+        /*
+         * LE QUINTÉ+ DE LA DÉMO : un par jour, et seulement quatre jours sur
+         * sept. En production il se court au trot environ un jour sur deux (34
+         * des 79 jours relevés le 28/10/2026) et nous n'avons alors aucune
+         * course à mettre en avant : une démo qui en montrerait un chaque jour
+         * ferait prendre l'exception pour la règle.
+         *
+         * Déterministe, et SANS tirer dans `r()` : consommer un nombre de plus
+         * décalerait toute la suite pseudo-aléatoire et changerait chaque
+         * chiffre de la démo, arrivées comprises.
+         */
+        const quinte = k === 0 && c === 4 && (j + 43) % 7 < 4
+
         // Scores décroissants → softmax : un favori marqué, une queue plate.
         const scores = Array.from({ length: declares }, (_, i) => 2.4 - i * (0.25 + r() * 0.12))
         const exp = scores.map((s) => Math.exp(s))
@@ -210,6 +223,7 @@ export function lignesDemo(): LignePrediction[] {
             non_partant: retire[i] ? true : cotee ? false : null,
             rang_effectif: retire[i] ? null : rangAuDepart,
             heure_depart: heure,
+            quinte,
           })
         }
       }

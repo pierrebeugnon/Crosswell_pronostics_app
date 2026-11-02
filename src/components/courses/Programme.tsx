@@ -6,6 +6,7 @@ import { resumeReunion } from '@/lib/avancee'
 import { distance as formatDistance, hippodrome as formatHippodrome, pourcent } from '@/lib/format'
 import { LIBELLE_VERDICT, lienCourse, verdictCourse, verdictReussi } from '@/lib/programme'
 import { AvecUnPass, Cadenas, Offert } from '@/components/acces/Verrou'
+import { PastilleQuinte } from '@/components/courses/PastilleQuinte'
 
 /**
  * Ce que la colonne de droite d'un élément du programme dit de la course :
@@ -75,6 +76,9 @@ export function Programme({
           {r.courses.map((c) => {
             const actif = c.cle === choisie
             const s = statut(c, maintenant)
+            // Le filet rouge du Quinté+ cède devant le vert de la course
+            // ouverte à droite : celui-là dit « vous êtes ici », et savoir où
+            // l'on se trouve passe avant de savoir laquelle est mise en avant.
             return (
               <Link
                 key={c.cle}
@@ -83,7 +87,11 @@ export function Programme({
                 className={`flex items-center gap-3.5 w-full min-h-[4.125rem] px-4 py-3 rounded-xl border transition-colors ${
                   actif
                     ? 'border-accent bg-accent-deep'
-                    : `border-sep bg-sunken hover:border-line-hover ${c.courue ? 'opacity-80' : ''}`
+                    : `${
+                        c.quinte
+                          ? 'border-quinte/50 bg-quinte/[0.06] hover:border-quinte'
+                          : 'border-sep bg-sunken hover:border-line-hover'
+                      } ${c.courue ? 'opacity-80' : ''}`
                 }`}
               >
                 <span className="num w-[3.375rem] shrink-0 flex flex-col gap-0.5">
@@ -92,7 +100,10 @@ export function Programme({
                 </span>
                 <span className="flex-1 min-w-0 flex flex-col gap-[3px]">
                   <span className="text-[0.9375rem] font-semibold truncate">{c.nom ?? `Course ${c.numero}`}</span>
-                  <span className="num text-xs font-medium text-faint truncate">{meta(c)}</span>
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="num text-xs font-medium text-faint truncate">{meta(c)}</span>
+                    {c.quinte && <PastilleQuinte />}
+                  </span>
                 </span>
                 <span className="shrink-0 flex flex-col items-end gap-[3px]">
                   {c.verrouillee ? (
@@ -161,14 +172,21 @@ export function RubanCourses({
             {r.courses.map((c) => {
               const actif = c.cle === choisie
               const v = verdictCourse(c)
+              // Une pastille de 4,75 rem ne tient pas « Quinté+ » en plus de
+              // l'heure et du verdict : le ruban porte le filet rouge, et
+              // l'intitulé dit le mot à qui ne voit pas la couleur.
               return (
                 <Link
                   key={c.cle}
                   to={lienCourse(c)}
                   aria-current={actif ? 'page' : undefined}
-                  aria-label={`${formatHippodrome(c.hippodrome)}, course ${c.numero}${c.heureDepart ? `, ${c.heureDepart}` : ''}`}
+                  aria-label={`${formatHippodrome(c.hippodrome)}, course ${c.numero}${c.heureDepart ? `, ${c.heureDepart}` : ''}${c.quinte ? ', Quinté+' : ''}`}
                   className={`num shrink-0 min-w-[4.75rem] h-[3.625rem] px-3 rounded-xl border flex flex-col items-center justify-center gap-0.5 transition-colors ${
-                    actif ? 'bg-accent text-accent-ink border-accent' : 'bg-surface text-ink border-line'
+                    actif
+                      ? 'bg-accent text-accent-ink border-accent'
+                      : c.quinte
+                        ? 'bg-quinte/[0.07] text-ink border-quinte/55'
+                        : 'bg-surface text-ink border-line'
                   }`}
                 >
                   <span className="text-[0.9375rem] font-bold">{c.heureDepart ?? `C${c.numero}`}</span>

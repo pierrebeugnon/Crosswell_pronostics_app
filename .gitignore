@@ -1,5 +1,9 @@
 node_modules
 dist
+
+# Le bundle de rendu serveur du site et ses enveloppes HTML : sortie de build,
+# régénérée par `npm run build` dans site/.
+dist-serveur
 .env
 .env.local
 .vercel

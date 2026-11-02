@@ -72,6 +72,21 @@
     --c-info: 127 167 245;
     --c-info-soft: 127 167 245;
 
+    /* LE ROUGE DU QUINTÉ+, et il ne sert qu'à ça. Teinte 355°, remontée pour
+       tenir sur le noir : un rouge de logo imprimé y tombe sous le seuil de
+       lisibilité (3,9:1), celui-ci donne 5,9:1 sur le fond de page.
+       JETON SÉPARÉ DE `loss`, À DESSEIN — le corail dit « erreur », « perdu »
+       et « cote en hausse », et les deux se croisent dans la même page. 29 ΔE
+       les séparent ; une fois posées, la bordure d'une ligne Quinté+ et celle
+       d'une carte d'erreur en gardent encore 23. Mesures du 28/10/2026.
+       Jamais le vert de marque : il dit « notre pronostic » partout ailleurs. */
+    --c-quinte: 255 71 87; /* #FF4757 */
+    /* Le fond de la pastille, OPAQUE à dessein : translucide, sa lisibilité
+       dépendait du dessous, et elle tombait à 4,46:1 sur le vert de la ligne
+       choisie. Cette valeur est le rendu de `quinte/[0.12]` sur `sunken`, figé :
+       même aspect, mais 5,10:1 partout. Même rôle que `--c-accent-deep`. */
+    --c-quinte-deep: 42 23 23; /* #2A1717 */
+
     --c-shadow: 0 0 0;
     --c-scroll: 35 42 38; /* #232A26 — le pouce des barres de défilement */
   }

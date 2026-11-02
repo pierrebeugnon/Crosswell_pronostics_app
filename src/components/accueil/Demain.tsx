@@ -5,6 +5,7 @@ import { RYTHME_PUBLICATION_COURT } from '@/config/app'
 import { dateEnTete, dateEnTeteCourte, distance as formatDistance, hippodrome as formatHippodrome, pourcent } from '@/lib/format'
 import { AvecUnPass } from '@/components/acces/Verrou'
 import { lienCourse } from '@/lib/programme'
+import { PastilleQuinte } from '@/components/courses/PastilleQuinte'
 
 function meta(c: Course): string {
   return [c.type, c.distance != null ? formatDistance(c.distance) : null].filter(Boolean).join(' · ')
@@ -65,6 +66,11 @@ export function Demain({ courses, demain }: { courses: Course[]; demain: string 
                 <span className="min-w-0 flex items-baseline gap-2.5">
                   <span className="text-[0.9375rem] font-semibold truncate">{c.nom ?? `Course ${c.numero}`}</span>
                   <span className="num shrink-0 text-xs font-medium text-faint">{meta(c)}</span>
+                  {c.quinte && (
+                    <span className="self-center">
+                      <PastilleQuinte />
+                    </span>
+                  )}
                 </span>
                 <span className="num flex items-center justify-end gap-2.5 text-[0.8125rem] font-semibold text-faint min-w-0">
                   {c.verrouillee ? (
@@ -98,6 +104,7 @@ export function Demain({ courses, demain }: { courses: Course[]; demain: string 
                 <span className="min-w-0 flex flex-col gap-[3px]">
                   <span className="text-sm font-bold truncate">{c.nom ?? `Course ${c.numero}`}</span>
                   <span className="num text-xs font-medium text-faint truncate">
+                    {c.quinte && <span className="font-bold text-quinte">Quinté+ · </span>}
                     {formatHippodrome(c.hippodrome)} · {meta(c)}
                   </span>
                 </span>

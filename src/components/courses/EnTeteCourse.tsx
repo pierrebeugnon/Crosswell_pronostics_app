@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { Course } from '@/types'
 import { distance as formatDistance, hippodrome as formatHippodrome } from '@/lib/format'
 import { AvecUnPass } from '@/components/acces/Verrou'
+import { PastilleQuinte } from '@/components/courses/PastilleQuinte'
 import { confianceCourse, type Confiance } from '@/lib/programme'
 
 /** Les trois barres croissantes de la confiance, allumées jusqu'au niveau atteint. */
@@ -55,7 +56,8 @@ export function EnTeteCourse({ course }: { course: Course }) {
 
         {/* Téléphone : une ligne de méta et la confiance en ligne, comme la maquette mobile. */}
         <p className="lg:hidden num text-[0.8125rem] font-medium text-faint">{etiquettes.join(' · ')}</p>
-        <div className="lg:hidden flex items-center gap-2.5 mt-1">
+        <div className="lg:hidden flex flex-wrap items-center gap-2.5 mt-1">
+          {c.quinte && <PastilleQuinte />}
           {c.courue && (
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-ink text-accent-ink">Terminée</span>
           )}
@@ -74,7 +76,8 @@ export function EnTeteCourse({ course }: { course: Course }) {
           Comment lire ce pronostic ?
         </Link>
 
-        <div className="hidden lg:flex flex-wrap gap-2">
+        <div className="hidden lg:flex flex-wrap items-center gap-2">
+          {c.quinte && <PastilleQuinte grande />}
           {c.courue && (
             <span className="text-[0.8125rem] font-bold px-3 py-1.5 rounded-full bg-ink text-accent-ink">
               Terminée · arrivée relevée

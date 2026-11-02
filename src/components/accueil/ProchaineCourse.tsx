@@ -7,6 +7,7 @@ import type { InstantParis } from '@/lib/journee'
 import { BarresConfiance } from '@/components/courses/EnTeteCourse'
 import { TuileNumero } from '@/components/ui/TuileNumero'
 import { AvecUnPass } from '@/components/acces/Verrou'
+import { PastilleQuinte } from '@/components/courses/PastilleQuinte'
 
 /**
  * La grande carte « Prochaine course » : son nom, son heure, le délai avant le
@@ -50,6 +51,7 @@ export function ProchaineCourse({ prochaine, maintenant }: { prochaine: Prochain
               <span>C{c.numero}</span>
               <span aria-hidden>·</span>
               <span className="truncate">{formatHippodrome(c.hippodrome)}</span>
+              {c.quinte && <PastilleQuinte />}
             </p>
             <h2 className="text-[1.8125rem] font-extrabold tracking-[-0.02em] leading-[1.1]">{c.nom ?? `Course ${c.numero}`}</h2>
             <p className="num text-sm font-medium text-faint">{meta}</p>
@@ -132,8 +134,11 @@ export function ProchaineCourse({ prochaine, maintenant }: { prochaine: Prochain
         </span>
         <span className="flex items-start justify-between gap-3">
           <span className="flex flex-col gap-1.5 min-w-0">
-            <span className="num text-xs font-semibold text-faint">
-              C{c.numero} · {formatHippodrome(c.hippodrome)}
+            <span className="num flex items-center gap-2 text-xs font-semibold text-faint">
+              <span className="truncate">
+                C{c.numero} · {formatHippodrome(c.hippodrome)}
+              </span>
+              {c.quinte && <PastilleQuinte />}
             </span>
             <span className="text-[1.25rem] font-extrabold tracking-[-0.02em] leading-[1.15]">
               {c.nom ?? `Course ${c.numero}`}

@@ -157,6 +157,11 @@ export function construireCourses(lignes: LignePrediction[]): Course[] {
       heureDepart: heure ? heure.slice(0, 5) : null,
       courue,
       cotee: cotes.length > 0,
+      // Toutes les lignes d'une course portent la même valeur — la vue la tient
+      // d'une jointure sur la course, pas sur le cheval. `some` plutôt que la
+      // ligne de tête : une base non migrée rend `undefined`, et la course
+      // n'est alors simplement pas marquée.
+      quinte: lignesCourse.some((l) => l.quinte === true),
       verrouillee: lignesCourse.some((l) => l.verrouille === true),
       liste,
       favori,

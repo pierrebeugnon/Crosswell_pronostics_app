@@ -44,7 +44,11 @@ export function CoursesDuJour({
               key={c.cle}
               to={lienCourse(c)}
               className={`min-w-0 flex flex-col gap-[1.125rem] p-[1.125rem] rounded-2xl bg-surface border transition-colors ${
-                statut === 'prochaine' ? 'border-accent' : 'border-line hover:border-line-hover'
+                statut === 'prochaine'
+                  ? 'border-accent'
+                  : c.quinte
+                    ? 'border-quinte/50 hover:border-quinte'
+                    : 'border-line hover:border-line-hover'
               } ${statut === 'terminee' || statut === 'departPasse' ? 'opacity-60 hover:opacity-100' : ''}`}
             >
               <span className="flex items-center justify-between gap-2">
@@ -62,7 +66,12 @@ export function CoursesDuJour({
               </span>
               <span className="flex flex-col gap-1 min-w-0">
                 <span className="text-[0.9375rem] font-bold truncate">{c.nom ?? `Course ${c.numero}`}</span>
+                {/* Une carte fait un cinquième de la largeur : une pastille y
+                    écraserait le nom de la course. Le mot ouvre donc la ligne
+                    d'identité, en rouge — même information, aucune hauteur de
+                    plus, et le filet de la carte le répète. */}
                 <span className="text-xs font-medium text-faint truncate">
+                  {c.quinte && <span className="font-bold text-quinte">Quinté+ · </span>}
                   {formatHippodrome(c.hippodrome)} · {c.type}
                 </span>
               </span>
@@ -105,6 +114,7 @@ export function CoursesDuJour({
               <span className="min-w-0 flex flex-col gap-[3px]">
                 <span className="text-sm font-bold truncate">{c.nom ?? `Course ${c.numero}`}</span>
                 <span className="text-xs font-medium text-faint truncate">
+                  {c.quinte && <span className="font-bold text-quinte">Quinté+ · </span>}
                   {formatHippodrome(c.hippodrome)} · {c.type}
                 </span>
               </span>

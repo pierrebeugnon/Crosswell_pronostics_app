@@ -34,6 +34,16 @@ export interface LignePrediction {
    * NULL. Vrai seulement sans accès complet, sur les courses à venir non offertes.
    */
   verrouille?: boolean | null
+  /**
+   * La course est le Quinté+ du jour (`db/019`). Optionnelle comme les autres
+   * colonnes tardives : sur une base où la migration manque, la pastille
+   * disparaît au lieu que la page casse.
+   *
+   * Elle n'est PAS masquée par `verrouille` : ce n'est pas un pronostic, c'est
+   * le nom que le PMU donne à une course, et le site vitrine le montre déjà à
+   * un visiteur anonyme.
+   */
+  quinte?: boolean | null
 }
 
 export type TypeCourse = 'Handicap' | 'Réclamer' | 'Conditions' | 'Groupe & Listed'
@@ -96,6 +106,13 @@ export interface Course {
   courue: boolean
   /** Des cotes sont disponibles sur cette course. */
   cotee: boolean
+  /**
+   * LE QUINTÉ+ DU JOUR, tel que le PMU le désigne. Au plus une course par jour,
+   * et souvent aucune chez nous : il se court au trot environ un jour sur deux
+   * (34 des 79 jours relevés le 28/10/2026). Une journée entièrement à `false`
+   * est donc normale, et ne dit rien d'une collecte manquée.
+   */
+  quinte: boolean
   /**
    * Le pronostic est réservé aux Pass (formule Gratuit, course à venir autre que
    * la course offerte) : la base n'en a donné ni rang ni probabilité.
