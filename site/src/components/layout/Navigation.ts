@@ -43,6 +43,12 @@ export const ENTREES: readonly Entree[] = [
     horsBarre: true,
     description: 'Favoris, disciplines, pelotons, hippodromes',
   },
+  {
+    libelle: 'Convertir une cote',
+    vers: '/outils/cote-probabilite',
+    horsBarre: true,
+    description: 'De la cote à la probabilité, marge retirée',
+  },
   { libelle: 'Blog', vers: '/blog', description: 'Méthode, analyses, hippodromes' },
   { libelle: 'Tarifs', vers: '/#tarifs', description: 'Gratuit, Pass 1 jour, mensuel, annuel' },
 ]

@@ -381,6 +381,12 @@ export default function Methode() {
                   pourcentages dépassent 100&nbsp;%. L’excédent est la marge de l’opérateur, environ 20&nbsp;% relevés
                   en septembre 2026. L’application la retire avant de comparer&nbsp;: vous lisez une comparaison nette.
                 </Paragraphe>
+                <Link
+                  to="/outils/cote-probabilite"
+                  className="self-start text-[0.9375rem] font-bold text-accent hover:text-accent-hover"
+                >
+                  Convertir une course entière, marge retirée
+                </Link>
               </div>
               <Calculateur />
             </div>

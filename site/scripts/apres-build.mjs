@@ -46,7 +46,7 @@ const DIST_SERVEUR = join(ICI, '..', 'dist-serveur')
  * fonction `api/resultats` sert cette tête sur `/resultats`, et deux copies
  * d'un même titre finissent toujours par diverger.
  */
-const { rendre, teteRubrique, teteStatistiques } = await import(
+const { rendre, teteRubrique, teteStatistiques, TETE_OUTIL_COTE } = await import(
   pathToFileURL(join(DIST_SERVEUR, 'entree-serveur.js')).href
 )
 const RUBRIQUE = teteRubrique()
@@ -144,6 +144,14 @@ const PAGES = [
     description: teteStatistiques('').description,
     priorite: '0.8',
     sansFichier: true,
+  },
+  // Titre et description LUS DANS LE BUNDLE, comme ceux des statistiques : la
+  // page pose le même titre par `useTitre`.
+  {
+    chemin: TETE_OUTIL_COTE.chemin,
+    titre: TETE_OUTIL_COTE.titre,
+    description: TETE_OUTIL_COTE.description,
+    priorite: '0.7',
   },
   {
     chemin: '/blog',

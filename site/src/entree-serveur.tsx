@@ -41,6 +41,7 @@ export {
   chargerStatistiques,
 } from '@/services/resultats'
 export { analyser, courseDemandee, decrire, teteRubrique, teteStatistiques } from '@/lib/resultats-seo'
+export { TETE_OUTIL_COTE } from '@/lib/cotes'
 export type { Demande, Tete } from '@/lib/resultats-seo'
 export type { DonneesInitiales } from '@/lib/donnees-initiales'
 export type { CoursePublique, JourneePublique } from '@/lib/resultats'

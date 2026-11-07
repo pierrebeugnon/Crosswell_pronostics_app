@@ -161,7 +161,12 @@ export default function Statistiques() {
       <H2 id="cote">Ce qu’annonce la cote, et ce qui arrive</H2>
       <P>
         Une cote se convertit en probabilité, une fois retirée la marge de l’opérateur. Le tableau met en face ce
-        qu’annonce la cote du favori et la fréquence à laquelle il a réellement gagné.
+        qu’annonce la cote du favori et la fréquence à laquelle il a réellement gagné. Pour faire le calcul sur une
+        course,{' '}
+        <Link to="/outils/cote-probabilite" className="text-accent hover:text-accent-hover">
+          convertissez ses cotes
+        </Link>
+        .
       </P>
       <Tableau
         entetes={['Cote du favori', 'Courses', 'Annoncé par la cote', 'Favori gagnant']}

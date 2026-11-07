@@ -93,6 +93,7 @@ declare module '*/dist-serveur/entree-serveur.js' {
   export function teteRubrique(): Tete
   export function teteStatistiques(origine: string, donnees?: Statistiques): Tete
   export function chargerStatistiques(): Promise<Statistiques>
+  export const TETE_OUTIL_COTE: { chemin: string; titre: string; description: string }
   export function chargerJournee(jour: string): Promise<JourneePublique>
   export function chargerJourneesDisponibles(limite?: number): Promise<string[]>
   export function chargerAdressesCourses(journees: string[]): Promise<AdresseCourse[]>

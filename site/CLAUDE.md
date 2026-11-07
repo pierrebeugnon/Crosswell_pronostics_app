@@ -18,7 +18,8 @@ cd site && npm run build      # vite build, puis vite build --ssr, puis apres-bu
 ```
 
 Pages : `/` (accueil), `/methode` (« Comment ça marche »), `/blog` et `/blog/<slug>`,
-`/resultats`, `/resultats/archives`, `/resultats/<AAAA-MM-JJ>` et `/resultats/<date>/<hippodrome>/c<n>-<slug>`, `/statistiques`,
+`/resultats`, `/resultats/archives`, `/resultats/<AAAA-MM-JJ>` et `/resultats/<date>/<hippodrome>/c<n>-<slug>`, `/statistiques`, `/outils/cote-probabilite`
+(calcul dans `lib/cotes.ts`, testé dans `tests/site/`),
 `/cgv` (alias `/cgu`), `/confidentialite`, `/mentions-legales`, et la page introuvable.
 Les routes vivent dans **`src/routes.tsx`**, pas dans `App.tsx` : elles sont partagées
 entre le routeur du navigateur et le rendu serveur, pour qu'une page ne puisse pas exister
