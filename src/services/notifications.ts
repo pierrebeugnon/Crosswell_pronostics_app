@@ -24,12 +24,18 @@ export interface Etat {
   choix: Choix
 }
 
-function appareilCourant() {
+/** Ouverte depuis l'écran d'accueil (app installée), et non dans un onglet. */
+export function appInstallee(): boolean {
   const nav = navigator as Navigator & { standalone?: boolean }
+  return window.matchMedia?.('(display-mode: standalone)').matches === true || nav.standalone === true
+}
+
+function appareilCourant() {
+  const nav = navigator
   return {
     userAgent: nav.userAgent,
     maxTouchPoints: nav.maxTouchPoints ?? 0,
-    installee: window.matchMedia?.('(display-mode: standalone)').matches === true || nav.standalone === true,
+    installee: appInstallee(),
     serviceWorker: 'serviceWorker' in nav,
     pushManager: 'PushManager' in window,
     permission: 'Notification' in window ? Notification.permission : null,

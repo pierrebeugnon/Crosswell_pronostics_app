@@ -2,9 +2,10 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, LogOut } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
-import { CONTACT, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
+import { CONTACT, COTE_BELLE_VICTOIRE, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
 import { CHOIX_PAR_DEFAUT, CLE_REGLAGE_NOTIFS, reglageVisible } from '@/lib/notifications'
-import { activer, changerChoix, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
+import { activer, appInstallee, changerChoix, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
+import { CeQueVousRecevez, TutoEcranAccueil, TutoIos } from '@/components/compte/TutoEcranAccueil'
 import { MOIS_LONG, dateLongue, jourParis } from '@/lib/format'
 import { useAcces } from '@/auth/AccesContext'
 import { ACCES_SANS_FILTRE, libelleStatut, type Acces } from '@/lib/acces'
@@ -167,9 +168,7 @@ function useReglageNotifications(): boolean {
     } catch {
       /* stockage bloqué : seul le paramètre compte */
     }
-    const nav = navigator as Navigator & { standalone?: boolean }
-    const installee = window.matchMedia?.('(display-mode: standalone)').matches === true || nav.standalone === true
-    return reglageVisible(NOTIFICATIONS_OUVERTES, parametre, retenu, installee)
+    return reglageVisible(NOTIFICATIONS_OUVERTES, parametre, retenu, appInstallee())
   })
   return visible
 }
@@ -264,12 +263,15 @@ function Notifications() {
       {!etat ? (
         <p className="text-sm font-medium text-faint">Lecture de cet appareil…</p>
       ) : etat.possibilite === 'installer' ? (
-        <p className="text-sm font-medium text-muted leading-relaxed">
-          Sur iPhone et iPad, les alertes n’arrivent qu’à l’application installée. Dans Safari, touchez{' '}
-          <span className="text-ink font-semibold">Partager</span>, puis{' '}
-          <span className="text-ink font-semibold">Sur l’écran d’accueil</span>, ouvrez Crosswell depuis son icône et
-          revenez ici.
-        </p>
+        <div className="flex flex-col gap-5">
+          <CeQueVousRecevez complet={complet} coteMin={COTE_BELLE_VICTOIRE} />
+          <div className="flex flex-col gap-4 px-[1.125rem] py-4 rounded-xl bg-canvas border border-track">
+            <p className="text-sm font-bold">
+              Sur iPhone, les alertes n’arrivent qu’à Crosswell ajouté à l’écran d’accueil. Une minute suffit :
+            </p>
+            <TutoIos />
+          </div>
+        </div>
       ) : etat.possibilite === 'refuse' ? (
         <p className="text-sm font-medium text-muted leading-relaxed">
           Les notifications sont bloquées pour Crosswell sur cet appareil. Autorisez-les dans les réglages du
@@ -280,15 +282,11 @@ function Notifications() {
           Ce navigateur ne reçoit pas de notifications. Essayez Chrome, Edge, Firefox ou Safari à jour.
         </p>
       ) : !etat.abonne ? (
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
-          <p className="text-sm font-medium text-muted leading-relaxed max-w-lg">
-            {complet
-              ? 'Recevez sur cet appareil les courses à confiance Élevée avant leur départ, et nos plus belles victoires.'
-              : 'Recevez sur cet appareil votre course offerte 30 minutes avant son départ, et nos plus belles victoires.'}
-          </p>
+        <div className="flex flex-col gap-5">
+          <CeQueVousRecevez complet={complet} coteMin={COTE_BELLE_VICTOIRE} />
           <button
             type="button"
-            className="btn-accent shrink-0"
+            className="btn-accent self-start"
             disabled={enCours || !userId || DEMO}
             onClick={() => userId && agir(() => activer(userId, CHOIX_PAR_DEFAUT), 'Notifications activées sur cet appareil.')}
           >
@@ -319,7 +317,7 @@ function Notifications() {
           />
           <Interrupteur
             libelle="Belles victoires"
-            detail="Quand notre 1er gagne une course à une cote de 10 ou plus."
+            detail={`Dès que notre 1er gagne une course à une cote de ${COTE_BELLE_VICTOIRE} ou plus.`}
             actif={choix.bellesVictoires}
             desactive={enCours}
             onChange={(v) => agir(() => changerChoix({ ...choix, bellesVictoires: v }))}
@@ -355,6 +353,17 @@ function Notifications() {
         </p>
       )}
       {info && !erreur && <p className="text-xs font-semibold text-accent">{info}</p>}
+      {etat && etat.possibilite !== 'installer' && !appInstallee() && (
+        <details className="group rounded-xl bg-canvas border border-track">
+          <summary className="cursor-pointer list-none px-[1.125rem] py-3.5 text-sm font-bold flex items-center justify-between">
+            Ajouter Crosswell à l’écran d’accueil
+            <span className="text-faint text-xs font-semibold group-open:hidden">Voir comment</span>
+          </summary>
+          <div className="px-[1.125rem] pb-4">
+            <TutoEcranAccueil />
+          </div>
+        </details>
+      )}
     </Carte>
   )
 }
