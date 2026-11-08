@@ -2,10 +2,10 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, LogOut } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
-import { CONTACT, COTE_BELLE_VICTOIRE, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
+import { CONTACT, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
 import { CHOIX_PAR_DEFAUT, CLE_REGLAGE_NOTIFS, reglageVisible } from '@/lib/notifications'
-import { activer, appInstallee, changerChoix, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
-import { CeQueVousRecevez, TutoEcranAccueil, TutoIos } from '@/components/compte/TutoEcranAccueil'
+import { activer, appInstallee, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
+import { TutosEcranAccueil } from '@/components/compte/TutoEcranAccueil'
 import { MOIS_LONG, dateLongue, jourParis } from '@/lib/format'
 import { useAcces } from '@/auth/AccesContext'
 import { ACCES_SANS_FILTRE, libelleStatut, type Acces } from '@/lib/acces'
@@ -214,17 +214,14 @@ function Interrupteur({
 }
 
 /**
- * LES NOTIFICATIONS (db/021, db/022), réglées PAR APPAREIL — un client peut les
- * vouloir sur son téléphone et pas sur son ordinateur :
- * - « course offerte », formule Gratuit : 30 min avant la course ouverte du jour ;
- * - « confiance Élevée », accès complet : la formule Gratuit ne voit pas les
- *   probabilités qui la définissent ;
- * - « belles victoires », tous : notre 1er gagne à une cote d'au moins 10.
+ * LES NOTIFICATIONS (db/021, db/022), PAR APPAREIL : un seul interrupteur,
+ * activer ou désactiver. Décision du fondateur (08/11/2026) : l'encart ne dit
+ * pas ce qui sera envoyé, et ne règle pas les alertes une par une. Ce que
+ * reçoit chaque formule (course offerte, confiance Élevée, belles victoires)
+ * est décidé côté serveur, par `crosswell_push_destinataires`.
  */
 function Notifications() {
   const { session } = useAuth()
-  const { acces } = useAcces()
-  const complet = (acces ?? ACCES_SANS_FILTRE).complet
   const [etat, setEtat] = useState<Etat | null>(null)
   const [enCours, setEnCours] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -255,7 +252,6 @@ function Notifications() {
     }
   }
 
-  const choix = etat?.choix ?? CHOIX_PAR_DEFAUT
   const userId = session?.user.id
 
   return (
@@ -263,15 +259,10 @@ function Notifications() {
       {!etat ? (
         <p className="text-sm font-medium text-faint">Lecture de cet appareil…</p>
       ) : etat.possibilite === 'installer' ? (
-        <div className="flex flex-col gap-5">
-          <CeQueVousRecevez complet={complet} coteMin={COTE_BELLE_VICTOIRE} />
-          <div className="flex flex-col gap-4 px-[1.125rem] py-4 rounded-xl bg-canvas border border-track">
-            <p className="text-sm font-bold">
-              Sur iPhone, les alertes n’arrivent qu’à Crosswell ajouté à l’écran d’accueil. Une minute suffit :
-            </p>
-            <TutoIos />
-          </div>
-        </div>
+        <p className="text-sm font-medium text-muted leading-relaxed">
+          Sur iPhone, ajoutez d’abord Crosswell à l’écran d’accueil, puis ouvrez-le depuis son icône pour activer
+          les notifications.
+        </p>
       ) : etat.possibilite === 'refuse' ? (
         <p className="text-sm font-medium text-muted leading-relaxed">
           Les notifications sont bloquées pour Crosswell sur cet appareil. Autorisez-les dans les réglages du
@@ -281,71 +272,33 @@ function Notifications() {
         <p className="text-sm font-medium text-muted leading-relaxed">
           Ce navigateur ne reçoit pas de notifications. Essayez Chrome, Edge, Firefox ou Safari à jour.
         </p>
-      ) : !etat.abonne ? (
-        <div className="flex flex-col gap-5">
-          <CeQueVousRecevez complet={complet} coteMin={COTE_BELLE_VICTOIRE} />
-          <button
-            type="button"
-            className="btn-accent self-start"
-            disabled={enCours || !userId || DEMO}
-            onClick={() => userId && agir(() => activer(userId, CHOIX_PAR_DEFAUT), 'Notifications activées sur cet appareil.')}
-          >
-            {enCours ? 'Activation…' : 'Activer les notifications'}
-          </button>
-        </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {!complet && (
-            <Interrupteur
-              libelle="Course offerte"
-              detail="30 minutes avant le départ de la course du jour ouverte à tous."
-              actif={choix.courseOfferte}
-              desactive={enCours}
-              onChange={(v) => agir(() => changerChoix({ ...choix, courseOfferte: v }))}
-            />
-          )}
-          <Interrupteur
-            libelle="Confiance Élevée"
-            detail={
-              complet
-                ? 'Environ 30 minutes avant le départ d’une course où notre 1er se détache.'
-                : 'Réservé aux Pass : la confiance se lit sur les probabilités.'
-            }
-            actif={complet && choix.confianceElevee}
-            desactive={enCours || !complet}
-            onChange={(v) => agir(() => changerChoix({ ...choix, confianceElevee: v }))}
-          />
-          <Interrupteur
-            libelle="Belles victoires"
-            detail={`Dès que notre 1er gagne une course à une cote de ${COTE_BELLE_VICTOIRE} ou plus.`}
-            actif={choix.bellesVictoires}
-            desactive={enCours}
-            onChange={(v) => agir(() => changerChoix({ ...choix, bellesVictoires: v }))}
-          />
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <button
-              type="button"
-              className="btn-glass !h-10 !px-4 !text-[0.8125rem]"
-              disabled={enCours}
-              onClick={() =>
-                agir(async () => {
-                  const n = await envoyerEssai()
-                  if (n === 0) throw new Error('L’essai n’est arrivé sur aucun appareil.')
-                }, 'Essai envoyé : il doit arriver dans quelques secondes.')
-              }
-            >
-              Envoyer un essai
-            </button>
-            <button
-              type="button"
-              className="btn-ghost !h-10 !px-4 !text-[0.8125rem]"
-              disabled={enCours}
-              onClick={() => agir(desactiver, 'Notifications désactivées sur cet appareil.')}
-            >
-              Désactiver sur cet appareil
-            </button>
-          </div>
-        </div>
+        <Interrupteur
+          libelle="Notifications sur cet appareil"
+          detail={etat.abonne ? 'Activées' : 'Désactivées'}
+          actif={etat.abonne}
+          desactive={enCours || !userId || DEMO}
+          onChange={(v) =>
+            v
+              ? userId && agir(() => activer(userId, CHOIX_PAR_DEFAUT))
+              : agir(desactiver)
+          }
+        />
+      )}
+      {etat?.abonne && (
+        <button
+          type="button"
+          className="btn-glass self-start !h-10 !px-4 !text-[0.8125rem]"
+          disabled={enCours}
+          onClick={() =>
+            agir(async () => {
+              const n = await envoyerEssai()
+              if (n === 0) throw new Error('L’essai n’est arrivé sur aucun appareil.')
+            }, 'Essai envoyé : il doit arriver dans quelques secondes.')
+          }
+        >
+          Envoyer un essai
+        </button>
       )}
       {erreur && (
         <p role="alert" className="text-xs font-semibold text-loss">
@@ -353,17 +306,7 @@ function Notifications() {
         </p>
       )}
       {info && !erreur && <p className="text-xs font-semibold text-accent">{info}</p>}
-      {etat && etat.possibilite !== 'installer' && !appInstallee() && (
-        <details className="group rounded-xl bg-canvas border border-track">
-          <summary className="cursor-pointer list-none px-[1.125rem] py-3.5 text-sm font-bold flex items-center justify-between">
-            Ajouter Crosswell à l’écran d’accueil
-            <span className="text-faint text-xs font-semibold group-open:hidden">Voir comment</span>
-          </summary>
-          <div className="px-[1.125rem] pb-4">
-            <TutoEcranAccueil />
-          </div>
-        </details>
-      )}
+      {etat && !appInstallee() && <TutosEcranAccueil />}
     </Carte>
   )
 }

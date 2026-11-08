@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { COTE_BELLE_VICTOIRE as COTE_APP, SEUILS_CONFIANCE } from '@/config/app'
-import { COTE_BELLE_VICTOIRE, SEUIL_ELEVEE, charge, heureParis, heureUtile, verdict } from '../../supabase/functions/_shared/notifications_regles'
+import { SEUILS_CONFIANCE } from '@/config/app'
+import { SEUIL_ELEVEE, charge, heureParis, heureUtile, verdict } from '../../supabase/functions/_shared/notifications_regles'
 
 /**
  * Le seuil « Élevée » vit en deux copies : l'app (`SEUILS_CONFIANCE`) et la
@@ -10,10 +10,6 @@ import { COTE_BELLE_VICTOIRE, SEUIL_ELEVEE, charge, heureParis, heureUtile, verd
 describe('notifications : parité et règles', () => {
   it('le seuil Élevée de la fonction est celui de l’app', () => {
     expect(SEUIL_ELEVEE).toBe(SEUILS_CONFIANCE.elevee)
-  })
-
-  it('la cote d’une belle victoire annoncée par l’app est celle de la fonction', () => {
-    expect(COTE_BELLE_VICTOIRE).toBe(COTE_APP)
   })
 
   it('verdict d’un envoi : 2xx réussi, 404/410 supprimé, le reste compte un échec', () => {

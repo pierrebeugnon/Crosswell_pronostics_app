@@ -229,11 +229,3 @@ export const VAPID_CLE_PUBLIQUE =
  * téléphone. Passer à `true` l'ouvre à tous les clients.
  */
 export const NOTIFICATIONS_OUVERTES = false
-
-/**
- * « Belle victoire » : notre 1er gagne à une cote d'au moins ce chiffre. COPIE
- * de `COTE_BELLE_VICTOIRE` de la fonction d'envoi
- * (`supabase/functions/_shared/notifications_regles.ts`), comparée par
- * `tests/notifications/parite.test.ts` : l'app annonce ce que la fonction envoie.
- */
-export const COTE_BELLE_VICTOIRE = 10
