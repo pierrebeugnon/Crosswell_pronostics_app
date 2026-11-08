@@ -3,6 +3,7 @@ import metadonnees from '@/contenu/articles.json'
 import ArcDeTriomphe2026Daryz from '@/contenu/articles/arc-de-triomphe-2026-daryz'
 import CalendrierGrandesCourses from '@/contenu/articles/calendrier-grandes-courses-galop'
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
+import CourseOfferte from '@/contenu/articles/course-offerte'
 import ProbabiliteVictoireCheval from '@/contenu/articles/probabilite-victoire-cheval'
 import VerifierTauxReussite from '@/contenu/articles/verifier-taux-reussite'
 
@@ -70,6 +71,11 @@ export interface Article {
      * sujet. Facultatif — centré par défaut.
      */
     cadrage?: string
+    /**
+     * Le crédit d'une photo sous licence (« © Scoop Dyga »), affiché sous la
+     * couverture de l'article. Les photos maison n'en portent pas.
+     */
+    credit?: string
   }
   /** Ce que lisent les moteurs : titre ≤ 60 signes, description ≤ 155. */
   seo: { titre: string; description: string }
@@ -87,6 +93,7 @@ const CORPS: Record<string, ComponentType> = {
   'arc-de-triomphe-2026-daryz-analyse-statistique': ArcDeTriomphe2026Daryz,
   'calendrier-grandes-courses-galop-france': CalendrierGrandesCourses,
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
+  'pronostic-hippique-gratuit-course-offerte': CourseOfferte,
   'probabilite-victoire-cheval-analyser-course-hippique': ProbabiliteVictoireCheval,
   'verifier-taux-reussite-pronostic-hippique': VerifierTauxReussite,
 }

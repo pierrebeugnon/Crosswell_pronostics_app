@@ -89,11 +89,18 @@ export default function Article() {
         </div>
       </header>
 
-      <Couverture article={article} hauteur="h-52 lg:h-[26.25rem]" priorite />
+      <div className="flex flex-col gap-1.5">
+        <Couverture article={article} hauteur="h-52 lg:h-[26.25rem]" priorite />
+        {article.couverture?.credit && (
+          <span className="self-end text-[0.6875rem] font-medium text-faint">Photo {article.couverture.credit}</span>
+        )}
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-7 lg:gap-12">
         <Sommaire a={article} />
-        <article className="flex flex-col gap-5 max-w-[47.5rem]">
+        {/* Les liens du corps : les blocs de `Corps` n'écrivent aucune classe, et
+            un lien de la couleur du texte ne se voit pas — l'inscription comprise. */}
+        <article className="flex flex-col gap-5 max-w-[47.5rem] [&_a]:text-accent [&_a]:font-semibold [&_a]:underline [&_a]:decoration-accent/40 [&_a]:underline-offset-4 [&_a:hover]:text-accent-hover">
           <Contenu />
         </article>
       </div>

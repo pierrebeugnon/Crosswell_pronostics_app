@@ -1,5 +1,31 @@
 [
   {
+    "slug": "pronostic-hippique-gratuit-course-offerte",
+    "rubrique": "Produit",
+    "titre": "Une course offerte chaque jour : le pronostic hippique gratuit de Crosswell",
+    "chapo": "Chaque jour, le pronostic complet de la plus belle course de galop vous est offert : arrivée prédite, chances de chaque partant, niveau de confiance. Sans carte bancaire, sans engagement.",
+    "date": "2026-11-08",
+    "minutes": 4,
+    "couverture": {
+      "fichier": "/media/course-chantilly.jpg",
+      "cadrage": "50% 62%",
+      "credit": "© Scoop Dyga",
+      "alt": "Arrivée d’une course de plat à Chantilly : deux chevaux au coude-à-coude en tête, le peloton derrière, devant les tribunes pleines et la tour de l’hippodrome, sous un ciel bleu."
+    },
+    "seo": {
+      "titre": "Pronostic hippique gratuit : une course offerte chaque jour",
+      "description": "Chaque jour, le pronostic complet de la plus belle course de galop : arrivée prédite, chances de chaque partant, niveau de confiance. Sans carte bancaire."
+    },
+    "sections": [
+      { "id": "ce-que-vous-recevez", "titre": "Le pronostic complet, gratuit" },
+      { "id": "quelle-course", "titre": "Quelle course est offerte ?" },
+      { "id": "ou-la-trouver", "titre": "Où la trouver" },
+      { "id": "ouvert-a-tous", "titre": "Ce qui reste ouvert à tous" },
+      { "id": "pass", "titre": "Quand passer à un Pass" },
+      { "id": "commencer", "titre": "Commencer" }
+    ]
+  },
+  {
     "slug": "calendrier-grandes-courses-galop-france",
     "rubrique": "Analyses",
     "titre": "Le calendrier des grandes courses de galop en France",

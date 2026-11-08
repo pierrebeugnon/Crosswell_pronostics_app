@@ -115,8 +115,9 @@ export default function ComprendreCrosswell() {
 
       <H2 id="gratuit-ou-pass">Gratuit ou Pass&nbsp;: ce que chaque formule ouvre</H2>
       <P>
-        La formule gratuite vous donne chaque jour un pronostic complet&nbsp;: celui de la plus belle course du jour,
-        celle qui réunit le plus de partants. Un Pass ouvre tout le reste.
+        La formule gratuite vous donne chaque jour un pronostic complet&nbsp;: celui de la{' '}
+        <Link to="/blog/pronostic-hippique-gratuit-course-offerte">plus belle course du jour</Link>, celle qui réunit le
+        plus de partants. Un Pass ouvre tout le reste.
       </P>
       <Tableau
         entetes={['', 'Gratuit', 'Avec un Pass']}
