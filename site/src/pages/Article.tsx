@@ -59,7 +59,9 @@ export default function Article() {
 
   const { Contenu } = article
   const lies = articlesLies(article)
-  const publie = new Date(article.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const jour = (iso: string) =>
+    new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const publie = article.miseAJour ? `Mis à jour le ${jour(article.miseAJour)}` : jour(article.date)
 
   return (
     <div className="w-full max-w-[75rem] mx-auto px-5 lg:px-10 pt-7 lg:pt-12 pb-14 lg:pb-24 flex flex-col gap-7 lg:gap-9">

@@ -229,10 +229,10 @@ function donneesArticle(article, url) {
     headline: article.titre,
     description: article.seo.description,
     datePublished: article.date,
-    // Pas d'historique de révision : tant qu'un article n'est pas réécrit, sa
-    // date de modification est sa date de publication. Mettre la date du build
-    // ferait croire à une mise à jour à chaque déploiement.
-    dateModified: article.date,
+    // La date de RÉÉCRITURE si l'article en a une (`miseAJour`), sinon sa date de
+    // publication. Jamais la date du build : elle ferait croire à une mise à jour
+    // à chaque déploiement.
+    dateModified: article.miseAJour ?? article.date,
     inLanguage: 'fr-FR',
     articleSection: article.rubrique,
     isAccessibleForFree: true,
@@ -390,7 +390,7 @@ function sitemapPages() {
       // `articles.json` et reprise par `dateModified`. Ailleurs, ce serait une
       // date de build, qui change à chaque déploiement sans que le contenu bouge :
       // un signal faux. Mieux vaut ne rien déclarer.
-      const modifie = article ? `\n    <lastmod>${article.date}</lastmod>` : ''
+      const modifie = article ? `\n    <lastmod>${article.miseAJour ?? article.date}</lastmod>` : ''
       return `  <url>\n    <loc>${echappe(url)}</loc>${modifie}\n    <priority>${priorite}</priority>\n  </url>`
     })
     .join('\n')

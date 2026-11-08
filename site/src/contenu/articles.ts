@@ -44,6 +44,11 @@ export interface Article {
   chapo: string
   /** Date de publication, ISO. Sert au tri, à l'affichage et aux données structurées. */
   date: string
+  /**
+   * Date de la dernière RÉÉCRITURE, ISO — pas d'une coquille corrigée. Elle passe
+   * dans `dateModified` et le `lastmod` du sitemap ; le tri reste sur `date`.
+   */
+  miseAJour?: string
   /** Durée de lecture annoncée, en minutes. Comptée, pas inventée. */
   minutes: number
   /** Mis en avant sur l'index, dans le bloc « À la une ». Un seul à la fois. */
