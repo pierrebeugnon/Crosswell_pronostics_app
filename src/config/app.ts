@@ -210,3 +210,22 @@ export const AVERTISSEMENT = {
     'Nos probabilités sont des analyses statistiques, publiées à titre d’information. Elles ne constituent ni un conseil ni une incitation.',
   ageMinimum: 18,
 } as const
+
+/**
+ * LES NOTIFICATIONS PUSH (db/021, 08/11/2026) : « pronostics du jour » et
+ * « confiance Élevée ».
+ *
+ * La clé PUBLIQUE d'envoi (VAPID) : le navigateur s'abonne avec elle, et seule
+ * la fonction `notifications-push`, qui détient la clé privée (secret
+ * Supabase), peut lui écrire. Elle n'a rien de secret — elle est publiée par
+ * construction. La changer désabonne tous les appareils.
+ */
+export const VAPID_CLE_PUBLIQUE =
+  'BHu9XXruJp95ejZCpa2HZ24EmIMhmCh2KWCdnTal0rV7pNc4qfjgNVRGxF-4pz82JU8sqK9buhzsi4zmvkMSlBc'
+
+/**
+ * Le réglage n'est montré qu'aux comptes qui l'ont ouvert par `?notifications=1`
+ * (retenu sur l'appareil), tant que le fondateur ne l'a pas essayé sur son
+ * téléphone. Passer à `true` l'ouvre à tous les clients.
+ */
+export const NOTIFICATIONS_OUVERTES = false

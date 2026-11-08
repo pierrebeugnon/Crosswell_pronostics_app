@@ -11,6 +11,14 @@
       content="Crosswell — probabilités de victoire et de place sur les courses hippiques françaises, calculées dans la nuit et publiées dès la veille de la course."
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Application installable (notifications push, db/021) : sur iPhone, une
+         alerte n'arrive qu'à une app ajoutée à l'écran d'accueil. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Crosswell" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

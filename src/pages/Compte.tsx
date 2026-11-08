@@ -2,7 +2,9 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, LogOut } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
-import { CONTACT, DEMO } from '@/config/app'
+import { CONTACT, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
+import { CHOIX_PAR_DEFAUT, reglageVisible } from '@/lib/notifications'
+import { activer, changerChoix, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
 import { MOIS_LONG, dateLongue, jourParis } from '@/lib/format'
 import { useAcces } from '@/auth/AccesContext'
 import { ACCES_SANS_FILTRE, libelleStatut, type Acces } from '@/lib/acces'
@@ -20,12 +22,13 @@ import { Champ } from '@/components/ui/Champ'
  * cartes à droite). L'abonnement est lu dans la base (`db/007`) : un client
  * Stripe gère carte, factures, formule et résiliation dans le PORTAIL Stripe
  * (aucune donnée de carte dans l'app) ; un accès offert se gère par e-mail ; la
- * formule Gratuit mène au choix d'un Pass. Sans envoi d'alertes (A7), pas de
- * réglages de notifications. Nom, téléphone et pays ne sont pas collectés.
+ * formule Gratuit mène au choix d'un Pass. Les notifications push (db/021) se
+ * règlent par appareil. Nom, téléphone et pays ne sont pas collectés.
  */
 
 const SECTIONS = [
   { id: 'abonnement', titre: 'Abonnement' },
+  { id: 'notifications', titre: 'Notifications' },
   { id: 'informations', titre: 'Informations personnelles' },
   { id: 'assistance', titre: 'Assistance' },
   { id: 'resiliation', titre: 'Résiliation et données' },
@@ -148,6 +151,199 @@ function MotDePasse() {
         </form>
       )}
     </div>
+  )
+}
+
+const CLE_REGLAGE_NOTIFS = 'crosswell.notifications'
+
+/** Le réglage est-il montré sur cet appareil ? (`NOTIFICATIONS_OUVERTES`, ou `?notifications=1`) */
+function useReglageNotifications(): boolean {
+  const [visible] = useState(() => {
+    let retenu = false
+    let parametre: string | null = null
+    try {
+      parametre = new URLSearchParams(window.location.search).get('notifications')
+      if (parametre === '1') window.localStorage.setItem(CLE_REGLAGE_NOTIFS, '1')
+      if (parametre === '0') window.localStorage.removeItem(CLE_REGLAGE_NOTIFS)
+      retenu = window.localStorage.getItem(CLE_REGLAGE_NOTIFS) === '1'
+    } catch {
+      /* stockage bloqué : seul le paramètre compte */
+    }
+    return reglageVisible(NOTIFICATIONS_OUVERTES, parametre, retenu)
+  })
+  return visible
+}
+
+/** Un interrupteur : un bouton `switch`, accessible au clavier et au lecteur d'écran. */
+function Interrupteur({
+  libelle,
+  detail,
+  actif,
+  desactive,
+  onChange,
+}: {
+  libelle: string
+  detail: string
+  actif: boolean
+  desactive?: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-[1.125rem] py-4 rounded-xl bg-canvas border border-track">
+      <div className="flex flex-col gap-[3px] min-w-0">
+        <span className="text-sm font-bold">{libelle}</span>
+        <span className="text-[0.8125rem] font-medium text-faint">{detail}</span>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={actif}
+        aria-label={libelle}
+        disabled={desactive}
+        onClick={() => onChange(!actif)}
+        className={`relative shrink-0 w-12 h-7 rounded-full transition-colors disabled:opacity-40 ${
+          actif ? 'bg-accent' : 'bg-track'
+        }`}
+      >
+        <span
+          className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-ink transition-transform ${actif ? 'translate-x-5' : ''}`}
+          aria-hidden
+        />
+      </button>
+    </div>
+  )
+}
+
+/**
+ * LES NOTIFICATIONS (db/021) : « pronostics du jour » et « confiance Élevée »,
+ * réglées PAR APPAREIL — un client peut les vouloir sur son téléphone et pas
+ * sur son ordinateur. La confiance Élevée suppose l'accès complet : la formule
+ * Gratuit ne voit pas les probabilités qui la définissent.
+ */
+function Notifications() {
+  const { session } = useAuth()
+  const { acces } = useAcces()
+  const complet = (acces ?? ACCES_SANS_FILTRE).complet
+  const [etat, setEtat] = useState<Etat | null>(null)
+  const [enCours, setEnCours] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
+
+  useEffect(() => {
+    let vivant = true
+    lireEtat()
+      .then((e) => vivant && setEtat(e))
+      .catch(() => vivant && setEtat({ possibilite: 'impossible', abonne: false, choix: CHOIX_PAR_DEFAUT }))
+    return () => {
+      vivant = false
+    }
+  }, [])
+
+  async function agir(action: () => Promise<void>, apres?: string) {
+    setErreur(null)
+    setInfo(null)
+    setEnCours(true)
+    try {
+      await action()
+      setEtat(await lireEtat())
+      if (apres) setInfo(apres)
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : 'L’opération a échoué.')
+    } finally {
+      setEnCours(false)
+    }
+  }
+
+  const choix = etat?.choix ?? CHOIX_PAR_DEFAUT
+  const userId = session?.user.id
+
+  return (
+    <Carte id="notifications" titre="Notifications">
+      {!etat ? (
+        <p className="text-sm font-medium text-faint">Lecture de cet appareil…</p>
+      ) : etat.possibilite === 'installer' ? (
+        <p className="text-sm font-medium text-muted leading-relaxed">
+          Sur iPhone et iPad, les alertes n’arrivent qu’à l’application installée. Dans Safari, touchez{' '}
+          <span className="text-ink font-semibold">Partager</span>, puis{' '}
+          <span className="text-ink font-semibold">Sur l’écran d’accueil</span>, ouvrez Crosswell depuis son icône et
+          revenez ici.
+        </p>
+      ) : etat.possibilite === 'refuse' ? (
+        <p className="text-sm font-medium text-muted leading-relaxed">
+          Les notifications sont bloquées pour Crosswell sur cet appareil. Autorisez-les dans les réglages du
+          navigateur (ou du téléphone), puis rechargez la page.
+        </p>
+      ) : etat.possibilite === 'impossible' ? (
+        <p className="text-sm font-medium text-muted leading-relaxed">
+          Ce navigateur ne reçoit pas de notifications. Essayez Chrome, Edge, Firefox ou Safari à jour.
+        </p>
+      ) : !etat.abonne ? (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+          <p className="text-sm font-medium text-muted leading-relaxed max-w-lg">
+            Recevez sur cet appareil l’annonce des pronostics du jour
+            {complet ? ', et les courses à confiance Élevée avant leur départ' : ''}.
+          </p>
+          <button
+            type="button"
+            className="btn-accent shrink-0"
+            disabled={enCours || !userId || DEMO}
+            onClick={() => userId && agir(() => activer(userId, CHOIX_PAR_DEFAUT), 'Notifications activées sur cet appareil.')}
+          >
+            {enCours ? 'Activation…' : 'Activer les notifications'}
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <Interrupteur
+            libelle="Pronostics du jour"
+            detail="Chaque matin, dès qu’ils sont en ligne (pas avant 8 h)."
+            actif={choix.pronosticsJour}
+            desactive={enCours}
+            onChange={(v) => agir(() => changerChoix({ ...choix, pronosticsJour: v }))}
+          />
+          <Interrupteur
+            libelle="Confiance Élevée"
+            detail={
+              complet
+                ? 'Environ 30 minutes avant le départ d’une course où notre 1er se détache.'
+                : 'Réservé aux Pass : la confiance se lit sur les probabilités.'
+            }
+            actif={complet && choix.confianceElevee}
+            desactive={enCours || !complet}
+            onChange={(v) => agir(() => changerChoix({ ...choix, confianceElevee: v }))}
+          />
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              type="button"
+              className="btn-glass !h-10 !px-4 !text-[0.8125rem]"
+              disabled={enCours}
+              onClick={() =>
+                agir(async () => {
+                  const n = await envoyerEssai()
+                  if (n === 0) throw new Error('L’essai n’est arrivé sur aucun appareil.')
+                }, 'Essai envoyé : il doit arriver dans quelques secondes.')
+              }
+            >
+              Envoyer un essai
+            </button>
+            <button
+              type="button"
+              className="btn-ghost !h-10 !px-4 !text-[0.8125rem]"
+              disabled={enCours}
+              onClick={() => agir(desactiver, 'Notifications désactivées sur cet appareil.')}
+            >
+              Désactiver sur cet appareil
+            </button>
+          </div>
+        </div>
+      )}
+      {erreur && (
+        <p role="alert" className="text-xs font-semibold text-loss">
+          {erreur}
+        </p>
+      )}
+      {info && !erreur && <p className="text-xs font-semibold text-accent">{info}</p>}
+    </Carte>
   )
 }
 
@@ -566,6 +762,8 @@ export default function Compte() {
   useRelectureApresPortail()
   const [deconnexion, setDeconnexion] = useState(false)
   const actif = useSectionVisible()
+  const notifications = useReglageNotifications()
+  const sections = SECTIONS.filter((s) => s.id !== 'notifications' || notifications)
 
   const lettres = initiales(prenom, email)
   const nom = prenom ?? email ?? 'Votre compte'
@@ -601,7 +799,7 @@ export default function Compte() {
       <aside className="hidden lg:flex w-[16.25rem] shrink-0 flex-col gap-7 sticky top-28 self-start">
         {identite(true)}
         <nav aria-label="Sections du compte" className="flex flex-col gap-0.5">
-          {SECTIONS.map((s) => (
+          {sections.map((s) => (
             <a
               key={s.id}
               href={`#${s.id}`}
@@ -641,6 +839,8 @@ export default function Compte() {
         </header>
 
         <Abonnement />
+
+        {notifications && <Notifications />}
 
         <Informations />
 
