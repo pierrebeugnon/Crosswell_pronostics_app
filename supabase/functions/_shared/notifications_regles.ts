@@ -14,7 +14,14 @@
  */
 export const SEUIL_ELEVEE = 0.41
 
-export type TypeAlerte = 'pronostics_jour' | 'confiance_elevee' | 'test'
+/**
+ * « Belle victoire » : notre 1er gagne à une cote d'au moins ce chiffre
+ * (décision du fondateur, 08/11/2026). À 10 : 7 courses du 11/09 au 07/11,
+ * environ une par semaine ; à 7, on en aurait eu 16.
+ */
+export const COTE_BELLE_VICTOIRE = 10
+
+export type TypeAlerte = 'course_offerte' | 'confiance_elevee' | 'belle_victoire' | 'test'
 
 export interface Evenement {
   type: TypeAlerte

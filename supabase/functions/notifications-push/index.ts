@@ -1,5 +1,6 @@
-// LES NOTIFICATIONS PUSH (db/021) — appelée par pg_cron toutes les 10 minutes,
-// ou par un client connecté qui demande une notification d'essai.
+// LES NOTIFICATIONS PUSH (db/021, db/022) : course offerte, confiance Élevée,
+// belle victoire. Appelée par pg_cron toutes les 10 minutes, ou par un client
+// connecté qui demande une notification d'essai.
 //
 // Deux entrées :
 //   - { "mode": "tournee" } avec l'en-tête `x-crosswell-cron` = NOTIFS_CRON_SECRET :
@@ -18,7 +19,7 @@
 
 import webpush from 'npm:web-push@3.6.7'
 import { createClient } from 'npm:@supabase/supabase-js@2.45.0'
-import { SEUIL_ELEVEE, charge, heureUtile, verdict, type Evenement } from '../_shared/notifications_regles.ts'
+import { COTE_BELLE_VICTOIRE, SEUIL_ELEVEE, charge, heureUtile, verdict, type Evenement } from '../_shared/notifications_regles.ts'
 
 const env = (n: string) => Deno.env.get(n) ?? ''
 const SECRET = env('NOTIFS_CRON_SECRET')
@@ -65,6 +66,7 @@ interface Appareil {
 /** Envoie une alerte à des appareils ; tient leurs compteurs. Rend le nombre de réussites. */
 async function envoyer(e: Evenement, appareils: Appareil[]): Promise<number> {
   const texte = JSON.stringify(charge(e))
+  const avantDepart = e.type === 'confiance_elevee' || e.type === 'course_offerte'
   let reussis = 0
   // Par paquets de 20 : quelques centaines d'appareils tiennent dans le délai
   // d'une fonction, sans ouvrir des centaines de connexions d'un coup.
@@ -74,8 +76,9 @@ async function envoyer(e: Evenement, appareils: Appareil[]): Promise<number> {
         let statut: number | null = null
         try {
           const r = await webpush.sendNotification({ endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } }, texte, {
-            TTL: e.type === 'confiance_elevee' ? 1800 : 6 * 3600,
-            urgency: e.type === 'confiance_elevee' ? 'high' : 'normal',
+            // Avant un départ : périmée au bout de 30 min, et prioritaire.
+            TTL: avantDepart ? 1800 : 3 * 3600,
+            urgency: avantDepart ? 'high' : 'normal',
           })
           statut = r.statusCode
         } catch (err) {
@@ -101,7 +104,10 @@ async function envoyer(e: Evenement, appareils: Appareil[]): Promise<number> {
 async function tournee(): Promise<unknown> {
   const heure = Number(new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(new Date()))
   if (!heureUtile(heure)) return { envoyees: [], motif: `hors des heures utiles (${heure}h)` }
-  const { data: evenements, error } = await admin.rpc('crosswell_push_evenements', { p_seuil: SEUIL_ELEVEE })
+  const { data: evenements, error } = await admin.rpc('crosswell_push_evenements', {
+    p_seuil: SEUIL_ELEVEE,
+    p_cote_min: COTE_BELLE_VICTOIRE,
+  })
   if (error) throw error
   const faits = []
   for (const e of (evenements ?? []) as Evenement[]) {

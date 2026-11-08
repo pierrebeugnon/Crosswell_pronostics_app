@@ -215,10 +215,12 @@ function Interrupteur({
 }
 
 /**
- * LES NOTIFICATIONS (db/021) : « pronostics du jour » et « confiance Élevée »,
- * réglées PAR APPAREIL — un client peut les vouloir sur son téléphone et pas
- * sur son ordinateur. La confiance Élevée suppose l'accès complet : la formule
- * Gratuit ne voit pas les probabilités qui la définissent.
+ * LES NOTIFICATIONS (db/021, db/022), réglées PAR APPAREIL — un client peut les
+ * vouloir sur son téléphone et pas sur son ordinateur :
+ * - « course offerte », formule Gratuit : 30 min avant la course ouverte du jour ;
+ * - « confiance Élevée », accès complet : la formule Gratuit ne voit pas les
+ *   probabilités qui la définissent ;
+ * - « belles victoires », tous : notre 1er gagne à une cote d'au moins 10.
  */
 function Notifications() {
   const { session } = useAuth()
@@ -280,8 +282,9 @@ function Notifications() {
       ) : !etat.abonne ? (
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
           <p className="text-sm font-medium text-muted leading-relaxed max-w-lg">
-            Recevez sur cet appareil l’annonce des pronostics du jour
-            {complet ? ', et les courses à confiance Élevée avant leur départ' : ''}.
+            {complet
+              ? 'Recevez sur cet appareil les courses à confiance Élevée avant leur départ, et nos plus belles victoires.'
+              : 'Recevez sur cet appareil votre course offerte 30 minutes avant son départ, et nos plus belles victoires.'}
           </p>
           <button
             type="button"
@@ -294,13 +297,15 @@ function Notifications() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <Interrupteur
-            libelle="Pronostics du jour"
-            detail="Chaque matin, dès qu’ils sont en ligne (pas avant 8 h)."
-            actif={choix.pronosticsJour}
-            desactive={enCours}
-            onChange={(v) => agir(() => changerChoix({ ...choix, pronosticsJour: v }))}
-          />
+          {!complet && (
+            <Interrupteur
+              libelle="Course offerte"
+              detail="30 minutes avant le départ de la course du jour ouverte à tous."
+              actif={choix.courseOfferte}
+              desactive={enCours}
+              onChange={(v) => agir(() => changerChoix({ ...choix, courseOfferte: v }))}
+            />
+          )}
           <Interrupteur
             libelle="Confiance Élevée"
             detail={
@@ -311,6 +316,13 @@ function Notifications() {
             actif={complet && choix.confianceElevee}
             desactive={enCours || !complet}
             onChange={(v) => agir(() => changerChoix({ ...choix, confianceElevee: v }))}
+          />
+          <Interrupteur
+            libelle="Belles victoires"
+            detail="Quand notre 1er gagne une course à une cote de 10 ou plus."
+            actif={choix.bellesVictoires}
+            desactive={enCours}
+            onChange={(v) => agir(() => changerChoix({ ...choix, bellesVictoires: v }))}
           />
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button

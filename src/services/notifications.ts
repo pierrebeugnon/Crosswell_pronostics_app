@@ -4,7 +4,7 @@ import { CHOIX_PAR_DEFAUT, nomNavigateur, octetsDeBase64Url, possibilite, type C
 import { messageDe } from '@/services/paiement'
 
 /**
- * LES NOTIFICATIONS PUSH, CÔTÉ NAVIGATEUR (db/021).
+ * LES NOTIFICATIONS PUSH, CÔTÉ NAVIGATEUR (db/021, db/022).
  *
  * Le navigateur s'abonne auprès de son service de push (Google, Apple,
  * Mozilla) avec notre clé publique ; l'adresse d'envoi qu'il rend est rangée
@@ -49,18 +49,26 @@ export async function lireEtat(): Promise<Etat> {
   if (!abo) return { possibilite: p, abonne: false, choix: CHOIX_PAR_DEFAUT }
   const { data } = await supabase
     .from(TABLE)
-    .select('pronostics_jour, confiance_elevee')
+    .select('course_offerte, confiance_elevee, belles_victoires')
     .eq('endpoint', abo.endpoint)
     .maybeSingle()
   // Abonné côté navigateur mais inconnu de la base (ligne supprimée après des
   // échecs, autre compte) : on le présente comme NON abonné, et « Activer »
   // réécrit la ligne.
   if (!data) return { possibilite: p, abonne: false, choix: CHOIX_PAR_DEFAUT }
-  return { possibilite: p, abonne: true, choix: { pronosticsJour: data.pronostics_jour, confianceElevee: data.confiance_elevee } }
+  return {
+    possibilite: p,
+    abonne: true,
+    choix: { courseOfferte: data.course_offerte, confianceElevee: data.confiance_elevee, bellesVictoires: data.belles_victoires },
+  }
 }
 
 /** Ce que le client a demandé, transcrit en colonnes. */
-const colonnes = (c: Choix) => ({ pronostics_jour: c.pronosticsJour, confiance_elevee: c.confianceElevee })
+const colonnes = (c: Choix) => ({
+  course_offerte: c.courseOfferte,
+  confiance_elevee: c.confianceElevee,
+  belles_victoires: c.bellesVictoires,
+})
 
 async function enregistrer(abo: PushSubscription, userId: string, choix: Choix): Promise<boolean> {
   const j = abo.toJSON()

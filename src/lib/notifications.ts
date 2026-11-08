@@ -51,11 +51,15 @@ export function octetsDeBase64Url(texte: string): Uint8Array<ArrayBuffer> {
 
 /** Les choix du client, par appareil. */
 export interface Choix {
-  pronosticsJour: boolean
+  /** Formule Gratuit : 30 min avant la course offerte du jour. */
+  courseOfferte: boolean
+  /** Accès complet : 30 min avant une course à confiance Élevée. */
   confianceElevee: boolean
+  /** Tous : notre 1er gagne à une belle cote. */
+  bellesVictoires: boolean
 }
 
-export const CHOIX_PAR_DEFAUT: Choix = { pronosticsJour: true, confianceElevee: true }
+export const CHOIX_PAR_DEFAUT: Choix = { courseOfferte: true, confianceElevee: true, bellesVictoires: true }
 
 /** Le nom lisible de l'appareil, pour que le client reconnaisse ses abonnements. */
 export function nomNavigateur(userAgent: string): string {
