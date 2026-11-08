@@ -57,4 +57,7 @@ describe('reglageVisible', () => {
     expect(reglageVisible(false, null, true)).toBe(true)
     expect(reglageVisible(false, '0', true)).toBe(false)
   })
+  it('toujours visible dans l’app installée (iPhone : ni barre d’adresse ni stockage de Safari)', () => {
+    expect(reglageVisible(false, null, false, true)).toBe(true)
+  })
 })

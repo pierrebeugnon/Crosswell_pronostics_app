@@ -89,12 +89,36 @@ export function nomNavigateur(userAgent: string): string {
 }
 
 /**
- * Le réglage est-il montré ? Ouvert à tous (`NOTIFICATIONS_OUVERTES`), ou
- * demandé sur cet appareil par `?notifications=1` (retenu ; `=0` le retire).
+ * Le réglage est-il montré ? Ouvert à tous (`NOTIFICATIONS_OUVERTES`), dans
+ * l'application INSTALLÉE, ou demandé sur cet appareil par `?notifications=1`
+ * (retenu ; `=0` le retire).
+ *
+ * L'APP INSTALLÉE LE VOIT TOUJOURS. Sur iPhone, l'app de l'écran d'accueil n'a
+ * ni barre d'adresse ni le stockage de Safari, et s'ouvre sur « / » : le
+ * paramètre ne pouvait jamais l'atteindre, alors que c'est le seul endroit où
+ * un iPhone reçoit des alertes (constaté par le fondateur le 08/11/2026).
  */
-export function reglageVisible(ouvertATous: boolean, parametre: string | null, retenu: boolean): boolean {
-  if (ouvertATous) return true
+export function reglageVisible(ouvertATous: boolean, parametre: string | null, retenu: boolean, installee = false): boolean {
+  if (ouvertATous || installee) return true
   if (parametre === '1') return true
   if (parametre === '0') return false
   return retenu
+}
+
+export const CLE_REGLAGE_NOTIFS = 'crosswell.notifications'
+
+/**
+ * Retient `?notifications=1` (ou `=0`) DÈS L'OUVERTURE de l'app (`main.tsx`).
+ * Lu dans la page Compte seulement, le paramètre se perdait quand la session
+ * était expirée : la redirection vers /connexion le jetait avant que la page
+ * Compte ne s'affiche.
+ */
+export function retenirParametreNotifications(): void {
+  try {
+    const parametre = new URLSearchParams(window.location.search).get('notifications')
+    if (parametre === '1') window.localStorage.setItem(CLE_REGLAGE_NOTIFS, '1')
+    if (parametre === '0') window.localStorage.removeItem(CLE_REGLAGE_NOTIFS)
+  } catch {
+    /* stockage bloqué : la page Compte relira le paramètre si elle le voit */
+  }
 }

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Check, LogOut } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { CONTACT, DEMO, NOTIFICATIONS_OUVERTES } from '@/config/app'
-import { CHOIX_PAR_DEFAUT, reglageVisible } from '@/lib/notifications'
+import { CHOIX_PAR_DEFAUT, CLE_REGLAGE_NOTIFS, reglageVisible } from '@/lib/notifications'
 import { activer, changerChoix, desactiver, envoyerEssai, lireEtat, type Etat } from '@/services/notifications'
 import { MOIS_LONG, dateLongue, jourParis } from '@/lib/format'
 import { useAcces } from '@/auth/AccesContext'
@@ -154,9 +154,7 @@ function MotDePasse() {
   )
 }
 
-const CLE_REGLAGE_NOTIFS = 'crosswell.notifications'
-
-/** Le réglage est-il montré sur cet appareil ? (`NOTIFICATIONS_OUVERTES`, ou `?notifications=1`) */
+/** Le réglage est-il montré sur cet appareil ? (`NOTIFICATIONS_OUVERTES`, app installée, ou `?notifications=1`) */
 function useReglageNotifications(): boolean {
   const [visible] = useState(() => {
     let retenu = false
@@ -169,7 +167,9 @@ function useReglageNotifications(): boolean {
     } catch {
       /* stockage bloqué : seul le paramètre compte */
     }
-    return reglageVisible(NOTIFICATIONS_OUVERTES, parametre, retenu)
+    const nav = navigator as Navigator & { standalone?: boolean }
+    const installee = window.matchMedia?.('(display-mode: standalone)').matches === true || nav.standalone === true
+    return reglageVisible(NOTIFICATIONS_OUVERTES, parametre, retenu, installee)
   })
   return visible
 }

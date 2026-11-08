@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Analytics } from '@vercel/analytics/react'
 import App from '@/App'
 import '@/index.css'
+import { retenirParametreNotifications } from '@/lib/notifications'
 
 /**
  * LA MESURE D'AUDIENCE — Vercel Web Analytics, branchée le 03/10/2026.
@@ -18,6 +19,8 @@ import '@/index.css'
  * de confidentialité. Si cela devait gêner un jour, le composant accepte une
  * fonction `beforeSend` pour tronquer les adresses avant envoi.
  */
+retenirParametreNotifications()
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
