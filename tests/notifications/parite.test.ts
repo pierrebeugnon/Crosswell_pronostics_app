@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SEUILS_CONFIANCE } from '@/config/app'
-import { SEUIL_ELEVEE, charge, heureUtile, verdict } from '../../supabase/functions/_shared/notifications_regles'
+import { SEUIL_ELEVEE, charge, heureParis, heureUtile, verdict } from '../../supabase/functions/_shared/notifications_regles'
 
 /**
  * Le seuil « Élevée » vit en deux copies : l'app (`SEUILS_CONFIANCE`) et la
@@ -18,6 +18,12 @@ describe('notifications : parité et règles', () => {
     expect(verdict(404)).toBe('supprimer')
     expect(verdict(429)).toBe('echec')
     expect(verdict(null)).toBe('echec')
+  })
+
+  it('l’heure de Paris est un nombre, hiver comme été (et non NaN)', () => {
+    expect(heureParis(new Date('2026-11-08T21:00:00Z'))).toBe(22)
+    expect(heureParis(new Date('2026-07-01T06:30:00Z'))).toBe(8)
+    expect(heureParis(new Date('2026-11-08T23:10:00Z'))).toBe(0)
   })
 
   it('pas d’envoi la nuit', () => {

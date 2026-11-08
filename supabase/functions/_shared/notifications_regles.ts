@@ -58,6 +58,19 @@ export function verdict(statut: number | null): Verdict {
   return 'echec'
 }
 
+/**
+ * L'heure de Paris, de 0 à 23. Par `formatToParts` et non `Number(format())` :
+ * en français, `format` rend « 22 h », que `Number` lit NaN — et la fonction
+ * jugeait alors TOUTE heure « hors des heures utiles », sans jamais rien
+ * envoyer (premier passage de pg_cron, 08/11/2026 à 22h00).
+ */
+export function heureParis(instant: Date): number {
+  const h = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', hourCycle: 'h23' })
+    .formatToParts(instant)
+    .find((p) => p.type === 'hour')?.value
+  return Number(h)
+}
+
 /** Les heures où pg_cron peut appeler utilement (Paris) : rien la nuit. */
 export function heureUtile(heureParis: number): boolean {
   return heureParis >= 8 && heureParis < 22

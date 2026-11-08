@@ -19,7 +19,7 @@
 
 import webpush from 'npm:web-push@3.6.7'
 import { createClient } from 'npm:@supabase/supabase-js@2.45.0'
-import { COTE_BELLE_VICTOIRE, SEUIL_ELEVEE, charge, heureUtile, verdict, type Evenement } from '../_shared/notifications_regles.ts'
+import { COTE_BELLE_VICTOIRE, SEUIL_ELEVEE, charge, heureParis, heureUtile, verdict, type Evenement } from '../_shared/notifications_regles.ts'
 
 const env = (n: string) => Deno.env.get(n) ?? ''
 const SECRET = env('NOTIFS_CRON_SECRET')
@@ -102,7 +102,7 @@ async function envoyer(e: Evenement, appareils: Appareil[]): Promise<number> {
 }
 
 async function tournee(): Promise<unknown> {
-  const heure = Number(new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(new Date()))
+  const heure = heureParis(new Date())
   if (!heureUtile(heure)) return { envoyees: [], motif: `hors des heures utiles (${heure}h)` }
   const { data: evenements, error } = await admin.rpc('crosswell_push_evenements', {
     p_seuil: SEUIL_ELEVEE,
