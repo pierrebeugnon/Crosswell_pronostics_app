@@ -404,7 +404,12 @@ CREATE MATERIALIZED VIEW public.journees_publiques AS
   GROUP BY reunion_date;
 CREATE UNIQUE INDEX journees_publiques_jour ON public.journees_publiques USING btree (reunion_date);
 COMMENT ON MATERIALIZED VIEW public.journees_publiques IS 'Une ligne par journee ayant des arrivees publiees, avec son nombre de courses et d''hippodromes. Sert le calendrier et la liste des journees precedentes. MATERIALISEE : rafraichie toutes les dix minutes par la tache cron `journees-publiques`.';
-REVOKE ALL ON public.journees_publiques FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON public.journees_publiques FROM PUBLIC;
+-- Lue par le site et l'app (db/017 : « grant select ... to anon, authenticated »).
+-- Oubliée à la première application du 09/11 à 13h21 — information_schema ne
+-- liste pas les droits d'une vue MATÉRIALISÉE, d'où la mauvaise copie — et
+-- reposée à 13h3x le même jour.
+GRANT SELECT ON public.journees_publiques TO anon, authenticated;
 
 COMMIT;
 
