@@ -1,4 +1,4 @@
-import { DEMO, MODELE_CLIENT } from '@/config/app'
+import { DEMO, MODELE_CLIENT, MODELE_REPLI } from '@/config/app'
 import { supabase, VUE_PREDICTIONS, configure } from '@/lib/supabase'
 import { lignesDemo } from '@/lib/demo'
 import { verrouillerLignes } from '@/lib/acces'
@@ -25,7 +25,9 @@ const PAGES_MAX = 60
 type Filtre = (q: ReturnType<typeof requete>) => ReturnType<typeof requete>
 
 function requete() {
-  return supabase.from(VUE_PREDICTIONS).select('*').eq('model_version', MODELE_CLIENT)
+  // Le modèle servi ET son repli (db/023) : la base ne rend qu'un modèle par
+  // course. Filtrer sur le seul MODELE_CLIENT viderait les courses en repli.
+  return supabase.from(VUE_PREDICTIONS).select('*').in('model_version', [MODELE_CLIENT, MODELE_REPLI])
 }
 
 /**

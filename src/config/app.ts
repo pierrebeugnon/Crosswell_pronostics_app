@@ -15,12 +15,21 @@
  * les deux divergent, l'intersection des filtres est vide et l'application
  * s'affiche sans aucune course, sans lever la moindre erreur.
  *
- * `M9ter.etranger` depuis le 02/11/2026 (décision du fondateur), après
- * `M9bis.niveau` (03/10 → 02/11) et `rating+forme.v1`. Mesure live appariée
- * du 11/09 au 01/11, 1 137 courses : classement +0,59 pt de C-index
- * [+0,30 ; +0,87], victoire du favori +0,7 pt (non significatif).
+ * `TS.remplace` depuis le 09/11/2026 au soir (décision du fondateur), après
+ * `M9ter.etranger` (02/11 → 09/11), `M9bis.niveau` (03/10 → 02/11) et
+ * `rating+forme.v1`. Mesure live appariée du 31/10 au 08/11, 198 courses :
+ * victoire du 1er +1,5 pt [−3,0 ; +6,1], C-index +0,27 [−0,56 ; +1,11] —
+ * en sa faveur, rien de significatif.
  */
-export const MODELE_CLIENT = 'M9ter.etranger'
+export const MODELE_CLIENT = 'TS.remplace'
+
+/**
+ * LE REPLI, COURSE PAR COURSE (db/023). TS.remplace s'abstient quand M12 ou la
+ * note TrueSkill de la nuit manque ; la base sert alors M9ter sur cette course
+ * (`crosswell_predictions_servies`). Une course n'a jamais qu'UN modèle, que
+ * `model_version` nomme. Doit concorder avec `crosswell_modele_repli()`.
+ */
+export const MODELE_REPLI = 'M9ter.etranger'
 
 /** Nom public du modèle. Le client ne voit jamais `rating+forme.v1`. */
 export const NOM_SCORE = 'Score Crosswell'
@@ -47,17 +56,20 @@ export const SEUIL_TRANCHE = 20
 
 /**
  * LA CONFIANCE D'UNE COURSE — à quel point notre rang 1 se détache. Elle ne
- * dépend que de sa probabilité de victoire : « Élevée » à partir de 41 %,
- * « Moyenne » de 25 à 41 %, « Faible » en dessous. La page Méthode les cite.
+ * dépend que de sa probabilité de victoire : « Élevée » à partir de 46 %,
+ * « Moyenne » de 27 à 46 %, « Faible » en dessous. La page Méthode les cite.
  *
- * 41 / 25 DEPUIS LE 02/11/2026, 28 / 18 AVANT. M9ter annonce ses chances à la
+ * 46 / 27 DEPUIS LE 09/11/2026 (TS.remplace annonce des chances un peu plus
+ * franches que M9ter : rang 1 à 30,2 % en moyenne contre 28,3 %, du 31/10 au
+ * 08/11 ; ces seuils gardent « Élevée » à ~11 % des courses).
+ * 41 / 25 du 02/11 au 09/11, 28 / 18 AVANT. M9ter annonce ses chances à la
  * température de son contrat, plus franche que celle de M9bis (rang 1 à
  * 26,5 % en moyenne contre 19,1 %). Aux anciens seuils, « Élevée » serait
  * passée de 10 % à 35 % des courses et n'aurait plus rien distingué. Les
  * nouveaux gardent les mêmes parts de courses (mesure du 20/10 au 01/11,
  * 273 courses : « Élevée » 10 %, son favori y gagne ~46 %).
  */
-export const SEUILS_CONFIANCE = { elevee: 0.41, moyenne: 0.25 } as const
+export const SEUILS_CONFIANCE = { elevee: 0.46, moyenne: 0.27 } as const
 
 /**
  * CE QUE L'ON SAIT D'UN NON-PARTANT, ET QUAND — une seule formulation, reprise
@@ -135,12 +147,13 @@ export const DATE_CORRECTION_MESURE = '2026-09-14'
 /**
  * Date du changement de modèle servi (`MODELE_CLIENT`), publiée pour la même
  * raison que ci-dessus : « Nos résultats » recalcule tout sur le modèle en
- * cours, donc les taux affichés ont changé ce jour-là. Le 02/11/2026,
- * l'historique devient celui de M9ter, qui calculait en interne depuis le
- * 11/09/2026 (03/10/2026 pour le passage à M9bis). Des chiffres qui bougent
- * sans explication datée ressemblent à une retouche.
+ * cours, donc les taux affichés ont changé ce jour-là. Le 09/11/2026,
+ * l'historique devient : M9ter jusqu'au 30/10, TS.remplace depuis le 31/10
+ * (sa mise en service interne), M9ter sur toute course que TS.remplace n'a pas
+ * prédite (02/11/2026 pour M9ter, 03/10/2026 pour M9bis). Des chiffres qui
+ * bougent sans explication datée ressemblent à une retouche.
  */
-export const DATE_CHANGEMENT_MODELE = '2026-11-02'
+export const DATE_CHANGEMENT_MODELE = '2026-11-09'
 
 /**
  * Écart minimal entre notre probabilité et celle du marché pour qu'un partant
