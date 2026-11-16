@@ -4,6 +4,7 @@ import ArcDeTriomphe2026Daryz from '@/contenu/articles/arc-de-triomphe-2026-dary
 import CalendrierGrandesCourses from '@/contenu/articles/calendrier-grandes-courses-galop'
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
 import CourseOfferte from '@/contenu/articles/course-offerte'
+import ComparateurChevaux from '@/contenu/articles/comparateur-chevaux'
 import ProbabiliteVictoireCheval from '@/contenu/articles/probabilite-victoire-cheval'
 import VerifierTauxReussite from '@/contenu/articles/verifier-taux-reussite'
 
@@ -50,6 +51,8 @@ export interface Article {
    * dans `dateModified` et le `lastmod` du sitemap ; le tri reste sur `date`.
    */
   miseAJour?: string
+  /** Écrit mais pas publié : voir `AVEC_BROUILLONS`. Retirer la ligne pour publier. */
+  brouillon?: boolean
   /** Durée de lecture annoncée, en minutes. Comptée, pas inventée. */
   minutes: number
   /** Mis en avant sur l'index, dans le bloc « À la une ». Un seul à la fois. */
@@ -94,12 +97,21 @@ const CORPS: Record<string, ComponentType> = {
   'calendrier-grandes-courses-galop-france': CalendrierGrandesCourses,
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
   'pronostic-hippique-gratuit-course-offerte': CourseOfferte,
+  'comparateur-chevaux-courses-hippiques': ComparateurChevaux,
   'probabilite-victoire-cheval-analyser-course-hippique': ProbabiliteVictoireCheval,
   'verifier-taux-reussite-pronostic-hippique': VerifierTauxReussite,
 }
 
+/**
+ * LES BROUILLONS ne sortent que sur demande : `VITE_BROUILLONS=1` à la
+ * construction (relecture locale). Sans elle — en production — un article
+ * `brouillon` n'a ni page, ni carte, ni entrée au sitemap. `scripts/apres-build.mjs`
+ * applique la même règle à la même variable.
+ */
+const AVEC_BROUILLONS = import.meta.env.VITE_BROUILLONS === '1'
+
 export const ARTICLES: readonly Article[] = (metadonnees as Omit<Article, 'Contenu'>[])
-  .filter((a) => CORPS[a.slug])
+  .filter((a) => CORPS[a.slug] && (!a.brouillon || AVEC_BROUILLONS))
   .map((a) => ({ ...a, Contenu: CORPS[a.slug] }))
 
 /** Les articles du plus récent au plus ancien — l'ordre de l'index. */

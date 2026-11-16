@@ -59,6 +59,42 @@ export function Chiffre({ valeur, children, source }: { valeur: string; children
   )
 }
 
+/**
+ * UNE CAPTURE DE L'APPLICATION, avec sa légende. Les dimensions sont exigées :
+ * sans elles, l'image arrive après le texte et le fait sauter (CLS). `etroite`
+ * pour une capture de téléphone, qui serait démesurée sur toute la colonne.
+ */
+export function Illustration({
+  src,
+  alt,
+  largeur,
+  hauteur,
+  legende,
+  etroite = false,
+}: {
+  src: string
+  alt: string
+  largeur: number
+  hauteur: number
+  legende: ReactNode
+  etroite?: boolean
+}) {
+  return (
+    <figure className={`flex flex-col gap-2 ${etroite ? 'self-center w-full max-w-[20rem]' : ''}`}>
+      <img
+        src={src}
+        alt={alt}
+        width={largeur}
+        height={hauteur}
+        loading="lazy"
+        decoding="async"
+        className="w-full h-auto rounded-2xl border border-line"
+      />
+      <figcaption className="text-xs leading-relaxed text-faint">{legende}</figcaption>
+    </figure>
+  )
+}
+
 /** Un encadré de rappel : ce que le lecteur doit retenir, ou ce qu'il ne faut pas croire. */
 export function Encadre({ titre, children }: { titre: string; children: ReactNode }) {
   return (

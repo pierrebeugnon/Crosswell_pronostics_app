@@ -33,7 +33,12 @@ const ICI = dirname(fileURLToPath(import.meta.url))
  * avec son titre, sa description, sa canonique et son entrée de sitemap. Un
  * titre recopié ici finirait par diverger de celui affiché : on ne recopie pas.
  */
-const ARTICLES = JSON.parse(await readFile(join(ICI, '..', 'src', 'contenu', 'articles.json'), 'utf8'))
+// Les brouillons sont écartés comme dans `src/contenu/articles.ts`, sur la même
+// variable : sinon ils auraient un fichier HTML et une entrée au sitemap, mais
+// une page introuvable — le garde-fou d'`avecCorps` ferait échouer le build.
+const ARTICLES = JSON.parse(await readFile(join(ICI, '..', 'src', 'contenu', 'articles.json'), 'utf8')).filter(
+  (a) => !a.brouillon || process.env.VITE_BROUILLONS === '1',
+)
 const DIST = join(ICI, '..', 'dist')
 const DIST_SERVEUR = join(ICI, '..', 'dist-serveur')
 

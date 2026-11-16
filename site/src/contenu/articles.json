@@ -1,5 +1,30 @@
 [
   {
+    "slug": "comparateur-chevaux-courses-hippiques",
+    "brouillon": true,
+    "rubrique": "Produit",
+    "titre": "Le comparateur : deux ou trois chevaux côte à côte, d’un coup d’œil",
+    "chapo": "Chances de victoire et de place, musique, victoires, allocations : le comparateur de Crosswell pose vos partants sur un seul écran, et met en vert le meilleur de chaque ligne.",
+    "date": "2026-11-19",
+    "minutes": 3,
+    "couverture": {
+      "fichier": "/media/comparateur-duel.jpg",
+      "cadrage": "40% 30%",
+      "credit": "Noah Silliman / Unsplash",
+      "alt": "Deux chevaux de course côte à côte en pleine action sur une piste en sable, l’un bai, l’autre gris, leurs jockeys en casaques colorées, devant une lice blanche et une pelouse verte."
+    },
+    "seo": {
+      "titre": "Comparer des chevaux de course : le comparateur Crosswell",
+      "description": "Posez deux ou trois partants côte à côte : chances de victoire et de place, musique, victoires, allocations. Le meilleur de chaque ligne en vert."
+    },
+    "sections": [
+      { "id": "ce-que-vous-comparez", "titre": "Tout sur une seule vue" },
+      { "id": "en-trois-gestes", "titre": "En trois gestes" },
+      { "id": "sur-telephone", "titre": "Sur téléphone" },
+      { "id": "disponible", "titre": "Dès la formule gratuite" }
+    ]
+  },
+  {
     "slug": "pronostic-hippique-gratuit-course-offerte",
     "rubrique": "Produit",
     "titre": "Une course offerte chaque jour : le pronostic hippique gratuit de Crosswell",

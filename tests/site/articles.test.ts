@@ -15,6 +15,12 @@ describe('articles.json', () => {
       for (const texte of [a.titre, a.chapo, a.seo.titre, a.seo.description]) expect(texte).not.toMatch(BANNIS)
     })
 
+    it(`${a.slug} : un article publié n'est pas daté dans le futur`, () => {
+      // Le jour de Paris : un article publié le soir ne doit pas échouer à minuit UTC.
+      const aujourdhui = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+      if (!(a as { brouillon?: boolean }).brouillon) expect(a.date <= aujourdhui).toBe(true)
+    })
+
     it(`${a.slug} : une mise à jour ne précède pas la publication`, () => {
       if (a.miseAJour) expect(a.miseAJour >= a.date).toBe(true)
     })
