@@ -90,7 +90,8 @@ export default function ComprendreCrosswell() {
       <H3>Le comparateur</H3>
       <P>
         Vous hésitez entre deux ou trois partants&nbsp;? Posez-les côte à côte&nbsp;: chances de victoire et de place,
-        musique, victoires, allocations, sur une même vue.
+        musique, victoires, allocations, sur une même vue.{' '}
+        <Link to="/blog/comparateur-chevaux-courses-hippiques">Le comparateur en images</Link>.
       </P>
 
       <H3>L’arrivée, en face de notre annonce</H3>
