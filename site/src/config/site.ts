@@ -94,7 +94,7 @@ export const LIBELLE_ECART = 'Écart +'
  * Le niveau de confiance d'une course, lu sur les chances de notre favori.
  * Doivent rester égaux à `SEUILS_CONFIANCE` de `src/config/app.ts`.
  */
-export const SEUILS_CONFIANCE = { elevee: 0.46, moyenne: 0.27 } as const
+export const SEUILS_CONFIANCE = { elevee: 0.44, moyenne: 0.26 } as const
 
 /**
  * LES FORMULES, et leur prix — ceux des maquettes, retenus par le fondateur le

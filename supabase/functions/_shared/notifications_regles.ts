@@ -12,7 +12,7 @@
  * compare les deux — un seuil qui diverge enverrait « Élevée » pour une course
  * que l'app affiche « Moyenne ».
  */
-export const SEUIL_ELEVEE = 0.46
+export const SEUIL_ELEVEE = 0.44
 
 /**
  * « Belle victoire » : notre 1er gagne à une cote d'au moins ce chiffre

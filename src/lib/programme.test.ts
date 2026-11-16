@@ -24,12 +24,12 @@ function course(o: Partial<Course>): Course {
 describe('confianceCourse', () => {
   const avec = (p: number | null) => course({ favori: p == null ? null : ({ pWin: p } as Partant) })
 
-  it('suit les seuils 46 % et 27 %, bornes incluses', () => {
+  it('suit les seuils 44 % et 26 %, bornes incluses', () => {
     expect(confianceCourse(avec(0.5))?.libelle).toBe('Élevée')
-    expect(confianceCourse(avec(0.46))?.libelle).toBe('Élevée')
-    expect(confianceCourse(avec(0.459))?.libelle).toBe('Moyenne')
-    expect(confianceCourse(avec(0.27))?.libelle).toBe('Moyenne')
-    expect(confianceCourse(avec(0.2699))?.libelle).toBe('Faible')
+    expect(confianceCourse(avec(0.44))?.libelle).toBe('Élevée')
+    expect(confianceCourse(avec(0.439))?.libelle).toBe('Moyenne')
+    expect(confianceCourse(avec(0.26))?.libelle).toBe('Moyenne')
+    expect(confianceCourse(avec(0.2599))?.libelle).toBe('Faible')
   })
 
   it('rien sans sélection', () => {
