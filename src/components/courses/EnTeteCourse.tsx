@@ -68,6 +68,7 @@ export function EnTeteCourse({ course }: { course: Course }) {
               <BarresConfiance confiance={confiance} petit />
               <span className="text-[0.8125rem] font-semibold text-soft">
                 Confiance {confiance ? confiance.libelle.toLowerCase() : 'non évaluée'}
+                {confiance?.ouvert && ' · peloton très ouvert'}
               </span>
             </>
           )}
@@ -101,6 +102,9 @@ export function EnTeteCourse({ course }: { course: Course }) {
             <BarresConfiance confiance={confiance} />
             <span className="text-[1.0625rem] font-bold">{confiance ? confiance.libelle : 'Non évaluée'}</span>
           </span>
+        )}
+        {!c.verrouillee && confiance?.ouvert && (
+          <span className="text-[0.8125rem] font-semibold text-soft">Peloton très ouvert</span>
         )}
         <Link to="/methode#lire" className="text-xs font-bold text-accent hover:text-accent-hover">
           Comment lire ce pronostic ?

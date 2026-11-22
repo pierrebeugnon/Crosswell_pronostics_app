@@ -72,6 +72,16 @@ export const SEUIL_TRANCHE = 20
 export const SEUILS_CONFIANCE = { elevee: 0.46, moyenne: 0.27 } as const
 
 /**
+ * « PELOTON TRÈS OUVERT » (22/11/2026) : sous ce seuil, la course est signalée
+ * en plus de sa confiance « Faible ». Mesure : notre rang 1 y gagne 10 % (M12)
+ * à 13 % (TS-R) en live du 19/10 au 21/11 (une course sur six), 14 % hors
+ * ligne sur 12 748 courses de 2024 et 2026. La probabilité du rang 1 trie
+ * mieux que la taille du peloton ou le handicap, qui n'ajoutent rien à
+ * probabilité égale. Même seuil pour M12 et TS-R.
+ */
+export const SEUIL_PELOTON_OUVERT = 0.18
+
+/**
  * CE QUE L'ON SAIT D'UN NON-PARTANT, ET QUAND — une seule formulation, reprise
  * à l'identique partout où l'interface en parle. Deux pages voisines disaient
  * « le soir, parfois le lendemain » et « le matin ou le soir » : un client lit

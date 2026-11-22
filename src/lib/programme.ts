@@ -1,4 +1,4 @@
-import { SEUILS_CONFIANCE } from '@/config/app'
+import { SEUIL_PELOTON_OUVERT, SEUILS_CONFIANCE } from '@/config/app'
 import { etatCourse, minutesDe, type InstantParis } from '@/lib/journee'
 import type { Course, Partant, Reunion } from '@/types'
 
@@ -33,6 +33,8 @@ export type NiveauConfiance = 1 | 2 | 3
 export interface Confiance {
   niveau: NiveauConfiance
   libelle: 'Élevée' | 'Moyenne' | 'Faible'
+  /** Sous `SEUIL_PELOTON_OUVERT` : l'app ajoute « Peloton très ouvert ». */
+  ouvert: boolean
 }
 
 /**
@@ -42,9 +44,9 @@ export interface Confiance {
 export function confianceCourse(c: Course): Confiance | null {
   const p = c.favori?.pWin
   if (p == null) return null
-  if (p >= SEUILS_CONFIANCE.elevee) return { niveau: 3, libelle: 'Élevée' }
-  if (p >= SEUILS_CONFIANCE.moyenne) return { niveau: 2, libelle: 'Moyenne' }
-  return { niveau: 1, libelle: 'Faible' }
+  if (p >= SEUILS_CONFIANCE.elevee) return { niveau: 3, libelle: 'Élevée', ouvert: false }
+  if (p >= SEUILS_CONFIANCE.moyenne) return { niveau: 2, libelle: 'Moyenne', ouvert: false }
+  return { niveau: 1, libelle: 'Faible', ouvert: p < SEUIL_PELOTON_OUVERT }
 }
 
 export type Verdict = 'gagnant' | 'place' | 'manque' | 'sansSelection'

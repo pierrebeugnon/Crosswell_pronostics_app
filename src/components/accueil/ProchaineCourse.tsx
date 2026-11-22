@@ -108,6 +108,7 @@ export function ProchaineCourse({ prochaine, maintenant }: { prochaine: Prochain
               <BarresConfiance confiance={confiance} petit />
               <span className="text-sm font-semibold text-soft">
                 Confiance {confiance ? confiance.libelle.toLowerCase() : 'non évaluée'}
+                {confiance?.ouvert && ' · peloton très ouvert'}
               </span>
             </span>
           )}
