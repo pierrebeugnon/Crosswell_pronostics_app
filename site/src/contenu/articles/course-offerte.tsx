@@ -8,18 +8,18 @@ import { FORMULES, RYTHME_PUBLICATION, inscrireAvec } from '@/config/site'
  * Il vise « pronostic hippique gratuit » et mène à l'inscription. Lié depuis
  * l'article pilier (`comprendre-crosswell`), section « Gratuit ou Pass ».
  *
- * LA RÈGLE DÉCRITE EST CELLE DE LA BASE, `client_predictions` (db/009) : le plus
- * gros peloton déclaré, puis la catégorie la plus relevée, puis la première au
- * départ. Elle ne change pas dans la journée, puisque `field_size` compte les
- * déclarés.
+ * LA RÈGLE DÉCRITE EST CELLE DE LA BASE, `crosswell_courses_offertes` (db/024,
+ * décision du fondateur du 28/11/2026) : la course où notre 1er a la plus forte
+ * probabilité de victoire, puis la première au départ. Elle ne change pas dans
+ * la journée : les prédictions s'écrivent une fois le matin, et la course reste
+ * offerte si notre 1er est retiré. Elle remplace « le plus gros peloton »
+ * (db/009) ; l'article a été réécrit le 28/11 (`miseAJour`).
  *
- * LES DEUX CHIFFRES SONT DATÉS ET MESURÉS le 08/11/2026, en appliquant cette
- * règle aux journées publiées du 11/09 au 08/11/2026 (59 journées) : 15,9
- * partants déclarés en moyenne, et 21 Quinté+ sur les 29 journées où il s'est
- * couru au galop. Ils restent vrais à leur date ; ils ne se mettent pas à jour.
- *
- * Le Quinté+ y est NOMMÉ comme une course, et rien d'autre (exception du
- * 28/10/2026) : ni combinaison, ni invitation.
+ * LES CHIFFRES SONT DATÉS ET MESURÉS le 28/11/2026, en appliquant cette règle
+ * aux 78 journées publiées du 11/09 au 27/11/2026, sur le classement de
+ * « Nos résultats » (vue crosswell_predictions_servies) : notre 1er a remporté
+ * 30 de ces courses et fini 58 fois dans les 3 premiers ; 6,5 partants au
+ * départ en moyenne. Ils restent vrais à leur date ; ils ne se mettent pas à jour.
  */
 export default function CourseOfferte() {
   const passJour = FORMULES.find((f) => f.cle === 'jour')?.prix ?? ''
@@ -45,20 +45,20 @@ export default function CourseOfferte() {
 
       <H2 id="quelle-course">Quelle course est offerte&nbsp;?</H2>
       <P>
-        La plus belle course du jour&nbsp;: celle qui réunit le plus de partants déclarés. À égalité, la catégorie la
-        plus relevée l’emporte, puis la première au départ. La règle est la même chaque jour, et la course offerte
-        annoncée le matin reste la même jusqu’au soir, même si un cheval est retiré.
+        La course où nos chiffres sont les plus sûrs&nbsp;: celle où notre favori a la plus forte chance de gagner. À
+        égalité, la première au départ l’emporte. La règle est la même chaque jour, et la course offerte annoncée le
+        matin reste la même jusqu’au soir, même si un cheval est retiré.
       </P>
       <P>
-        Un gros peloton, c’est la course la plus difficile à lire seul, et celle où un pourcentage par partant aide le
-        plus. C’est aussi, très souvent, la course que tout le monde regarde.
+        C’est souvent un petit peloton, où un cheval se détache. Vous voyez notre modèle là où il est le plus
+        affirmatif, et vous pouvez vérifier chaque soir s’il avait raison.
       </P>
       <Chiffre
-        valeur="21 sur 29"
-        source="Règle de la course offerte appliquée aux journées publiées du 11 septembre au 8 novembre 2026"
+        valeur="58 sur 78"
+        source="Règle de la course offerte appliquée aux 78 journées publiées du 11 septembre au 27 novembre 2026"
       >
-        Des journées où le Quinté+ s’est couru au galop, la course offerte était le Quinté+ lui-même. Sur la période,
-        elle a réuni en moyenne 16 partants déclarés.
+        Les journées où notre favori de la course offerte a fini dans les trois premiers. Il l’a remportée 30 fois,
+        soit 38&nbsp;%. Ces courses comptaient en moyenne 6,5 partants au départ.
       </Chiffre>
 
       <H2 id="ou-la-trouver">Où la trouver dans l’application</H2>
@@ -106,7 +106,7 @@ export default function CourseOfferte() {
         <a href={inscrireAvec('gratuit')} rel="noopener noreferrer">
           Créer mon compte gratuit
         </a>
-        &nbsp;: la plus belle course du jour vous attend, entièrement chiffrée.
+        &nbsp;: la course où notre favori a la plus forte chance vous attend, entièrement chiffrée.
       </P>
     </>
   )

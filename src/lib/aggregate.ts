@@ -162,6 +162,7 @@ export function construireCourses(lignes: LignePrediction[]): Course[] {
       // ligne de tête : une base non migrée rend `undefined`, et la course
       // n'est alors simplement pas marquée.
       quinte: lignesCourse.some((l) => l.quinte === true),
+      offerte: lignesCourse.some((l) => l.offerte === true),
       verrouillee: lignesCourse.some((l) => l.verrouille === true),
       liste,
       favori,

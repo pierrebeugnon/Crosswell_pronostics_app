@@ -68,80 +68,71 @@ export function lireAcces(brut: unknown): Acces {
 }
 
 /**
- * LE RANG D'UNE CATÉGORIE, du plus relevé au reste : Groupe I, II, III, Listed.
- * L'ordre des tests compte — « GR.III » commence par « GR.I ». Les libellés
- * viennent de France Galop et portent parfois un suffixe (« GR.I PA »,
- * « GR.III AQ ») ; le préfixe suffit à trancher.
- */
-export function prestigeCategorie(categorie: string | null | undefined): number {
-  const c = categorie ?? ''
-  if (/^gr\.?\s*iii/i.test(c)) return 2
-  if (/^gr\.?\s*ii/i.test(c)) return 3
-  if (/^gr\.?\s*i/i.test(c)) return 4
-  if (/listed/i.test(c)) return 1
-  return 0
-}
-
-/**
- * LA COURSE OFFERTE du jour — même règle que la base (`db/009`), décision du
- * fondateur du 25/09/2026 : LA PLUS BELLE COURSE DU JOUR, c'est-à-dire le plus
- * gros peloton ; à égalité, la catégorie la plus relevée, puis la première au
- * départ, l'hippodrome et le numéro. Le champ `declares` est celui que la base
- * trie (`field_size`) ; il ne bouge pas quand un cheval est retiré, donc la
- * course offerte annoncée le matin reste la même toute la journée.
+ * LA COURSE OFFERTE du jour, telle que la BASE la désigne (colonne `offerte`
+ * de `client_predictions`, `db/024`). Décision du fondateur du 28/11/2026 : la
+ * course où notre 1er a la plus forte chance de gagner (elle remplace « le plus
+ * gros peloton » de `db/009`).
  *
- * ON NE REMPLACE PAS un nombre de déclarés absent par les partants au départ :
- * la base range ces courses en DERNIER (`NULLS LAST`), et cette fonction sert à
- * NOMMER la course que la base a ouverte. Deux règles qui divergent, et l'app
- * renvoie vers une course en fait verrouillée. (En production `field_size` est
- * toujours renseigné ; ce cas est celui de données incomplètes.)
+ * ON NE REFAIT PAS LE CALCUL ICI : un compte Gratuit ne reçoit pas les
+ * probabilités des courses verrouillées, il ne pourrait pas trouver la plus
+ * forte. Deux règles qui divergent, et l'app renverrait vers une course en
+ * fait verrouillée.
  *
- * Null si le jour n'a pas de course.
+ * Null si le jour n'a pas de course, ou sur une base où `db/024` manque.
  */
 export function courseOfferte(duJour: readonly Course[]): Course | null {
-  const peloton = (c: Course) => c.declares ?? -1
-  const heure = (c: Course) => (c.heureDepart ? minutesDe(c.heureDepart) : Number.POSITIVE_INFINITY)
-  return (
-    [...duJour].sort(
-      (a, b) =>
-        peloton(b) - peloton(a) ||
-        prestigeCategorie(b.categorie) - prestigeCategorie(a.categorie) ||
-        heure(a) - heure(b) ||
-        a.hippodrome.localeCompare(b.hippodrome) ||
-        a.numero - b.numero,
-    )[0] ?? null
-  )
+  return duJour.find((c) => c.offerte) ?? null
 }
 
 /**
- * DÉMONSTRATION SEULEMENT : la règle de `client_predictions` (`db/009`) appliquée
- * aux lignes fictives, pour montrer la formule Gratuit sans base. Une course à
- * venir (jour ≥ aujourd'hui, aucune place relevée) autre que la plus belle du
- * jour perd rang et probabilités, et porte `verrouille`.
+ * DÉMONSTRATION SEULEMENT : la règle de `db/024` appliquée aux lignes fictives,
+ * pour montrer la formule Gratuit sans base. Par jour à venir, la course offerte
+ * est celle où la plus haute probabilité de victoire est la plus haute (toutes
+ * lignes comprises, non-partants aussi, comme la base), puis la première au
+ * départ, l'hippodrome et le numéro. Une course à venir (aucune place relevée)
+ * autre que celle-là perd rang et probabilités, et porte `verrouille`.
  */
 export function verrouillerLignes(lignes: readonly LignePrediction[], aujourdhui: string): LignePrediction[] {
   const cle = (l: LignePrediction) => `${l.reunion_date}|${l.hippodrome}|${l.course_num}`
   const jugees = new Set(lignes.filter((l) => l.actual_place != null).map(cle))
   const heure = (l: LignePrediction) => (l.heure_depart ? minutesDe(l.heure_depart.slice(0, 5)) : Number.POSITIVE_INFINITY)
-  // Même ordre que `courseOfferte` et que la base : peloton, catégorie, heure.
-  const devance = (l: LignePrediction, o: LignePrediction) =>
-    (l.field_size ?? -1) - (o.field_size ?? -1) ||
-    prestigeCategorie(l.categorie) - prestigeCategorie(o.categorie) ||
-    heure(o) - heure(l) ||
-    (o.hippodrome ?? '').localeCompare(l.hippodrome ?? '') ||
-    o.course_num - l.course_num
-  const offertes = new Map<string, LignePrediction>()
+
+  // Une course : sa plus haute probabilité, sa première heure de départ.
+  interface Candidate {
+    ligne: LignePrediction
+    p1: number
+    heure: number
+  }
+  const courses = new Map<string, Candidate>()
   for (const l of lignes) {
     if (l.reunion_date < aujourdhui || !l.hippodrome) continue
-    const o = offertes.get(l.reunion_date)
-    if (!o || devance(l, o) > 0) offertes.set(l.reunion_date, l)
+    const c = courses.get(cle(l))
+    const p = l.p_win ?? Number.NEGATIVE_INFINITY
+    if (!c) courses.set(cle(l), { ligne: l, p1: p, heure: heure(l) })
+    else {
+      c.p1 = Math.max(c.p1, p)
+      c.heure = Math.min(c.heure, heure(l))
+    }
   }
-  const cleOfferte = new Set([...offertes.values()].map(cle))
+  // Même ordre que la base : probabilité, heure, hippodrome, numéro.
+  const devance = (a: Candidate, b: Candidate) =>
+    a.p1 - b.p1 ||
+    b.heure - a.heure ||
+    (b.ligne.hippodrome ?? '').localeCompare(a.ligne.hippodrome ?? '') ||
+    b.ligne.course_num - a.ligne.course_num
+  const parJour = new Map<string, Candidate>()
+  for (const c of courses.values()) {
+    const o = parJour.get(c.ligne.reunion_date)
+    if (!o || devance(c, o) > 0) parJour.set(c.ligne.reunion_date, c)
+  }
+  const cleOfferte = new Set([...parJour.values()].map((c) => cle(c.ligne)))
+
   return lignes.map((l) => {
-    const verrou = l.reunion_date >= aujourdhui && !jugees.has(cle(l)) && !cleOfferte.has(cle(l))
+    const offerte = cleOfferte.has(cle(l))
+    const verrou = l.reunion_date >= aujourdhui && !jugees.has(cle(l)) && !offerte
     return verrou
-      ? { ...l, pred_rank: null, p_win: null, p_place: null, rang_effectif: null, verrouille: true }
-      : { ...l, verrouille: false }
+      ? { ...l, pred_rank: null, p_win: null, p_place: null, rang_effectif: null, verrouille: true, offerte }
+      : { ...l, verrouille: false, offerte }
   })
 }
 

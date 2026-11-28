@@ -26,7 +26,7 @@ export function Cadenas({ taille = 14, className = '' }: { taille?: number; clas
 /**
  * Le bandeau de la formule Gratuit. Il NOMME la course offerte quand on la
  * connaît : « 1 pronostic offert par jour » laissait chercher laquelle, alors
- * que la règle la désigne dès le matin (`db/009`, la plus belle du jour).
+ * que la base la désigne dès le matin (`db/024`, la plus forte chance de notre 1er).
  */
 export function BandeauGratuit({ className = '', offerte = null }: { className?: string; offerte?: Course | null }) {
   return (

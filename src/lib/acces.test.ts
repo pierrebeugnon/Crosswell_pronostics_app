@@ -31,47 +31,63 @@ describe('lecture de l’accès', () => {
   })
 })
 
-describe('règle de la base, reproduite pour la démo', () => {
+describe('règle de la base (db/024), reproduite pour la démo', () => {
   const lignes = [
-    ligne({ course_num: 1, heure_depart: '15:00:00', field_size: 8 }),
-    ligne({ course_num: 2, heure_depart: '13:10:00', field_size: 16 }), // le plus gros peloton : offerte
-    ligne({ hippodrome: 'AUTEUIL', course_num: 1, heure_depart: '16:00:00', field_size: 12 }),
-    ligne({ reunion_date: '2026-09-18', course_num: 3, actual_place: null, field_size: 18 }), // jour passé
-    ligne({ reunion_date: '2026-09-19', hippodrome: 'DEAUVILLE', course_num: 4, actual_place: 2, field_size: 9 }), // jugée
+    ligne({ course_num: 1, heure_depart: '15:00:00', p_win: 0.3 }),
+    ligne({ course_num: 1, horse_num: 2, pred_rank: 2, heure_depart: '15:00:00', p_win: 0.2 }),
+    ligne({ course_num: 2, heure_depart: '13:10:00', p_win: 0.55 }), // la plus forte chance : offerte
+    ligne({ course_num: 2, horse_num: 2, pred_rank: 2, heure_depart: '13:10:00', p_win: 0.15 }),
+    ligne({ hippodrome: 'AUTEUIL', course_num: 1, heure_depart: '16:00:00', p_win: 0.4 }),
+    ligne({ reunion_date: '2026-09-18', course_num: 3, actual_place: null, p_win: 0.9 }), // jour passé
+    ligne({ reunion_date: '2026-09-19', hippodrome: 'DEAUVILLE', course_num: 4, actual_place: 2, p_win: 0.2 }), // jugée
   ]
   const r = verrouillerLignes(lignes, '2026-09-19')
 
-  it('ouvre la plus belle course du jour, les jours passés et les courses jugées', () => {
-    expect(r.map((l) => l.verrouille)).toEqual([true, false, true, false, false])
+  it('ouvre la course où notre 1er a la plus forte chance, les jours passés et les courses jugées', () => {
+    expect(r.map((l) => l.verrouille)).toEqual([true, true, false, false, true, false, false])
+    expect(r.map((l) => l.offerte)).toEqual([false, false, true, true, false, false, false])
   })
 
   it('efface rang et probabilités des courses verrouillées, garde le reste', () => {
     expect(r[0]).toMatchObject({ p_win: null, p_place: null, pred_rank: null, rang_effectif: null, horse_num: 1 })
-    expect(r[1]).toMatchObject({ p_win: 0.3, pred_rank: 1 })
+    expect(r[2]).toMatchObject({ p_win: 0.55, pred_rank: 1 })
+  })
+
+  it('à chance égale, la première au départ, et le choix reste déterminé', () => {
+    const egales = verrouillerLignes(
+      [
+        ligne({ course_num: 1, heure_depart: '16:00:00', p_win: 0.5 }),
+        ligne({ course_num: 2, heure_depart: '13:10:00', p_win: 0.5 }),
+        ligne({ course_num: 3, heure_depart: null, p_win: 0.5 }),
+      ],
+      '2026-09-19',
+    )
+    expect(egales.map((l) => l.offerte)).toEqual([false, true, false])
+  })
+
+  it('garde la course offerte quand notre 1er est retiré, comme la base', () => {
+    const retire = verrouillerLignes(
+      [
+        ligne({ course_num: 1, p_win: 0.6, non_partant: true }),
+        ligne({ course_num: 1, horse_num: 2, pred_rank: 2, p_win: 0.2 }),
+        ligne({ course_num: 2, p_win: 0.5 }),
+      ],
+      '2026-09-19',
+    )
+    expect(retire.map((l) => l.offerte)).toEqual([true, true, false])
   })
 })
 
-describe('course offerte — la plus belle du jour', () => {
+describe('course offerte — désignée par la base', () => {
   const c = (numero: number, o: Partial<Course> = {}) =>
-    ({ numero, hippodrome: 'X', heureDepart: '15:00', declares: 10, categorie: null, ...o }) as Course
+    ({ numero, hippodrome: 'X', heureDepart: '15:00', offerte: false, ...o }) as Course
 
-  it('le plus gros peloton d’abord', () => {
-    expect(courseOfferte([c(1), c(2, { declares: 16 }), c(3, { declares: 7 })])?.numero).toBe(2)
+  it('nomme la course que la base a marquée offerte', () => {
+    expect(courseOfferte([c(1), c(2, { offerte: true }), c(3)])?.numero).toBe(2)
+  })
+
+  it('ne nomme rien sans marque (jour vide, ou base sans db/024)', () => {
     expect(courseOfferte([])).toBeNull()
-  })
-
-  it('à peloton égal, la catégorie la plus relevée', () => {
-    const lot = [c(1, { categorie: 'HAND.' }), c(2, { categorie: 'GR.III' }), c(3, { categorie: 'GR.I' }), c(4, { categorie: 'Listed' })]
-    expect(courseOfferte(lot)?.numero).toBe(3)
-    expect(courseOfferte([c(1, { categorie: 'GR.III' }), c(2, { categorie: 'GR.II' })])?.numero).toBe(2)
-  })
-
-  it('puis la première au départ, et le choix reste déterminé', () => {
-    expect(courseOfferte([c(1, { heureDepart: '16:00' }), c(2, { heureDepart: '13:10' }), c(3, { heureDepart: null })])?.numero).toBe(2)
-    expect(courseOfferte([c(2), c(1)])?.numero).toBe(1)
-  })
-
-  it('range en dernier une course sans nombre de déclarés, comme la base', () => {
-    expect(courseOfferte([c(1, { declares: null, partants: 18 }), c(2, { declares: 9 })])?.numero).toBe(2)
+    expect(courseOfferte([c(1), c(2)])).toBeNull()
   })
 })

@@ -44,6 +44,12 @@ export interface LignePrediction {
    * un visiteur anonyme.
    */
   quinte?: boolean | null
+  /**
+   * La course offerte du jour (`db/024`) : celle où notre 1er a la plus forte
+   * chance de gagner. Vraie pour tous les comptes, Pass compris. Optionnelle :
+   * sur une base où la migration manque, aucune course n'est nommée offerte.
+   */
+  offerte?: boolean | null
 }
 
 export type TypeCourse = 'Handicap' | 'Réclamer' | 'Conditions' | 'Groupe & Listed'
@@ -113,6 +119,8 @@ export interface Course {
    * est donc normale, et ne dit rien d'une collecte manquée.
    */
   quinte: boolean
+  /** La course offerte du jour à la formule Gratuit (`db/024`), désignée par la base. */
+  offerte: boolean
   /**
    * Le pronostic est réservé aux Pass (formule Gratuit, course à venir autre que
    * la course offerte) : la base n'en a donné ni rang ni probabilité.
