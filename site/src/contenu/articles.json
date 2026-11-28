@@ -1,5 +1,31 @@
 [
   {
+    "slug": "niveau-confiance-pronostic-hippique",
+    "rubrique": "Produit",
+    "titre": "Le niveau de confiance : savoir, avant le départ, si notre favori se détache",
+    "chapo": "Élevée, moyenne ou faible : sur Crosswell, chaque course dit avant le départ si notre favori se détache ou si le peloton reste ouvert. De quoi repérer les courses qui valent qu’on s’y arrête, et le vérifier ensuite, niveau par niveau, dans nos résultats.",
+    "date": "2026-11-22",
+    "minutes": 5,
+    "brouillon": true,
+    "couverture": {
+      "fichier": "/media/confiance-couverture.jpg",
+      "cadrage": "50% 52%",
+      "credit": "Keith Luke / Unsplash",
+      "alt": "Un cheval alezan seul au grand galop sur une piste en sable, son jockey en casaque bordeaux couché sur l’encolure, le long d’une lice blanche et d’une pelouse verte."
+    },
+    "seo": {
+      "titre": "Pronostic hippique : le niveau de confiance de chaque course",
+      "description": "Élevée, moyenne ou faible : chaque pronostic dit, avant le départ, si notre favori se détache. Vérifiable niveau par niveau, dès la formule gratuite."
+    },
+    "sections": [
+      { "id": "trois-niveaux", "titre": "Trois niveaux, avant le départ" },
+      { "id": "ou-le-lire", "titre": "Où le lire" },
+      { "id": "une-journee", "titre": "Des courses qui ne se ressemblent pas" },
+      { "id": "nos-resultats", "titre": "Vérifier, niveau par niveau" },
+      { "id": "formule-gratuite", "titre": "Dès la formule gratuite" }
+    ]
+  },
+  {
     "slug": "comparateur-chevaux-courses-hippiques",
     "rubrique": "Produit",
     "titre": "Le comparateur : deux ou trois chevaux côte à côte, d’un coup d’œil",

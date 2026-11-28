@@ -5,6 +5,7 @@ import CalendrierGrandesCourses from '@/contenu/articles/calendrier-grandes-cour
 import ComprendreCrosswell from '@/contenu/articles/comprendre-crosswell'
 import CourseOfferte from '@/contenu/articles/course-offerte'
 import ComparateurChevaux from '@/contenu/articles/comparateur-chevaux'
+import NiveauConfiance from '@/contenu/articles/niveau-confiance'
 import ProbabiliteVictoireCheval from '@/contenu/articles/probabilite-victoire-cheval'
 import VerifierTauxReussite from '@/contenu/articles/verifier-taux-reussite'
 
@@ -98,6 +99,7 @@ const CORPS: Record<string, ComponentType> = {
   'comprendre-crosswell-pronostics-hippiques-statistiques': ComprendreCrosswell,
   'pronostic-hippique-gratuit-course-offerte': CourseOfferte,
   'comparateur-chevaux-courses-hippiques': ComparateurChevaux,
+  'niveau-confiance-pronostic-hippique': NiveauConfiance,
   'probabilite-victoire-cheval-analyser-course-hippique': ProbabiliteVictoireCheval,
   'verifier-taux-reussite-pronostic-hippique': VerifierTauxReussite,
 }

@@ -2,28 +2,81 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ExempleCourse } from '@/components/accueil/ExempleCourse'
 import { Accordeon, type Question } from '@/components/ui/Accordeon'
+import { Fictif } from '@/components/ui/Fictif'
 import {
   AVERTISSEMENT,
   CONTACT,
   FORMULES,
   HEURE_RELEVE,
+  LIBELLE_ECART,
   NOTE_NON_PARTANTS,
   RYTHME_PUBLICATION,
   URL_INSCRIPTION,
   inscrireAvec,
   type Formule,
 } from '@/config/site'
+import { pourcent } from '@/lib/format'
 import { useTitre } from '@/lib/useTitre'
 
 /**
  * L'ACCUEIL PUBLIC — `design/screens/Landing.dc.html` et `LandingMobile`.
  *
- * Héros et exemple de course, quatre atouts, trois étapes, la transparence, les
- * tarifs, la mise en garde, la FAQ. Écarts à la maquette (design/INTEGRATION.md,
- * lot 7) : le vocabulaire du pari est banni (positionnement strict, confirmé le
- * 18/09/2026) ; « Value » devient l'écart au marché ; rien n'est promis que
- * l'application ne fasse — pas de cote « en direct », pas de facteurs du
- * pronostic, pas de suivis ni d'alertes ; le modèle ne lit pas les cotes.
+ * Héros et exemple de course, quatre atouts, trois étapes, ce que nous
+ * apportons, la transparence, les tarifs, la mise en garde, la FAQ. Écarts à la
+ * maquette (design/INTEGRATION.md, lot 7) : le vocabulaire du pari est banni
+ * (positionnement strict, confirmé le 18/09/2026) ; « Value » devient l'écart au
+ * marché ; rien n'est promis que l'application ne fasse — pas de cote « en
+ * direct », pas de facteurs du pronostic, pas de suivis ni d'alertes ; le modèle
+ * ne lit pas les cotes.
+ *
+ * L'ENCART « CE QUE NOUS VOUS APPORTONS » (22/11/2026) vient de la maquette
+ * `Landing.dc.html`, section `#apports`, et s'en écarte sur quatre points — tous
+ * imposés par les règles ci-dessus, aucun par goût :
+ *
+ *   1. la maquette annonce « +40 critères analysés », dont « cotes du marché ».
+ *      Le nombre n'est vérifiable nulle part dans le dépôt, et les cotes
+ *      CONTREDISENT la troisième étape, à deux sections d'ici, qui dit « ni la
+ *      presse, ni les informations d'écurie, ni les cotes ». La carte dit donc
+ *      ce que le modèle regarde, sans chiffre et sans les cotes ;
+ *   2. « Value » devient `LIBELLE_ECART` ;
+ *   3. la maquette étiquette les courses « ouverte » / « fermée ». L'application
+ *      n'a pas ces mots : elle affiche un niveau de confiance. Les pastilles
+ *      reprennent donc ses libellés, pour que le site ne promette pas un écran
+ *      qui n'existe pas ;
+ *   4. le favori de l'exemple « fermé » passe de 34 % à 48 %. À 34 % il serait
+ *      « Confiance moyenne » selon nos propres `SEUILS_CONFIANCE` (élevée dès
+ *      46 %) : l'illustration contredisait l'échelle qu'elle illustre.
+ *
+ * ── LE VOCABULAIRE DES PARIEURS, AUTORISÉ ICI LE 22/11/2026 ─────────────────
+ *
+ * Arbitrage du fondateur, explicite et répété : cet encart s'adresse à des
+ * parieurs et emploie leurs mots — jouer, mise à plat, rendement. C'est une
+ * EXCEPTION BORNÉE À CETTE SECTION, inscrite dans `site/CLAUDE.md` ; le reste
+ * du site garde le vocabulaire neutre, et la règle générale n'est pas levée.
+ *
+ * AUCUN CHIFFRE À L'ÉCRAN (arbitrage du fondateur, 22/11/2026, après une
+ * première version qui en portait trois) : l'encart dit la méthode, pas les
+ * taux. Les mesures ci-dessous RESTENT la justification de ce qui est écrit —
+ * les retirer de ce commentaire laisserait une affirmation sans preuve, et la
+ * prochaine relecture ne saurait plus si elle est fondée.
+ *
+ * CE QUI EST AFFIRMÉ, ET POURQUOI C'EST TENABLE. L'affirmation est
+ * COMPARATIVE : trier par la confiance fait mieux que jouer toutes les courses
+ * au même niveau. Mesuré le 22/11/2026 sur `resultats_publics`, du 11/09 au
+ * 22/11/2026, 1 572 courses jugées — rendement d'une mise à plat sur notre
+ * favori : −27,5 % sur les pelotons très ouverts (452 cotées), −5,7 % en
+ * confiance faible (489), +4,3 % quand le modèle se détache (312). La
+ * progression est monotone sur les trois bandes et l'écart entre les extrêmes
+ * vaut 32 points pour une erreur-type de 13 (p ≈ 0,014).
+ *
+ * CE QUI N'EST PAS AFFIRMÉ, ET NE DOIT PAS L'ÊTRE. Que la méthode rapporte. Le
+ * +4,3 % porte un intervalle à 95 % de −13,5 % à +22,1 % : il ne se distingue
+ * pas de zéro, et il faudrait environ 5 300 courses cotées dans cette bande
+ * pour trancher, contre 312 aujourd'hui — trois à quatre ans au rythme actuel.
+ * Seules 312 des 487 courses ont une cote, et les réunions cotées sont les plus
+ * grosses : l'échantillon n'est pas neutre. Écrire « nos pronostics rapportent »
+ * serait un chiffre inventé. Les trois mentions obligatoires restent sous
+ * l'encart.
  */
 
 /** Titre de section : 25 px sur téléphone, 34 px sur grand écran (maquette : 28 et 40, réduits le 18/09). */
@@ -80,6 +133,87 @@ const ETAPES: { titre: string; texte: string }[] = [
     texte: 'Arrivée prédite, pourcentages, niveau de confiance, écart au marché : chaque chiffre est expliqué, et vérifiable dans nos résultats publiés.',
   },
 ]
+
+/** Les quatre cartes de l'encart « Ce que nous vous apportons ». */
+const APPORTS: { tete: string; titre: string; texte: string }[] = [
+  {
+    tete: 'Sans les cotes',
+    titre: 'ce que le modèle regarde',
+    texte:
+      'Valeur du cheval, forme récente, distance, catégorie, taille du peloton, jockey, entraîneur. Nos pourcentages ne doivent rien au marché, ce qui leur permet de le contredire.',
+  },
+  {
+    tete: 'Quelles courses jouer',
+    titre: 'et lesquelles laisser passer',
+    texte:
+      'Un niveau de confiance par course, qui dit si un cheval se détache nettement ou si les chances restent si réparties que personne ne peut départager.',
+  },
+  {
+    tete: 'Chaque chiffre',
+    titre: 'confronté à l’arrivée officielle',
+    texte:
+      'Les probabilités publiées le matin ne sont jamais recalculées, et chacune est ensuite comparée à ce que la course a donné.',
+  },
+  {
+    tete: LIBELLE_ECART,
+    titre: 'l’écart avec le marché',
+    texte:
+      'Sur les réunions cotées, nous plaçons nos pourcentages en face de la cote de clôture et marquons les partants que notre modèle situe plus haut qu’elle.',
+  },
+]
+
+/**
+ * LES DEUX COURSES DE L'EXEMPLE — fictives, et c'est tout l'objet de `<Fictif />`.
+ *
+ * Elles illustrent les deux bouts de l'échelle de confiance : un favori à 48 %
+ * passe `SEUILS_CONFIANCE.elevee` (46 %), un peloton dont le premier plafonne à
+ * 11 % reste sous `moyenne` (27 %). Les libellés ne sont donc pas décoratifs,
+ * ils sont ceux que l'application afficherait sur ces chiffres.
+ *
+ * Les barres des DEUX courses sont à la même échelle, celle du plus fort
+ * pourcentage de l'encart. À l'échelle de leur propre course, les quatre barres
+ * du peloton ouvert seraient presque pleines — elles diraient le contraire de ce
+ * que l'exemple montre.
+ */
+const EXEMPLES_CONFIANCE: {
+  repere: string
+  nom: string
+  confiance: string
+  serre: boolean
+  partants: { numero: number; nom: string; victoire: number; ecart?: boolean }[]
+  lecture: string
+}[] = [
+  {
+    repere: 'R1 C3 · Compiègne',
+    nom: 'Prix des Lisières',
+    confiance: 'Confiance élevée',
+    serre: false,
+    partants: [
+      { numero: 7, nom: 'Iron Valley', victoire: 0.48 },
+      { numero: 3, nom: 'Belle de Cordes', victoire: 0.17 },
+      { numero: 11, nom: 'Orage Doré', victoire: 0.11 },
+      { numero: 5, nom: 'Sirocco Blue', victoire: 0.08 },
+    ],
+    lecture: 'Un cheval se détache nettement : notre modèle est confiant sur la tête de l’arrivée.',
+  },
+  {
+    repere: 'R1 C6 · Compiègne',
+    nom: 'Prix de la Forêt',
+    confiance: 'Confiance faible',
+    serre: true,
+    partants: [
+      { numero: 2, nom: 'Mistral d’Ouest', victoire: 0.11 },
+      { numero: 9, nom: 'Reine des Prés', victoire: 0.1 },
+      { numero: 4, nom: 'Valley Rose', victoire: 0.09, ecart: true },
+      { numero: 12, nom: 'Prince Vert', victoire: 0.09 },
+    ],
+    lecture:
+      'Les chances restent réparties : l’arrivée est difficile à prévoir, et vous le lisez avant d’ouvrir la course.',
+  },
+]
+
+/** L'échelle commune des barres : le plus fort pourcentage des deux exemples. */
+const MAX_EXEMPLES = Math.max(...EXEMPLES_CONFIANCE.flatMap((c) => c.partants.map((p) => p.victoire)))
 
 const prixDe = (cle: string) => FORMULES.find((f) => f.cle === cle)?.prix ?? ''
 
@@ -244,6 +378,124 @@ export default function Accueil() {
             </li>
           ))}
         </ol>
+      </section>
+
+      {/* ── Ce que nous apportons ─────────────────────────────────────────── */}
+      <section id="apports" aria-labelledby="t-apports" className="flex flex-col gap-7 px-5 lg:px-20 pt-14 lg:pt-24">
+        <div className="flex flex-col gap-3 max-w-[48.75rem]">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent">Ce que notre méthode change</span>
+          <TitreSection id="t-apports">Toutes les courses ne se valent pas.</TitreSection>
+          <p className="text-[0.9375rem] lg:text-[1.0625rem] font-medium leading-relaxed text-muted">
+            Jouer toutes les courses au même niveau, c’est traiter de la même façon une épreuve lisible et un peloton où
+            personne ne peut départager. Notre méthode les sépare&nbsp;: un niveau de confiance par course, qui dit
+            celles où notre modèle se détache nettement — et celles où mieux vaut passer son tour.
+          </p>
+        </div>
+
+        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {APPORTS.map((a) => (
+            <div key={a.titre} className="flex flex-col gap-2 p-6 rounded-3xl bg-surface border border-line">
+              <span className="min-h-11 flex items-end text-[1.375rem] lg:text-[1.625rem] font-extrabold tracking-[-0.03em] leading-tight text-accent">
+                {a.tete}
+              </span>
+              <h3 className="text-[1.0625rem] font-bold leading-snug">{a.titre}</h3>
+              <p className="text-sm font-medium leading-relaxed text-muted">{a.texte}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* L'exemple : les deux bouts de l'échelle de confiance, côte à côte. */}
+        <div className="flex flex-col gap-5 p-[1.375rem] lg:px-9 lg:py-8 rounded-4xl bg-surface border border-line">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent">Un exemple</span>
+              <span className="text-[1.1875rem] lg:text-[1.4375rem] font-extrabold tracking-[-0.02em] leading-[1.2]">
+                Deux courses de la même réunion, deux lectures différentes
+              </span>
+            </div>
+            <a
+              href={URL_INSCRIPTION}
+              className="shrink-0 h-[3.125rem] px-6 rounded-full bg-accent text-accent-ink flex items-center justify-center text-[0.9375rem] font-bold hover:bg-accent-hover transition-colors"
+            >
+              Essayer gratuitement
+            </a>
+          </div>
+
+          <div className="grid gap-3.5 lg:grid-cols-2">
+            {EXEMPLES_CONFIANCE.map((c) => (
+              <figure
+                key={c.nom}
+                aria-label={`Exemple : ${c.nom}, ${c.confiance.toLowerCase()}`}
+                className="m-0 flex flex-col gap-3.5 p-6 rounded-3xl bg-canvas border border-line"
+              >
+                <div className="flex items-center justify-between gap-2.5">
+                  <span className="num text-xs font-semibold text-faint">{c.repere}</span>
+                  <span
+                    className={`shrink-0 h-7 px-3 rounded-full flex items-center text-xs font-extrabold whitespace-nowrap ${
+                      c.serre ? 'bg-warn/[0.14] text-warn' : 'bg-accent/[0.14] text-accent'
+                    }`}
+                  >
+                    {c.confiance}
+                  </span>
+                </div>
+                <span className="text-[1.25rem] font-extrabold tracking-[-0.02em]">{c.nom}</span>
+                <ol>
+                  {c.partants.map((p) => (
+                    <li
+                      key={p.numero}
+                      /* Sur téléphone, la barre disparaît et le pourcentage reste seul.
+                         Mesuré le 22/11/2026 à 375 px : avec la colonne de 6 rem, la
+                         figure ne laissait que 30 px au nom le plus serré — « Belle de
+                         Cordes » devenait illisible. Une barre de 30 px n'apprend rien
+                         que le pourcentage ne dise déjà. */
+                      className="grid grid-cols-[1.75rem_minmax(0,1fr)_2.75rem] sm:grid-cols-[1.875rem_minmax(0,1fr)_6rem] items-center gap-2.5 h-10 border-t border-track"
+                    >
+                      <span className="num w-7 h-7 rounded-lg bg-raised border border-line-strong grid place-items-center text-xs font-bold">
+                        {p.numero}
+                      </span>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm font-semibold truncate">{p.nom}</span>
+                        {p.ecart && (
+                          <span className="shrink-0 h-[1.375rem] px-2 rounded-full bg-accent/[0.14] text-accent flex items-center text-[0.6875rem] font-extrabold">
+                            {LIBELLE_ECART}
+                          </span>
+                        )}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="hidden sm:block grow h-1.5 rounded-full bg-track overflow-hidden">
+                          <span
+                            className={`block h-full rounded-full ${c.serre ? 'bg-warn' : 'bg-accent'}`}
+                            style={{ width: `${Math.round((p.victoire / MAX_EXEMPLES) * 100)}%` }}
+                          />
+                        </span>
+                        <span className="num w-[1.875rem] text-right text-[0.8125rem] font-bold">
+                          {pourcent(p.victoire)}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                <figcaption className="text-sm font-medium leading-relaxed text-soft">{c.lecture}</figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <Fictif />
+        </div>
+
+        {/* AUCUN TAUX N'EST ÉCRIT ICI — arbitrage du fondateur, 22/11/2026 : l'encart
+            dit la méthode, pas les chiffres. Les mesures qui FONDENT l'affirmation
+            restent en tête de ce fichier et dans `site/CLAUDE.md` ; elles ne sont pas
+            perdues, elles ne sont simplement pas à l'écran. Le bénéfice est aussi
+            pratique : un taux imprimé ici vieillirait à chaque journée de courses,
+            alors que l'application le recalcule avec son effectif.
+            Les trois mentions obligatoires, elles, restent : c'est la seule section du
+            site qui parle de rendement. */}
+        <p className="text-[0.8125rem] font-medium leading-relaxed text-faint">
+          Une probabilité reste une estimation, aucun résultat n’est garanti, et les performances passées ne préjugent
+          pas des résultats futurs. Nos taux de réussite, avec leur effectif et leur période, se consultent dans
+          l’application.
+        </p>
       </section>
 
       {/* ── Transparence ──────────────────────────────────────────────────── */}

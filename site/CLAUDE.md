@@ -260,6 +260,35 @@ misez que… », page Jeu responsable) : **rien de cela n'est repris**.
 - **Vocabulaire banni** : pari, parier, mise, miser, jouer, joueur, jeu d'argent, gain,
   gagner de l'argent, rendement, rentable, ROI, bankroll, value, cash, « bon plan »,
   « tuyau », « coup sûr », « conseil » (sauf pour dire que nous n'en sommes pas un).
+- **UNE SECONDE EXCEPTION, accordée par le fondateur le 22/11/2026 : l'encart « Ce que
+  notre méthode change » de l'accueil (`#apports`) parle aux parieurs avec leurs mots** —
+  jouer, mise à plat, rendement. Demande explicite et répétée du fondateur, qui la fonde
+  sur le public réel du produit. **Elle est bornée à cette section** : le reste du site, les
+  articles, les titres SEO et l'application gardent le vocabulaire neutre, et la liste
+  ci-dessus n'est pas levée. Ne pas étendre l'exception sans un nouvel arbitrage, ne pas la
+  retirer au nom de la règle générale.
+  **Ce que l'encart affirme est COMPARATIF, et c'est la limite à tenir** : trier par la
+  confiance fait mieux que jouer toutes les courses au même niveau. Mesuré le 22/11/2026 sur
+  `resultats_publics`, du 11/09 au 22/11/2026 (1 572 courses jugées) : rendement d'une mise à
+  plat sur notre favori de −27,5 % sur les pelotons très ouverts (452 courses cotées), −5,7 %
+  en confiance faible (489) et +4,3 % quand le modèle se détache (312). La progression est
+  monotone et l'écart entre les extrêmes vaut 32 points pour une erreur-type de 13
+  (p ≈ 0,014) : c'est cet écart qui fonde la phrase.
+  **Aucun de ces chiffres n'est écrit à l'écran** (même arbitrage, 22/11/2026, après une
+  première version qui en portait trois) : l'encart dit la méthode, les taux restent dans
+  l'application, où ils sont recalculés avec leur effectif. Les mesures ci-dessus sont la
+  justification de la phrase, pas son contenu — ne pas les reporter sur la page, ne pas les
+  effacer d'ici.
+  **Ce qui reste interdit : écrire que la méthode rapporte.** Le +4,3 % porte un intervalle à
+  95 % allant de −13,5 % à +22,1 % — il ne se distingue pas de zéro. Il faudrait environ
+  5 300 courses cotées dans cette bande pour trancher, contre 312 aujourd'hui, soit trois à
+  quatre ans au rythme actuel ; et seules 312 des 487 courses ont une cote, les réunions
+  cotées étant les plus grosses. Une promesse de gain serait un chiffre inventé, que
+  l'avant-dernier point de cette liste interdit. Les trois mentions obligatoires ferment
+  l'encart.
+  **Point ouvert, à trancher** : parler de rendement à des parieurs rapproche le site du
+  conseil en mise, c'est-à-dire du périmètre de l'ANJ. Les CGV/CGU n'existent toujours pas.
+  À relire avec un juriste avant d'étendre ce ton à d'autres pages.
 - **UNE EXCEPTION, accordée par le fondateur le 28/10/2026 : « Quinté+ ».** Il la tient pour
   la désignation usuelle du grand rendez-vous de la journée, et non pour une invitation à
   parier. Le terme est donc autorisé pour NOMMER une course, et à rien d'autre : ni

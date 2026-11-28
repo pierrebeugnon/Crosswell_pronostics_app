@@ -97,6 +97,14 @@ export const LIBELLE_ECART = 'Écart +'
 export const SEUILS_CONFIANCE = { elevee: 0.46, moyenne: 0.27 } as const
 
 /**
+ * « Peloton très ouvert » : sous ce seuil des chances de notre favori, une
+ * course à confiance « Faible » porte une mention de plus dans l'app (en-tête
+ * de course, carte « Prochaine course »). Doit rester égal à
+ * `SEUIL_PELOTON_OUVERT` de `src/config/app.ts`.
+ */
+export const SEUIL_PELOTON_OUVERT = 0.18
+
+/**
  * LES FORMULES, et leur prix — ceux des maquettes, retenus par le fondateur le
  * 18/09/2026 (Gratuit, Pass 1 jour, mensuel, annuel).
  *
