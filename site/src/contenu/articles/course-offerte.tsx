@@ -8,17 +8,18 @@ import { FORMULES, RYTHME_PUBLICATION, inscrireAvec } from '@/config/site'
  * Il vise « pronostic hippique gratuit » et mène à l'inscription. Lié depuis
  * l'article pilier (`comprendre-crosswell`), section « Gratuit ou Pass ».
  *
- * LA RÈGLE DÉCRITE EST CELLE DE LA BASE, `crosswell_courses_offertes` (db/024,
- * décision du fondateur du 28/11/2026) : la course où notre 1er a la plus forte
- * probabilité de victoire, puis la première au départ. Elle ne change pas dans
- * la journée : les prédictions s'écrivent une fois le matin, et la course reste
- * offerte si notre 1er est retiré. Elle remplace « le plus gros peloton »
- * (db/009) ; l'article a été réécrit le 28/11 (`miseAJour`).
+ * LA RÈGLE DÉCRITE EST CELLE DE LA BASE, `crosswell_courses_offertes` (db/024
+ * et db/025, décisions du fondateur du 28/11/2026) : dans les réunions PMU (au
+ * moins une cote du matin), la course où notre 1er a la plus forte probabilité
+ * de victoire, puis la première au départ. Elle ne change plus une fois les
+ * cotes du matin relevées (vers 7 h 45), et la course reste offerte si notre
+ * 1er est retiré. Elle remplace « le plus gros peloton » (db/009) ; l'article
+ * a été réécrit le 28/11 (`miseAJour`).
  *
  * LES CHIFFRES SONT DATÉS ET MESURÉS le 28/11/2026, en appliquant cette règle
  * aux 78 journées publiées du 11/09 au 27/11/2026, sur le classement de
  * « Nos résultats » (vue crosswell_predictions_servies) : notre 1er a remporté
- * 30 de ces courses et fini 58 fois dans les 3 premiers ; 6,5 partants au
+ * 28 de ces courses et fini 59 fois dans les 3 premiers ; 6,8 partants au
  * départ en moyenne. Ils restent vrais à leur date ; ils ne se mettent pas à jour.
  */
 export default function CourseOfferte() {
@@ -45,20 +46,20 @@ export default function CourseOfferte() {
 
       <H2 id="quelle-course">Quelle course est offerte&nbsp;?</H2>
       <P>
-        La course où nos chiffres sont les plus sûrs&nbsp;: celle où notre favori a la plus forte chance de gagner. À
-        égalité, la première au départ l’emporte. La règle est la même chaque jour, et la course offerte annoncée le
-        matin reste la même jusqu’au soir, même si un cheval est retiré.
+        La course où nos chiffres sont les plus sûrs&nbsp;: parmi les réunions suivies par le PMU, celle où notre favori
+        a la plus forte chance de gagner. À égalité, la première au départ l’emporte. La règle est la même chaque jour,
+        et la course offerte annoncée le matin reste la même jusqu’au soir, même si un cheval est retiré.
       </P>
       <P>
         C’est souvent un petit peloton, où un cheval se détache. Vous voyez notre modèle là où il est le plus
         affirmatif, et vous pouvez vérifier chaque soir s’il avait raison.
       </P>
       <Chiffre
-        valeur="58 sur 78"
+        valeur="59 sur 78"
         source="Règle de la course offerte appliquée aux 78 journées publiées du 11 septembre au 27 novembre 2026"
       >
-        Les journées où notre favori de la course offerte a fini dans les trois premiers. Il l’a remportée 30 fois,
-        soit 38&nbsp;%. Ces courses comptaient en moyenne 6,5 partants au départ.
+        Les journées où notre favori de la course offerte a fini dans les trois premiers. Il l’a remportée 28 fois,
+        soit 36&nbsp;%. Ces courses comptaient en moyenne 6,8 partants au départ.
       </Chiffre>
 
       <H2 id="ou-la-trouver">Où la trouver dans l’application</H2>

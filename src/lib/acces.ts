@@ -91,6 +91,10 @@ export function courseOfferte(duJour: readonly Course[]): Course | null {
  * lignes comprises, non-partants aussi, comme la base), puis la première au
  * départ, l'hippodrome et le numéro. Une course à venir (aucune place relevée)
  * autre que celle-là perd rang et probabilités, et porte `verrouille`.
+ *
+ * Le critère « réunion PMU d'abord » de `db/025` n'est pas reproduit : les
+ * lignes de `client_predictions` (et donc celles de la démo) n'ont pas de cote
+ * du matin. La base retombe sur la même règle quand aucune réunion n'en a.
  */
 export function verrouillerLignes(lignes: readonly LignePrediction[], aujourdhui: string): LignePrediction[] {
   const cle = (l: LignePrediction) => `${l.reunion_date}|${l.hippodrome}|${l.course_num}`
