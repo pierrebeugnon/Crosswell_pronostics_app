@@ -77,8 +77,8 @@ import { pourcent } from '@/lib/format'
  *   complète, confiance comprise ; une course jugée s'ouvre à tous ; les autres
  *   courses à venir affichent « Avec un Pass » à la place. La course offerte
  *   est, depuis le 28/11, celle où notre 1er a la plus forte chance (db/024),
- *   donc le niveau le plus haut du jour ; le texte ne promet pas qu'il soit
- *   « Élevée » (16 journées sur 28 du 31/10 au 27/11).
+ *   mais le texte ne le dit pas : consigne du fondateur, ne pas la présenter
+ *   comme notre course la plus sûre (voir `course-offerte.tsx`).
  *
  * CE QUI N'EST PAS ÉCRIT, ET POURQUOI
  * - La capture du panneau de « Nos résultats » : elle affiche des taux, même
@@ -265,8 +265,8 @@ export default function NiveauConfiance() {
       <H2 id="formule-gratuite">Dès la formule gratuite</H2>
       <P>
         Avec un compte gratuit, la <Link to="/blog/pronostic-hippique-gratuit-course-offerte">course offerte du jour</Link>{' '}
-        est ouverte en entier, niveau de confiance compris. C’est celle où notre favori a la plus forte chance de
-        gagner, donc le niveau le plus haut de la journée&nbsp;: vous voyez notre modèle là où il est le plus affirmatif.
+        est ouverte en entier, niveau de confiance compris&nbsp;: vous voyez d’emblée si notre favori se détache ou si la
+        course reste ouverte.
         Les courses déjà jugées restent lisibles par tous les comptes, niveau compris.
       </P>
       <P>

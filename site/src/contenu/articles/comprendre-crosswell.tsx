@@ -13,7 +13,8 @@ import { FORMULES, NOTE_NON_PARTANTS, RYTHME_PUBLICATION, SEUILS_CONFIANCE, insc
  *
  * CE QUI EST ÉCRIT DE L'OFFRE A ÉTÉ VÉRIFIÉ DANS L'APPLICATION ET EN BASE le
  * 08/11/2026 : la course offerte est celle de `client_predictions` (depuis le
- * 28/11, db/024 : la plus forte chance de notre 1er) ; les fiches jockey et
+ * 28/11, db/024-025 ; le texte ne la présente pas comme notre course la plus
+ * sûre, consigne du fondateur, voir `course-offerte.tsx`) ; les fiches jockey et
  * entraîneur sont réservées aux Pass (`pages/Professionnel.tsx`) ; la fiche
  * cheval et le comparateur vivent sur les courses ouvertes ; les courses jugées
  * restent ouvertes à tous. Toute évolution de ces règles se reporte ici.
@@ -117,8 +118,8 @@ export default function ComprendreCrosswell() {
       <H2 id="gratuit-ou-pass">Gratuit ou Pass&nbsp;: ce que chaque formule ouvre</H2>
       <P>
         La formule gratuite vous donne chaque jour un pronostic complet&nbsp;: celui de la{' '}
-        <Link to="/blog/pronostic-hippique-gratuit-course-offerte">course du jour où notre favori a la plus forte chance</Link>{' '}
-        de gagner. Un Pass ouvre tout le reste.
+        <Link to="/blog/pronostic-hippique-gratuit-course-offerte">course offerte du jour</Link>, choisie chaque matin
+        dans une réunion suivie par le PMU. Un Pass ouvre tout le reste.
       </P>
       <Tableau
         entetes={['', 'Gratuit', 'Avec un Pass']}
@@ -161,8 +162,8 @@ export default function ComprendreCrosswell() {
 
       <H2 id="commencer">Commencer gratuitement</H2>
       <P>
-        Ouvrez un compte en une minute, sans carte bancaire&nbsp;: la course où notre favori a la plus forte chance vous
-        attend, entièrement chiffrée. Quand vous voulez tout le programme, un Pass l’ouvre dès {prix('jour')}.
+        Ouvrez un compte en une minute, sans carte bancaire&nbsp;: la course offerte du jour vous attend, entièrement
+        chiffrée. Quand vous voulez tout le programme, un Pass l’ouvre dès {prix('jour')}.
       </P>
       <P>
         <a href={inscrireAvec('gratuit')} rel="noopener noreferrer">

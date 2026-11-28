@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Chiffre, Encadre, H2, Liste, P } from '@/components/blog/Corps'
+import { Encadre, H2, Liste, P } from '@/components/blog/Corps'
 import { FORMULES, RYTHME_PUBLICATION, inscrireAvec } from '@/config/site'
 
 /**
@@ -8,19 +8,20 @@ import { FORMULES, RYTHME_PUBLICATION, inscrireAvec } from '@/config/site'
  * Il vise « pronostic hippique gratuit » et mène à l'inscription. Lié depuis
  * l'article pilier (`comprendre-crosswell`), section « Gratuit ou Pass ».
  *
- * LA RÈGLE DÉCRITE EST CELLE DE LA BASE, `crosswell_courses_offertes` (db/024
- * et db/025, décisions du fondateur du 28/11/2026) : dans les réunions PMU (au
- * moins une cote du matin), la course où notre 1er a la plus forte probabilité
- * de victoire, puis la première au départ. Elle ne change plus une fois les
- * cotes du matin relevées (vers 7 h 45), et la course reste offerte si notre
- * 1er est retiré. Elle remplace « le plus gros peloton » (db/009) ; l'article
- * a été réécrit le 28/11 (`miseAJour`).
+ * LA RÈGLE DE LA BASE, `crosswell_courses_offertes` (db/024 et db/025, 28/11) :
+ * dans les réunions PMU (au moins une cote du matin), la course où notre 1er a
+ * la plus forte probabilité de victoire, puis la première au départ. Elle ne
+ * change plus une fois les cotes du matin relevées (vers 7 h 45), et la course
+ * reste offerte si notre 1er est retiré. Elle remplace « le plus gros
+ * peloton » (db/009) ; l'article a été réécrit le 28/11 (`miseAJour`).
  *
- * LES CHIFFRES SONT DATÉS ET MESURÉS le 28/11/2026, en appliquant cette règle
- * aux 78 journées publiées du 11/09 au 27/11/2026, sur le classement de
- * « Nos résultats » (vue crosswell_predictions_servies) : notre 1er a remporté
- * 28 de ces courses et fini 59 fois dans les 3 premiers ; 6,8 partants au
- * départ en moyenne. Ils restent vrais à leur date ; ils ne se mettent pas à jour.
+ * CE QUE L'ARTICLE NE DIT PAS, consigne du fondateur du 28/11/2026 : il ne
+ * présente PAS la course offerte comme « notre course la plus sûre », et ne
+ * publie aucun taux de réussite propre à cette course. Sinon le lecteur croit
+ * que nous ne montrons que les courses où nous sommes quasi sûrs, et il ne
+ * peut pas nous juger sur elles. Franchise oui, se desservir non : l'article
+ * dit où elle est choisie (une réunion PMU) et renvoie à « Nos résultats »,
+ * qui jugent le modèle sur TOUTES les courses.
  */
 export default function CourseOfferte() {
   const passJour = FORMULES.find((f) => f.cle === 'jour')?.prix ?? ''
@@ -46,21 +47,15 @@ export default function CourseOfferte() {
 
       <H2 id="quelle-course">Quelle course est offerte&nbsp;?</H2>
       <P>
-        La course où nos chiffres sont les plus sûrs&nbsp;: parmi les réunions suivies par le PMU, celle où notre favori
-        a la plus forte chance de gagner. À égalité, la première au départ l’emporte. La règle est la même chaque jour,
-        et la course offerte annoncée le matin reste la même jusqu’au soir, même si un cheval est retiré.
+        Chaque matin, notre modèle désigne une course du jour, toujours dans une réunion suivie par le PMU&nbsp;: une
+        course que vous pouvez regarder en direct et mettre en face des cotes. La course offerte annoncée le matin reste
+        la même jusqu’au soir, même si un cheval est retiré.
       </P>
       <P>
-        C’est souvent un petit peloton, où un cheval se détache. Vous voyez notre modèle là où il est le plus
-        affirmatif, et vous pouvez vérifier chaque soir s’il avait raison.
+        Pour juger notre modèle, ne vous arrêtez pas à une course. La page{' '}
+        <Link to="/resultats">«&nbsp;Nos résultats&nbsp;»</Link> publie chaque arrivée, course par course, en face de ce
+        que nous avions annoncé le matin&nbsp;: toutes les courses, pas seulement celle qui vous est offerte.
       </P>
-      <Chiffre
-        valeur="59 sur 78"
-        source="Règle de la course offerte appliquée aux 78 journées publiées du 11 septembre au 27 novembre 2026"
-      >
-        Les journées où notre favori de la course offerte a fini dans les trois premiers. Il l’a remportée 28 fois,
-        soit 36&nbsp;%. Ces courses comptaient en moyenne 6,8 partants au départ.
-      </Chiffre>
 
       <H2 id="ou-la-trouver">Où la trouver dans l’application</H2>
       <P>
@@ -107,7 +102,7 @@ export default function CourseOfferte() {
         <a href={inscrireAvec('gratuit')} rel="noopener noreferrer">
           Créer mon compte gratuit
         </a>
-        &nbsp;: la course où notre favori a la plus forte chance vous attend, entièrement chiffrée.
+        &nbsp;: la course offerte du jour vous attend, entièrement chiffrée.
       </P>
     </>
   )
